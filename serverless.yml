@@ -1,0 +1,59 @@
+service: venzra-api
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: eu-west-1
+  memorySize: 128
+  timeout: 5
+  environment:
+    ADMIN_URL: ${file(./config.json):${opt:stage}.ADMIN_URL}
+    CONTACT_EMAIL: ${file(./config.json):${opt:stage}.CONTACT_EMAIL}
+    DB_URI: ${file(./config.json):${opt:stage}.DB_URI}
+    MARKETING_URL: ${file(./config.json):${opt:stage}.MARKETING_URL}
+    REPLY_TO: ${file(./config.json):${opt:stage}.REPLY_TO}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "ses:SendEmail"
+      Resource: '*'
+
+plugins:
+  - serverless-domain-manager
+  - serverless-offline
+
+functions:
+  accountRegistration:
+    description: 'Registration of new subscription user account'
+    handler: src/controllers/accounts/registration.createOne
+    events:
+      - http:
+          path: accounts/registration
+          method: post
+          integration: lambda-proxy
+          cors: true
+  subscriptionPlans:
+    description: 'Retrieval of available subscription plans'
+    handler: src/controllers/subscription/plans.findAll
+    events:
+      - http:
+          path: subscription/plans
+          method: get
+          integration: lambda-proxy
+          cors: true
+  supportContact:
+    description: 'Sending of support and contact emails'
+    handler: src/controllers/support/contact.sendEmail
+    events:
+      - http:
+          path: support/contact
+          method: post
+          integration: lambda-proxy
+          cors: true
+
+custom:
+  customDomain:
+    domainName: ${file(./config.json):${opt:stage}.API_DOMAIN}
+    basePath: ''
+    stage: ${opt:stage}
+    createRoute53Record: true

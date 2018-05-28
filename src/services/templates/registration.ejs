@@ -1,0 +1,29 @@
+<%- include('common/header.ejs', { subject }) %>
+            <tr>
+                <td>
+                    <h2>Welcome to Venzra,</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>Thank you for registering, to conclude your registration please follow the activation link in this email. If you have previously registered you will be able to use this link to also recover your account details.</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>Please notice that this activation link will only be
+                        <strong>valid until <%= expires %></strong>. After this time you would be required to
+                        <a href="<%= marketingUrl %>">register</a> again to receive an updated activation link.</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="centered">
+                    <a class="btn" href="<%= validationUrl %>">Activate account</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="centered">
+                    <a href="<%= validationUrl %>"><%= validationUrl %></a>
+                </td>
+            </tr>
+<%- include('common/footer.ejs') %>

@@ -1,0 +1,26 @@
+{
+    "dev": {
+        "ADMIN_URL": "http://localhost:8181",
+        "API_DOMAIN": "localhost:3000",
+        "CONTACT_EMAIL": "contact@sysen.co.uk",
+        "MARKETING_URL": "http://localhost:8080",
+        "REPLY_TO": "admin@sysen.co.uk",
+        "DB_URI": "mongodb://localhost/venzra"
+    },
+    "test": {
+        "ADMIN_URL": "https://admin.venzra-test.com",
+        "API_DOMAIN": "api.venzra-test.com",
+        "CONTACT_EMAIL": "contact@venzra-test.com",
+        "MARKETING_URL": "https://www.venzra-test.com",
+        "REPLY_TO": "automation@venzra-test.com",
+        "DB_URI": "mongodb://localhost/venzra-test"
+    },
+    "production": {
+        "ADMIN_URL": "https://admin.venzra.com",
+        "API_DOMAIN": "api.venzra.com",
+        "CONTACT_EMAIL": "contact@venzra.com",
+        "MARKETING_URL": "https://www.venzra.com",
+        "REPLY_TO": "automation@venzra.com",
+        "DB_URI": "{{ DatabaseUri }}"
+    }
+}
