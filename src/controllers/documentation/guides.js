@@ -1,0 +1,34 @@
+const fs = require('fs');
+const path = require('path');
+
+const findOne = (event, context, done) => {
+    const params = event.pathParameters;
+    const documentPath = path.join(__dirname, params.section, `${params.page}.md`);
+
+    fs.readFile(documentPath, 'utf-8', (err, data) => {
+        if (err) {
+            return done(null, { statusCode: 404 });
+        }
+
+        let result = {};
+        const liquid = data.split('-----');
+
+        if (liquid.length > 1) {
+            const meta = liquid[0].split('\n');
+            meta.forEach((description) => {
+                const pos = description.indexOf('=');
+                if (pos > 0) {
+                    const field = description.substr(0, pos - 1).trim();
+                    result[field] = description.substr(pos + 1).trim();
+                }
+            });
+            result.content = liquid[1].trim();
+        } else {
+            result.content = liquid[0].trim();
+        }
+
+        return done(null, { statusCode: 200, body: JSON.stringify(result) });
+    });
+};
+
+module.exports = { findOne };

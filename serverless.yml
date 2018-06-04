@@ -32,6 +32,15 @@ functions:
           method: post
           integration: lambda-proxy
           cors: true
+  documentationRetrieve:
+    description: 'Retrieve platform documentation content'
+    handler: src/controllers/documentation/guides.findOne
+    events:
+      - http:
+          path: documentation/{section}/{page}
+          method: get
+          integration: lambda-proxy
+          cors: true
   subscriptionPlans:
     description: 'Retrieval of available subscription plans'
     handler: src/controllers/subscription/plans.findAll

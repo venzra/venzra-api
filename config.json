@@ -4,7 +4,7 @@
         "API_DOMAIN": "localhost:3000",
         "CONTACT_EMAIL": "contact@venzra-test.com",
         "MARKETING_URL": "http://localhost:8080",
-        "REPLY_TO": "webmaster@venzra-test.com",
+        "REPLY_TO": "support@venzra-test.com",
         "DB_URI": "mongodb://localhost/venzra"
     },
     "test": {
@@ -12,7 +12,7 @@
         "API_DOMAIN": "api.venzra-test.com",
         "CONTACT_EMAIL": "contact@venzra-test.com",
         "MARKETING_URL": "https://www.venzra-test.com",
-        "REPLY_TO": "automation@venzra-test.com",
+        "REPLY_TO": "support@venzra-test.com",
         "DB_URI": "mongodb://localhost/venzra-test"
     },
     "production": {
@@ -20,7 +20,7 @@
         "API_DOMAIN": "api.venzra.com",
         "CONTACT_EMAIL": "contact@venzra.com",
         "MARKETING_URL": "https://www.venzra.com",
-        "REPLY_TO": "webmaster@venzra.com",
+        "REPLY_TO": "support@venzra.com",
         "DB_URI": "{{ DatabaseUri }}"
     }
 }
