@@ -6,6 +6,7 @@ const config = require('../../config');
 const databaseConnect = require('../../database');
 
 const { mailer } = require('../../services/mailer.service');
+const { security } = require('../../services/security.service');
 const Accounts = require('../../models/accounts.schema');
 
 const findOne = (event, context, done) => {
@@ -17,7 +18,7 @@ const findOne = (event, context, done) => {
         .then((account) => {
             const response = {
                 statusCode: 200,
-                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                headers: security.accessControl(event.headers),
                 body: JSON.stringify(account)
             };
             return done(null, response);
@@ -25,7 +26,7 @@ const findOne = (event, context, done) => {
         .catch((err) => {
             const response = {
                 statusCode: 404,
-                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                headers: security.accessControl(event.headers),
                 body: JSON.stringify(err)
             };
             return done(null, response)
@@ -89,7 +90,7 @@ const createOne = (event, context, done) => {
         .catch(() => {
             const response = {
                 statusCode: 400,
-                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                headers: security.accessControl(event.headers),
                 body: JSON.stringify({ error: 'Bad Request' })
             };
             return done(null, response);

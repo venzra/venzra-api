@@ -3,7 +3,6 @@
         "ADMIN_URL": "http://localhost:8181",
         "API_DOMAIN": "localhost:3000",
         "CONTACT_EMAIL": "contact@venzra-test.com",
-        "CROSS_ORIGIN_REQUESTS": "*",
         "MARKETING_URL": "http://localhost:8080",
         "REPLY_TO": "support@venzra-test.com",
         "DB_URI": "mongodb://localhost/venzra"
@@ -12,7 +11,6 @@
         "ADMIN_URL": "https://admin.venzra-test.com",
         "API_DOMAIN": "api.venzra-test.com",
         "CONTACT_EMAIL": "contact@venzra-test.com",
-        "CROSS_ORIGIN_REQUESTS": "*.venzra-test.com",
         "MARKETING_URL": "https://www.venzra-test.com",
         "REPLY_TO": "support@venzra-test.com",
         "DB_URI": "mongodb://localhost/venzra-test"
@@ -21,7 +19,6 @@
         "ADMIN_URL": "https://admin.venzra.com",
         "API_DOMAIN": "api.venzra.com",
         "CONTACT_EMAIL": "contact@venzra.com",
-        "CROSS_ORIGIN_REQUESTS": "*.venzra.com",
         "MARKETING_URL": "https://www.venzra.com",
         "REPLY_TO": "support@venzra.com",
         "DB_URI": "{{ DatabaseUri }}"

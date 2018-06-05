@@ -1,6 +1,8 @@
 const databaseConnect = require('../../database');
 const Plans = require('../../models/plans.schema');
 
+const { security } = require('../../services/security.service');
+
 const findAll = (event, context, done) => {
     context.callbackWaitsForEmptyEventLoop = false;
 
@@ -20,7 +22,7 @@ const findAll = (event, context, done) => {
                         .then((list) => {
                             const response = {
                                 statusCode: 200,
-                                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                                headers: security.accessControl(event.headers),
                                 body: JSON.stringify({ list, total })
                             };
                             return done(null, response)
@@ -29,7 +31,7 @@ const findAll = (event, context, done) => {
         .catch((planError) => {
             const response = {
                 statusCode: 500,
-                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                headers: security.accessControl(event.headers),
                 body: JSON.stringify(planError)
             };
             return done(null, response)

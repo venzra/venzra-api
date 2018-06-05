@@ -12,7 +12,6 @@ provider:
     DB_URI: ${file(./config.json):${opt:stage}.DB_URI}
     MARKETING_URL: ${file(./config.json):${opt:stage}.MARKETING_URL}
     REPLY_TO: ${file(./config.json):${opt:stage}.REPLY_TO}
-    CROSS_ORIGIN_REQUESTS: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
   iamRoleStatements:
     - Effect: "Allow"
       Action:

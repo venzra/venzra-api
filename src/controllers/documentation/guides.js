@@ -1,10 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 
+const { security } = require('../../services/security.service');
+
 const findOne = (event, context, done) => {
     const params = event.pathParameters;
     const documentPath = path.join(__dirname, params.section, `${params.page}.md`);
 
+    console.log(event);
     fs.readFile(documentPath, 'utf-8', (err, data) => {
         if (err) {
             return done(null, { statusCode: 404 });
@@ -29,7 +32,7 @@ const findOne = (event, context, done) => {
 
         const response = {
             statusCode: 200,
-            headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+            headers: security.accessControl(event.headers),
             body: JSON.stringify(result)
         };
         return done(null, response);

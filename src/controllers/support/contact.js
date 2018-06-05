@@ -1,5 +1,6 @@
 const config = require('../../config');
 const { mailer } = require('../../services/mailer.service');
+const { security } = require('../../services/security.service');
 
 const sendEmail = (event, context, done) => {
     context.callbackWaitsForEmptyEventLoop = false;
@@ -15,7 +16,7 @@ const sendEmail = (event, context, done) => {
     if (errors.length) {
         const response = {
             statusCode: 400,
-            headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+            headers: security.accessControl(event.headers),
             body: JSON.stringify({ errors })
         };
         return done(null, response);
@@ -38,14 +39,14 @@ const sendEmail = (event, context, done) => {
         .then(() => {
             const response = {
                 statusCode: 202,
-                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] }
+                headers: security.accessControl(event.headers)
             };
             return done(null, response);
         })
         .catch((error) => {
             const response = {
                 statusCode: 500,
-                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                headers: security.accessControl(event.headers),
                 body: JSON.stringify(error)
             };
             return done(null, response);
