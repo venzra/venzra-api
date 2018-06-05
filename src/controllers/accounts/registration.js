@@ -29,7 +29,7 @@ const findOne = (event, context, done) => {
                 headers: security.accessControl(event.headers),
                 body: JSON.stringify(err)
             };
-            return done(null, response)
+            return done(null, response);
         });
 };
 

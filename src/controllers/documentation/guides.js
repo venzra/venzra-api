@@ -7,10 +7,13 @@ const findOne = (event, context, done) => {
     const params = event.pathParameters;
     const documentPath = path.join(__dirname, params.section, `${params.page}.md`);
 
-    console.log(event);
     fs.readFile(documentPath, 'utf-8', (err, data) => {
         if (err) {
-            return done(null, { statusCode: 404 });
+            const response = {
+                statusCode: 404,
+                headers: security.accessControl(event.headers)
+            };
+            return done(null, response);
         }
 
         let result = {};

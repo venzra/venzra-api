@@ -25,7 +25,7 @@ const findAll = (event, context, done) => {
                                 headers: security.accessControl(event.headers),
                                 body: JSON.stringify({ list, total })
                             };
-                            return done(null, response)
+                            return done(null, response);
                         })
                 ))
         .catch((planError) => {
@@ -34,7 +34,7 @@ const findAll = (event, context, done) => {
                 headers: security.accessControl(event.headers),
                 body: JSON.stringify(planError)
             };
-            return done(null, response)
+            return done(null, response);
         });
 };
 
