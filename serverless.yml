@@ -31,7 +31,11 @@ functions:
           path: accounts/registration
           method: post
           integration: lambda-proxy
-          cors: true
+          cors:
+            origin: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
+            headers:
+              - Content-Type
+            allowCredentials: true
   documentationRetrieve:
     description: 'Retrieve platform documentation content'
     handler: src/controllers/documentation/guides.findOne
@@ -40,7 +44,11 @@ functions:
           path: documentation/{section}/{page}
           method: get
           integration: lambda-proxy
-          cors: true
+          cors:
+            origin: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
+            headers:
+              - Content-Type
+            allowCredentials: true
   subscriptionPlans:
     description: 'Retrieval of available subscription plans'
     handler: src/controllers/subscription/plans.findAll
@@ -49,7 +57,11 @@ functions:
           path: subscription/plans
           method: get
           integration: lambda-proxy
-          cors: true
+          cors:
+            origin: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
+            headers:
+              - Content-Type
+            allowCredentials: true
   supportContact:
     description: 'Sending of support and contact emails'
     handler: src/controllers/support/contact.sendEmail
@@ -58,7 +70,11 @@ functions:
           path: support/contact
           method: post
           integration: lambda-proxy
-          cors: true
+          cors:
+            origin: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
+            headers:
+              - Content-Type
+            allowCredentials: true
 
 custom:
   customDomain:
