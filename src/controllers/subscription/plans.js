@@ -17,9 +17,23 @@ const findAll = (event, context, done) => {
                             { $sort: order },
                             { $project: { reference: 1, name: 1, currency: 1, price: 1, interval: 1, frequency: 1 } }
                         ])
-                        .then((list) => done(null, { statusCode: 200, body: JSON.stringify({ list, total }) }))
+                        .then((list) => {
+                            const response = {
+                                statusCode: 200,
+                                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                                body: JSON.stringify({ list, total })
+                            };
+                            return done(null, response)
+                        })
                 ))
-        .catch((planError) => done(planError));
+        .catch((planError) => {
+            const response = {
+                statusCode: 500,
+                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                body: JSON.stringify(planError)
+            };
+            return done(null, response)
+        });
 };
 
 module.exports = { findAll };

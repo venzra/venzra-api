@@ -14,8 +14,22 @@ const findOne = (event, context, done) => {
     Accounts
         .findById(event.pathParameters.accountId)
         .select('_id identity status created updated')
-        .then((account) => done(null, { statusCode: 200, body: JSON.stringify(account) }))
-        .catch((err) => done(null, { statusCode: 404, body: JSON.stringify(err) }));
+        .then((account) => {
+            const response = {
+                statusCode: 200,
+                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                body: JSON.stringify(account)
+            };
+            return done(null, response);
+        })
+        .catch((err) => {
+            const response = {
+                statusCode: 404,
+                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                body: JSON.stringify(err)
+            };
+            return done(null, response)
+        });
 };
 
 const createOne = (event, context, done) => {
@@ -72,7 +86,14 @@ const createOne = (event, context, done) => {
             event.pathParameters = { accountId: account._id };
             return findOne(event, context, done);
         })
-        .catch(() => done(null, { statusCode: 400, body: JSON.stringify({ error: 'Bad Request' }) }));
+        .catch(() => {
+            const response = {
+                statusCode: 400,
+                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                body: JSON.stringify({ error: 'Bad Request' })
+            };
+            return done(null, response);
+        });
 };
 
 module.exports = { createOne, findOne };

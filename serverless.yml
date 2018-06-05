@@ -12,6 +12,7 @@ provider:
     DB_URI: ${file(./config.json):${opt:stage}.DB_URI}
     MARKETING_URL: ${file(./config.json):${opt:stage}.MARKETING_URL}
     REPLY_TO: ${file(./config.json):${opt:stage}.REPLY_TO}
+    CROSS_ORIGIN_REQUESTS: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -31,11 +32,7 @@ functions:
           path: accounts/registration
           method: post
           integration: lambda-proxy
-          cors:
-            origin: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
-            headers:
-              - Content-Type
-            allowCredentials: true
+          cors: true
   documentationRetrieve:
     description: 'Retrieve platform documentation content'
     handler: src/controllers/documentation/guides.findOne
@@ -44,11 +41,7 @@ functions:
           path: documentation/{section}/{page}
           method: get
           integration: lambda-proxy
-          cors:
-            origin: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
-            headers:
-              - Content-Type
-            allowCredentials: true
+          cors: true
   subscriptionPlans:
     description: 'Retrieval of available subscription plans'
     handler: src/controllers/subscription/plans.findAll
@@ -57,11 +50,7 @@ functions:
           path: subscription/plans
           method: get
           integration: lambda-proxy
-          cors:
-            origin: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
-            headers:
-              - Content-Type
-            allowCredentials: true
+          cors: true
   supportContact:
     description: 'Sending of support and contact emails'
     handler: src/controllers/support/contact.sendEmail
@@ -70,11 +59,7 @@ functions:
           path: support/contact
           method: post
           integration: lambda-proxy
-          cors:
-            origin: ${file(./config.json):${opt:stage}.CROSS_ORIGIN_REQUESTS}
-            headers:
-              - Content-Type
-            allowCredentials: true
+          cors: true
 
 custom:
   customDomain:

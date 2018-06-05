@@ -27,7 +27,12 @@ const findOne = (event, context, done) => {
             result.content = liquid[0].trim();
         }
 
-        return done(null, { statusCode: 200, body: JSON.stringify(result) });
+        const response = {
+            statusCode: 200,
+            headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+            body: JSON.stringify(result)
+        };
+        return done(null, response);
     });
 };
 

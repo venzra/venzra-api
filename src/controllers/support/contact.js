@@ -13,7 +13,12 @@ const sendEmail = (event, context, done) => {
     }).filter(Boolean);
 
     if (errors.length) {
-        return done(null, { statusCode: 400, body: JSON.stringify({ errors }) });
+        const response = {
+            statusCode: 400,
+            headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+            body: JSON.stringify({ errors })
+        };
+        return done(null, response);
     }
 
     const alias = body.alias;
@@ -30,8 +35,21 @@ const sendEmail = (event, context, done) => {
             { subject, alias, emailAddress, message },
             emailAddress
         )
-        .then(() => done(null, { statusCode: 202 }))
-        .catch((error) => done(null, { statusCode: 500, body: JSON.stringify(error) }));
+        .then(() => {
+            const response = {
+                statusCode: 202,
+                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] }
+            };
+            return done(null, response);
+        })
+        .catch((error) => {
+            const response = {
+                statusCode: 500,
+                headers: { 'Access-Control-Allow-Origin': process.env['CROSS_ORIGIN_REQUESTS'] },
+                body: JSON.stringify(error)
+            };
+            return done(null, response);
+        });
 };
 
 module.exports = { sendEmail };
