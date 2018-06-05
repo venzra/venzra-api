@@ -57,7 +57,7 @@ The Service uses cookies to improve the experience of using our site and to reme
 
 | Category of use | Example |
 | :--- | :--- |
-| Security | When you login to the Service, it shall store an digitally signed cookie which remembers your current login state with an encrypted and temporary reference, when you close your browser this cookie is removed automatically. There are two cookies used for this interaction they are called `jwt` and `loggedIn` which is a flag to see if you may already be authenticated. |
+| Security | When you login to the Service, it shall store a digitally signed cookie which remembers your current login state with an encrypted and temporary reference, when you close your browser this cookie is removed automatically. There are two cookies used for this interaction they are called `jwt` and `loggedIn` which is a flag to see if you may already be authenticated. |
 | Analytics | We utilise Google Analytics as such your visit will be remembered and your interactions stored to help us improve our platform, no personal data is stored in these tracking cookies. The main cookie used for this is the `__ga` cookie. |
 
 Your browser will have the ability to disable or remove cookies too via the browsers own preferences setting, this can typically be configured on a site by site basis. Many browsers also feature private browsing or incognito modes that will remove any history or cookies set during that browser session.
