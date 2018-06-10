@@ -14,7 +14,7 @@ const findOne = (event, context, done) => {
 
     Accounts
         .findById(event.pathParameters.accountId)
-        .select('_id identity status created updated')
+        .select('_id identity terms status created updated')
         .then((account) => {
             const response = {
                 statusCode: 200,
@@ -38,22 +38,29 @@ const createOne = (event, context, done) => {
 
     const body = JSON.parse(event.body);
 
+    if (!body.acceptTerms) {
+        const response = {
+            statusCode: 400,
+            headers: security.accessControl(event.headers),
+            body: JSON.stringify({ error: 'Bad Request' })
+        };
+        return done(null, response);
+    }
+
     const subject = 'Registration confirmation';
     const marketingUrl = config.marketingPortal;
     const managementUrl = config.managementPortal;
-
     const identity = (body.identity || '').toLowerCase();
 
     databaseConnect()
         .then(() => Accounts
             .findOne({ identity })
             .then((account) => {
-                const date = new Date();
-
                 let expiry = 7;
+                const terms = new Date();
 
                 if (!account) {
-                    account = new Accounts({ identity });
+                    account = new Accounts({ identity, terms });
                 } else {
                     expiry = 2;
                     account.status = 'RECOVERY';
@@ -61,7 +68,7 @@ const createOne = (event, context, done) => {
 
                 account.validation = {
                     key: createHash('sha256').update(v4()).digest('hex').substr(0, 16),
-                    expires: new Date(date.setDate(date.getDate() + expiry))
+                    expires: new Date(terms.setDate(terms.getDate() + expiry))
                 };
 
                 return account.save();

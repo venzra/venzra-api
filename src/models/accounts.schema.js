@@ -24,6 +24,9 @@ const AccountsSchema = new mongoose.Schema({
             }
         }
     },
+    terms: {
+        type: Date
+    },
     status: {
         type: String,
         enum: ['REGISTERED', 'ACTIVE', 'RECOVERY', 'LOCKED', 'DISABLED'],
