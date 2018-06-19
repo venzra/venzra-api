@@ -25,7 +25,9 @@ const AccountsSchema = new mongoose.Schema({
         }
     },
     terms: {
-        type: Date
+        type: Date,
+        required: true,
+        default: Date.now
     },
     status: {
         type: String,

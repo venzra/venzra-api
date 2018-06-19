@@ -1,0 +1,27 @@
+<%- include('common/header.ejs', { subject }) %>
+            <tr>
+                <td>
+                    <h2>Account recovery,</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>A request has been made to reset the password for your account with Venzra. If you did not make this request please ignore this email you will still be able to login with your account details. You may however wish to contact us to investigate further.</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>To reset your password please follow the link and complete the recovery form before <strong>valid until <%= expires %></strong>. After this time you would be required to use the <a href="<%= forgottenUrl %>">forgotten password</a> page to start the process again.</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="centered">
+                    <a class="btn" href="<%= recoveryUrl %>">Reset account password</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="centered">
+                    <a href="<%= recoveryUrl %>"><%= recoveryUrl %></a>
+                </td>
+            </tr>
+<%- include('common/footer.ejs') %>

@@ -32,6 +32,15 @@ functions:
           method: post
           integration: lambda-proxy
           cors: true
+  accountForgotten:
+    description: 'Begin password recovery process for forgotten account credentials'
+    handler: src/controllers/accounts/identity.forgottenPassword
+    events:
+      - http:
+          path: accounts/forgotten
+          method: post
+          integration: lambda-proxy
+          cors: true
   documentationRetrieve:
     description: 'Retrieve platform documentation content'
     handler: src/controllers/documentation/guides.findOne
