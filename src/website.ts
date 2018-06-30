@@ -28,6 +28,9 @@ app.use(VenzraDatabase);
  */
 const corsOpts: CorsOptions = {
     origin: process.env['MARKETING_URL'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true,
     optionsSuccessStatus: 200
 };
 

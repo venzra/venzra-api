@@ -111,7 +111,7 @@
         // "rootDirs": [],
 
         // List of folders to include type definitions from.
-        // "typeRoots": [],
+        "typeRoots": ["node_modules/@types"],
 
         // Type declaration files to be included in compilation.
         // "types": [],
