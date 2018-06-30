@@ -21,7 +21,7 @@ jobs:
           command: npm install
       - run:
           name: Execute API tests
-          command: npm run test
+          command: npm run test:ci
       - run:
           name: Notify build completed
           command: |
@@ -68,7 +68,7 @@ jobs:
             sed -i 's|{{ DatabaseUri }}|'${DEPLOY_DB}'|g' config.json
       - run:
           name: Create deployment
-          command: AWS_ACCESS_KEY_ID=$AWS_DEPLOY_KEY AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRET_KEY npm run deploy
+          command: AWS_ACCESS_KEY_ID=$AWS_DEPLOY_KEY AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRET_KEY npm run deploy:prod
       - run:
           name: Notify deploy completed
           command: |

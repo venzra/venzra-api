@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 const { Given, When, Then } = require('cucumber');
 
 const checkValues = require('../support/compare');
-const databaseConnect = require('../../src/database');
-
-const Accounts = require('../../src/models/accounts.schema');
-const Plans = require('../../src/models/plans.schema');
 
 Given(/^there are the following "([^"]*)" records in the database$/, function (collection, dataset) {
     dataset = this.getHashes(dataset);
 
-    return databaseConnect()
+    if(!mongoose.connection.readyState) {
+        mongoose.connect(process.env['DB_URI']);
+    }
+
+    return Promise.resolve()
         .then(() => {
             if (mongoose.models[collection]) {
                 return Promise
@@ -29,7 +29,7 @@ Then(/^the database record for "([^"]*)" in the "([^"]*)" table equals:$/, funct
     record = this.parseTemplateString(record);
     dataset = this.getHashes(dataset);
 
-    return databaseConnect()
+    return Promise.resolve()
         .then(() => {
             if (mongoose.models[collection]) {
                 return mongoose.models[collection].findOne({ _id: record }).select('-__v').lean();

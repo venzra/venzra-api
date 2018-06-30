@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const request = require('request-promise');
 const { setWorldConstructor } = require('cucumber');
 
 let history = {};
@@ -9,13 +8,23 @@ let history = {};
 class World {
 
     constructor() {
-        this.server = 'http://localhost:3001';
+        this.loadConfig((process.env['NODE_ENV'] || 'TEST').toLowerCase());
         this.headers = new Set();
+        this.mocks = [];
         this.history = history;
+    }
+
+    loadConfig(mode) {
+        const config = require('../../config');
+        Object.assign(process.env, config[mode]);
     }
 
     setHeader(name, value) {
         this.headers.add({ name, value });
+    }
+
+    addMock(mock) {
+        this.mocks.push(mock);
     }
 
     readMock(file) {
@@ -79,78 +88,62 @@ class World {
         return this.history[name];
     }
 
-    performGet(endpoint, storage) {
-        const params = {
-            uri: this.parseTemplateString(endpoint),
-            method: 'GET',
-            headers: this.headers,
-            json: true,
-            resolveWithFullResponse: true
+    processResponse(res, storage) {
+        if (this.mocks.length > 0) {
+            this.mocks.forEach((mock) => {
+                mock.done();
+            });
+        }
+
+        let data = {
+            status: res.statusCode,
+            headers: res.headers
         };
 
-        return this.performRequest(params)
-            .then((data) => {
-                if (storage) {
-                    this.history[storage] = data;
-                }
-            });
+        try {
+            data.response = JSON.parse(res.text);
+        } catch (ex) {
+            data.response = res.text || res.body;
+        }
+
+        if (storage) {
+            this.history[storage] = data;
+        }
+    }
+
+    performGet(endpoint, storage) {
+        return new Promise((resolve, reject) => {
+            const uri = this.parseTemplateString(endpoint);
+            const request = this.agent.get(uri);
+
+            this.headers.forEach((header) => request.set(header.name, header.value));
+            request.expect((res) => this.processResponse(res, storage));
+            request.end((err, res) => err ? reject(err) : resolve(res));
+        });
     }
 
     performPost(endpoint, data, storage) {
-        const params = {
-            uri: this.parseTemplateString(endpoint),
-            method: 'POST',
-            headers: this.headers,
-            body: data,
-            json: true,
-            resolveWithFullResponse: true
-        };
+        return new Promise((resolve, reject) => {
+            const uri = this.parseTemplateString(endpoint);
+            const request = this.agent.post(uri);
 
-        return this.performRequest(params)
-            .then((data) => {
-                if (storage) {
-                    this.history[storage] = data;
-                }
-            });
+            this.headers.forEach((header) => request.set(header.name, header.value));
+            request.send(data);
+            request.expect((res) => this.processResponse(res, storage));
+            request.end((err, res) => err ? reject(err) : resolve(res));
+        });
     }
 
     performPatch(endpoint, data, storage) {
-        const params = {
-            uri: this.parseTemplateString(endpoint),
-            method: 'POST',
-            headers: this.headers,
-            body: data,
-            json: true,
-            resolveWithFullResponse: true
-        };
+        return new Promise((resolve, reject) => {
+            const uri = this.parseTemplateString(endpoint);
+            const request = this.agent.patch(uri);
 
-        return this.performRequest(params)
-            .then((data) => {
-                if (storage) {
-                    this.history[storage] = data;
-                }
-            });
-    }
-
-    performRequest(params) {
-        params.uri = `${this.server}${params.uri}`;
-
-        return request(params)
-            .catch((error) => error)
-            .then((res) => {
-                let data = {
-                    status: res.statusCode,
-                    headers: res.headers
-                };
-
-                try {
-                    data.response = JSON.parse(res.text);
-                } catch (ex) {
-                    data.response = res.text || res.error || res.body;
-                }
-
-                return data;
-            });
+            this.headers.forEach((header) => request.set(header.name, header.value));
+            request.send(data);
+            request.expect((res) => this.processResponse(res, storage));
+            request.end((err, res) => err ? reject(err) : resolve(res));
+        });
     }
 
 }

@@ -18,56 +18,33 @@ provider:
         - "ses:SendEmail"
       Resource: '*'
 
+package:
+  exclude:
+    - "**/*.ts"
+    - "*"
+  include:
+    - "src/**/*.js"
+    - "src/**/*.md"
+    - "src/**/*.ejs"
+
 plugins:
   - serverless-domain-manager
+  - serverless-plugin-typescript
   - serverless-offline
 
 functions:
-  accountRegistration:
-    description: 'Registration of new subscription user account'
-    handler: src/controllers/accounts/registration.createOne
+  admin:
+    description: 'Venzra Admin API'
+    handler: src/lambda-admin.api
     events:
-      - http:
-          path: accounts/registration
-          method: post
-          integration: lambda-proxy
-          cors: true
-  accountForgotten:
-    description: 'Begin password recovery process for forgotten account credentials'
-    handler: src/controllers/accounts/identity.forgottenPassword
+      - http: ANY /admin
+      - http: ANY /admin/{proxy+}
+  website:
+    description: 'Venzra Website API'
+    handler: src/lambda-website.api
     events:
-      - http:
-          path: accounts/forgotten
-          method: post
-          integration: lambda-proxy
-          cors: true
-  documentationRetrieve:
-    description: 'Retrieve platform documentation content'
-    handler: src/controllers/documentation/guides.findOne
-    events:
-      - http:
-          path: documentation/{section}/{page}
-          method: get
-          integration: lambda-proxy
-          cors: true
-  subscriptionPlans:
-    description: 'Retrieval of available subscription plans'
-    handler: src/controllers/subscription/plans.findAll
-    events:
-      - http:
-          path: subscription/plans
-          method: get
-          integration: lambda-proxy
-          cors: true
-  supportContact:
-    description: 'Sending of support and contact emails'
-    handler: src/controllers/support/contact.sendEmail
-    events:
-      - http:
-          path: support/contact
-          method: post
-          integration: lambda-proxy
-          cors: true
+      - http: ANY /website
+      - http: ANY /website/{proxy+}
 
 custom:
   customDomain:

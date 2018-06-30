@@ -1,5 +1,9 @@
-coverage
+.idea
+.build
+.coverage
+.serverless
+
 node_modules
 
-.idea
-.serverless
+src/**/*.js
+src/**/*.js.map
