@@ -26,13 +26,14 @@ app.use(VenzraDatabase);
 /*
  * Configure security elements
  */
-const whitelist = [process.env['MARKETING_URL'], process.env['ADMIN_URL']];
 const corsOpts: CorsOptions = {
-    origin: (origin, callback) => callback(null, whitelist.includes(origin))
+    origin: process.env['MARKETING_URL'],
+    optionsSuccessStatus: 200
 };
 
 app.enable('trust proxy');
 app.use(helmet());
+app.options('*', cors(corsOpts));
 app.use(cors(corsOpts));
 
 /*
