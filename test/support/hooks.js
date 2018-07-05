@@ -19,10 +19,10 @@ Before('@Admin', function (scenario, next) {
     next();
 });
 
-// Before('@Store', function (scenario, next) {
-//     this.agent = supertest.agent(require('../../src/store'));
-//     next();
-// });
+Before('@Store', function (scenario, next) {
+    this.agent = supertest.agent(require('../../src/store'));
+    next();
+});
 
 Before('@Website', function (scenario, next) {
     this.agent = supertest.agent(require('../../src/website'));

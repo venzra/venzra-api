@@ -28,25 +28,24 @@ export class ErrorService {
 
         switch(exception.name) {
             case 'AcceptedError':
-                logger.info(`${exception.code} - ${exception.message}`);
+                logger.info(`[${exception.name}] ${exception.code} - ${exception.message}`);
                 break;
             case 'ValidationError':
                 message = exception.message;
                 detail = exception.detail;
-                logger.debug(`${exception.message} - ${exception.detail.join(', ')}`);
+                logger.debug(`[${exception.name}] ${exception.message} - ${exception.detail.join(', ')}`);
                 break;
             case 'NotFoundError':
-                logger.warn(`${exception.code} - ${req.url}`);
+                logger.warn(`[${exception.name}] ${exception.code} - ${req.url}`);
                 break;
             case 'MongoNetworkError':
                 message = 'Database temporarily unavailable';
                 exception.code = 503;
-                logger.error(exception.message);
+                logger.error(`[${exception.name}] ${exception.message}`);
                 break;
             default:
                 message = 'Internal server error';
-                logger.warn(`${exception.name} - ${exception.code} - ${exception.message}`);
-                console.log(exception.name, exception.code, exception.message);
+                logger.warn(`[${exception.name}] ${exception.code} - ${exception.message}`);
         }
 
         res.status(exception.code).send({ message, detail });

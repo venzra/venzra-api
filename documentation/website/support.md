@@ -45,7 +45,10 @@ GET /website/support/guides/:section/:page HTTP/1.1
 
 #### Response
 
-The actual response may differ from the example, the `content` field is the only one which will always be present, although typically a title should be available, however there may be further fields available on some responses. 
+| field | description |
+| :--- | :--- |
+| title | Often present and can be used at the top of a page |
+| content | This is the content to be displayed, it is the only field that will always be present, other fields are optional in if they might appear |
 
 ```http
 HTTP/1.1 200 OK

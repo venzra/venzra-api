@@ -14,11 +14,19 @@ GET /website/subscription/plans HTTP/1.1
 
 #### Response
 
-The reference field relates to the identifier required by Stripe to setup the subscription.
 
-It is possible to calculate an annual price for a plan for example if you perform `price * interval * frequency` where `frequency` could be *month* or *year* which should be converted to 12 or 1 respectively. As such in the below the annual cost of a subscription would be `125 * 1 * 12 = 1500`.
+| field | description |
+| :--- | :--- |
+| reference | Relates to the identifier required by Stripe to setup a reoccurring payment |
+| name | Display name of the plan |
+| currency | The currency of the plan, only plans in GBP are currently supported |
+| price | How much in pence (lower currency denomination) will be charged |
+| interval | What is the number of times for the frequency to occur before a payment is taken (e.g. interval of `3` and frequency of `month` would mean once every 3 months) |
+| frequency | The time period that should pass before a payment is taken value values are `day`, `week`, `month`, `year` |
 
-Note that prices are in lowest denomination, so in the case of GBP this is pence.
+It is possible to calculate the annual price for a plan for example if you perform `price * frequency / interval` where `frequency` should be converted to 365 (day), 52 (week), 12 (month) or 1 (year). As such in the below the annual cost of a subscription would be `125 * 1 * 12 = 1500 pence`.
+
+> Note: Prices are in lowest denomination, so in the case of GBP this is pence.
 
 ```http
 HTTP/1.1 202 Accepted

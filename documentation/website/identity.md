@@ -8,7 +8,7 @@ Create a new user account on Venzra who will become a new customer with a new st
 
 #### Request
 
-A request will be rejected if the terms flag is not set, on storing the date of this request is used in the database for when terms were last accepted (or in the case of registration the first time)
+> Note: A request will be rejected if the terms flag is not set, on storing the date of this request is used in the database for when terms were last accepted (or in the case of registration the first time)
 
 ```http
 POST /admin/identity HTTP/1.1
@@ -22,7 +22,11 @@ Content-Type: application/json
 
 #### Response
 
-Note that the valid status returned here are `REGISTERED` or `RECOVERY` the recovery occurs when an account has previously registered but not activated as such are attempting to register again.
+| field | description |
+| :--- | :--- |
+| identity | The email address for the account holder |
+| terms | The date on which the terms and conditions were accepted |
+| status | One of `REGISTERED` or `RECOVERY` at this point recovery may only occur when the account is currently in a registered status |
 
 ```http
 HTTP/1.1 200 OK

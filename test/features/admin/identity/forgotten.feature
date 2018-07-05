@@ -7,6 +7,12 @@ Feature: Begin the process of resetting a password for an existing account entry
       | identity                         | password | status |
       | account-recovery@venzra-test.com | PASSWORD | ACTIVE |
 
+  Scenario: Should return an error message if the identity has not been provided
+    When I make an empty POST request to the API endpoint "/admin/identity" as "forgotten"
+    Then there should be a 400 error from the "forgotten" request that contains:
+      | message           | detail                |
+      | Validation failed | ["identity required"] |
+
   Scenario: A user that does not exist in the database will get an accepted response
     When I make a POST request to the API endpoint "/admin/identity" as "forgotten" using:
       | identity                |

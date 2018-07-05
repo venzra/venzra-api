@@ -39,6 +39,12 @@ functions:
     events:
       - http: ANY /admin
       - http: ANY /admin/{proxy+}
+  store:
+    description: 'Venzra Store API'
+    handler: src/lambda-store.api
+    events:
+      - http: ANY /store
+      - http: ANY /store/{proxy+}
   website:
     description: 'Venzra Website API'
     handler: src/lambda-website.api
