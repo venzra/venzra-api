@@ -7,6 +7,7 @@ import * as http from 'http';
 import { AddressInfo } from 'net';
 import { CorsOptions } from 'cors';
 
+import ProductController from './controllers/store/products';
 import ShippingController from './controllers/store/shipping';
 import SubscriptionController from './controllers/store/subscription';
 
@@ -46,6 +47,7 @@ app.use(cookieParser());
  */
 app.use(VenzraSession);
 
+app.use('/store/products', ProductController);
 app.use('/store/shipping', ShippingController);
 app.use('/store/subscription', SubscriptionController);
 
