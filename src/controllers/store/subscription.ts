@@ -1,6 +1,7 @@
 import * as parser from 'body-parser';
 
 import { Request, Response, NextFunction, Router } from 'express';
+
 import { StoreController } from './store';
 
 export class SubscriptionController extends StoreController {

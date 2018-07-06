@@ -8,6 +8,7 @@ export * from './fee';
 export * from './gateway';
 export * from './plan';
 export * from './shipment';
+export * from './shipping';
 export * from './subscription';
 export * from './subscription-payment';
 export * from './theme';

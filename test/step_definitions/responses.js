@@ -57,3 +57,10 @@ Then(/^there is a(?: (deleted))? cookie called "([^"]*)" in the "([^"]*)" respon
             }
         });
 });
+
+Then(/^the response from the "([^"]*)" request has a "([^"]*)" that contains rows:$/, function (historyName, expectedField, expectedData) {
+    expectedData = this.getHashes(expectedData);
+
+    return Promise.resolve(this.getHistory(historyName))
+        .then((history) => expectedData.reduce((chain, next, idx) => chain.then(() => checkValues(next, history.response[expectedField][idx], false)), Promise.resolve()));
+});
