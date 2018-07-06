@@ -22,7 +22,8 @@
         "moment": "2.22.2",
         "mongoose": "5.1.7",
         "uuid": "3.3.2",
-        "winston": "3.0.0"
+        "winston": "3.0.0",
+        "zxcvbn": "4.4.2"
     },
     "devDependencies": {
         "@types/aws-serverless-express": "3.0.1",
@@ -36,6 +37,7 @@
         "@types/node": "10.5.1",
         "@types/uuid": "3.4.3",
         "@types/winston": "2.3.9",
+        "@types/zxcvbn": "4.4.0",
         "aws-sdk": "2.266.1",
         "chai": "4.1.2",
         "cucumber": "4.2.1",

@@ -9,6 +9,7 @@ import { CorsOptions } from 'cors';
 import IdentityController from './controllers/website/identity';
 import SubscriptionController from './controllers/website/subscription';
 import SupportController from './controllers/website/support';
+import ValidationController from './controllers/website/validation';
 
 import VenzraDatabase from './services/database.service';
 import ErrorService from './services/error.service';
@@ -45,6 +46,7 @@ app.use(cors(corsOpts));
 app.use('/website/identity', IdentityController);
 app.use('/website/subscription', SubscriptionController);
 app.use('/website/support', SupportController);
+app.use('/website/validation', ValidationController);
 
 app.use(ErrorService);
 
