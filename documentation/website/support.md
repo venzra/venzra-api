@@ -34,9 +34,9 @@ These are guides to assist users in how to utilise the platform.
 
 There are two parameters available to access guides;
 
-- section  
+- **section**  
   This is the folder in which the guide exists
-- page  
+- **page**  
   This is the actual markdown page which also supports json meta tagging
 
 ```http
