@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { Addon, Contact, Fee, Gateway, SubscriptionPayment, Theme } from '.';
+import { Addon, Charges, Contact, Gateway, Theme } from '.';
 
 export interface Subscription extends Document {
     storeName: string;
@@ -10,9 +10,19 @@ export interface Subscription extends Document {
     icon: string;
     logo: string;
     theme: Theme;
-    payment: SubscriptionPayment;
+    payment: {
+        package: string;
+        customer: string;
+        subscription: string;
+        price: Charges;
+        term: Date;
+        status: string;
+    };
     gateway: Gateway;
-    transactions: Fee;
+    transactions: {
+        rate: number,
+        base: number
+    };
     contact: Contact;
     status: string;
     created: Date;

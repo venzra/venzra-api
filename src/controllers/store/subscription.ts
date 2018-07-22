@@ -1,15 +1,14 @@
 import * as parser from 'body-parser';
 
-import { Request, Response, NextFunction, Router } from 'express';
+import { Response, NextFunction, Router } from 'express';
 
-import { StoreController } from './store';
+import { VenzraRequest } from '../../models';
 
-export class SubscriptionController extends StoreController {
+export class SubscriptionController {
 
     public router: Router;
 
     constructor() {
-        super();
         this.registerRoutes();
     }
 
@@ -17,11 +16,11 @@ export class SubscriptionController extends StoreController {
         this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
-        this.router.get('/', this.loadSubscription.bind(this), this.retrieve.bind(this));
+        this.router.get('/', this.retrieve.bind(this));
     }
 
-    retrieve(req: Request, res: Response, next: NextFunction) {
-        const { _id, features, domainName, storeName, strapline, icon, logo, gateway, contact, created } = this.subscription;
+    retrieve(req: VenzraRequest, res: Response, next: NextFunction) {
+        const { _id, features, domainName, storeName, strapline, icon, logo, gateway, contact, created } = req.venzra.subscription;
         return res.status(200).send({ _id, features, domainName, storeName, strapline, icon, logo, contact, gateway: (gateway ? gateway.publicKey : ''), created });
     }
 

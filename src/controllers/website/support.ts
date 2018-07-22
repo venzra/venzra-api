@@ -1,4 +1,6 @@
+import * as fs from 'fs';
 import * as parser from 'body-parser';
+import * as path from 'path';
 
 import { Request, Response, NextFunction, Router } from 'express';
 
@@ -6,8 +8,6 @@ import { NotFoundError, ValidationError } from '../../models';
 import { ErrorService, MailService } from '../../services';
 
 import { config } from '../../config';
-import * as fs from "fs";
-import * as path from "path";
 
 export class SupportController {
 

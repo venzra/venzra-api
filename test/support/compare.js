@@ -9,7 +9,7 @@ const checkValues = (expected, actual) => {
     expectedKeys.map((key) => {
         let check;
         if (typeof expected[key] === 'string') {
-            check = expected[key].match(/\[(\d+)\]/) || expected[key];
+            check = expected[key].match(/\[([^\]]*)\]/) || expected[key];
             if (check instanceof Array) {
                 expected[key] = expected[key].replace(check[0], '');
             }
@@ -31,6 +31,9 @@ const checkValues = (expected, actual) => {
                 break;
             case 'OBJECT':
                 expect(actual[key]).to.be.an('object');
+                break;
+            case 'REGEX':
+                expect(actual[key]).to.match(new RegExp(check[1]));
                 break;
             default:
                 expect(actual[key]).to.deep.equal(expected[key]);

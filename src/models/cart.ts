@@ -1,10 +1,10 @@
 import { Document } from 'mongoose';
 
-import { CartItem, Shipment } from '.';
+import { Shipment } from '.';
 
 export interface Cart extends Document {
     subscription?: string;
-    items: CartItem[];
+    items: Array<{ product: any, quantity: number }>;
     shipping: Shipment;
     value: number;
     created: Date;

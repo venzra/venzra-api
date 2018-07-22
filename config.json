@@ -2,25 +2,37 @@
     "dev": {
         "ADMIN_URL": "http://localhost:8181",
         "API_DOMAIN": "localhost:3000",
+        "AWS_IMAGE_BUCKET": "images.venzra-test.com",
         "CONTACT_EMAIL": "contact@venzra-test.com",
+        "DB_URI": "mongodb://localhost/venzra",
+        "DOMAIN": "localhost",
+        "JWT_SECRET": "venzra-development",
         "MARKETING_URL": "http://localhost:8080",
-        "REPLY_TO": "support@venzra-test.com",
-        "DB_URI": "mongodb://localhost/venzra"
+        "NODE_ENV": "DEV",
+        "REPLY_TO": "support@venzra-test.com"
     },
     "test": {
         "ADMIN_URL": "https://admin.venzra-test.com",
         "API_DOMAIN": "api.venzra-test.com",
+        "AWS_IMAGE_BUCKET": "images.venzra-test.com",
         "CONTACT_EMAIL": "contact@venzra-test.com",
+        "DB_URI": "mongodb://localhost/venzra-test",
+        "DOMAIN": "venzra-test.com",
+        "JWT_SECRET": "venzra-development",
         "MARKETING_URL": "https://www.venzra-test.com",
-        "REPLY_TO": "support@venzra-test.com",
-        "DB_URI": "mongodb://localhost/venzra-test"
+        "NODE_ENV": "TEST",
+        "REPLY_TO": "support@venzra-test.com"
     },
     "production": {
         "ADMIN_URL": "https://admin.venzra.com",
         "API_DOMAIN": "api.venzra.com",
+        "AWS_IMAGE_BUCKET": "images.venzra.com",
         "CONTACT_EMAIL": "contact@venzra.com",
+        "DB_URI": "{{ DatabaseUri }}",
+        "DOMAIN": "venzra.io",
+        "JWT_SECRET": "{{ JwtSecret }}",
         "MARKETING_URL": "https://www.venzra.com",
-        "REPLY_TO": "support@venzra.com",
-        "DB_URI": "{{ DatabaseUri }}"
+        "NODE_ENV": "TEST",
+        "REPLY_TO": "support@venzra.com"
     }
 }

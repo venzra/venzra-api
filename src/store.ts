@@ -7,12 +7,16 @@ import * as http from 'http';
 import { AddressInfo } from 'net';
 import { CorsOptions } from 'cors';
 
+import IdentityController from './controllers/store/identity';
+import OrdersController from './controllers/store/orders';
 import ProductController from './controllers/store/products';
 import ShippingController from './controllers/store/shipping';
 import SubscriptionController from './controllers/store/subscription';
 
 import VenzraDatabase from './services/database.service';
 import VenzraSession from './services/venzra.service';
+import VenzraCustomer from './services/customer.service';
+import VenzraSubscription from './services/subscription.service';
 import ErrorService from './services/error.service';
 
 /*
@@ -45,8 +49,12 @@ app.use(cookieParser());
 /*
  * Register routing endpoints
  */
+app.use(VenzraSubscription);
+app.use(VenzraCustomer);
 app.use(VenzraSession);
 
+app.use('/store/identity', IdentityController);
+app.use('/store/orders', OrdersController);
 app.use('/store/products', ProductController);
 app.use('/store/shipping', ShippingController);
 app.use('/store/subscription', SubscriptionController);

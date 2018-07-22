@@ -1,16 +1,15 @@
 import * as parser from 'body-parser';
 
-import { Request, Response, NextFunction, Router } from 'express';
+import { Response, NextFunction, Router } from 'express';
 
+import { VenzraRequest } from '../../models';
 import { ShippingModel } from '../../schemas';
-import { StoreController } from './store';
 
-export class ShippingController extends StoreController {
+export class ShippingController {
 
     public router: Router;
 
     constructor() {
-        super();
         this.registerRoutes();
     }
 
@@ -18,11 +17,11 @@ export class ShippingController extends StoreController {
         this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
-        this.router.get('/', this.loadSubscription.bind(this), this.findAll.bind(this));
+        this.router.get('/', this.findAll.bind(this));
     }
 
-    findAll(req: Request, res: Response, next: NextFunction) {
-        const searchParams: any = { subscription: this.subscription._id };
+    findAll(req: VenzraRequest, res: Response, next: NextFunction) {
+        const searchParams: any = { subscription: req.venzra.subscription._id };
         const order = { currentPrice: 1, shipmentTime: 1 };
 
         ShippingModel

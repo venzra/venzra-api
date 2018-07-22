@@ -1,7 +1,7 @@
 import { Schema, Model, model, models } from 'mongoose';
 import { v4 } from 'uuid';
 
-import { AddonSchema, ContactSchema, GatewaySchema, FeeSchema, ThemeSchema, SubscriptionPaymentSchema } from './documents';
+import { AddonSchema, ContactSchema, GatewaySchema, TransactionSchema, ThemeSchema, SubscriptionPaymentSchema } from './documents';
 import { Subscription } from '../models';
 
 const SubscriptionSchema: Schema = new Schema({
@@ -44,8 +44,8 @@ const SubscriptionSchema: Schema = new Schema({
         type: GatewaySchema
     },
     transactions: {
-        type: FeeSchema,
-        default: FeeSchema
+        type: TransactionSchema,
+        default: TransactionSchema
     },
     contact: {
         type: ContactSchema

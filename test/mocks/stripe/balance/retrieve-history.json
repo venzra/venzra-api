@@ -1,0 +1,31 @@
+{
+    "id": "txn_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "object": "balance_transaction",
+    "amount": 5000,
+    "available_on": 1601300220,
+    "created": 1600436220,
+    "currency": "gbp",
+    "description": null,
+    "exchange_rate": null,
+    "fee": 280,
+    "fee_details": [
+        {
+            "amount": 115,
+            "application": "ca_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "currency": "gbp",
+            "description": "Venzra Fee",
+            "type": "application_fee"
+        },
+        {
+            "amount": 165,
+            "application": null,
+            "currency": "gbp",
+            "description": "Stripe Fee",
+            "type": "stripe_fee"
+        }
+    ],
+    "net": 4720,
+    "source": "ch_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "status": "pending",
+    "type": "charge"
+}

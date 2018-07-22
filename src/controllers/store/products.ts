@@ -1,18 +1,15 @@
 import * as parser from 'body-parser';
 
-import { Request, Response, NextFunction, Router } from 'express';
+import { Response, NextFunction, Router } from 'express';
 
-import { NotFoundError } from '../../models';
+import { NotFoundError, VenzraRequest } from '../../models';
 import { CategoryModel, ProductModel } from '../../schemas';
 
-import { StoreController } from './store';
-
-export class ProductsController extends StoreController {
+export class ProductsController {
 
     public router: Router;
 
     constructor() {
-        super();
         this.registerRoutes();
     }
 
@@ -20,17 +17,17 @@ export class ProductsController extends StoreController {
         this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
-        this.router.get('/', this.loadSubscription.bind(this), this.checkCategory.bind(this), this.findAll.bind(this));
-        this.router.get('/:productSlug', this.loadSubscription.bind(this), this.findOne.bind(this));
+        this.router.get('/', this.checkCategory.bind(this), this.findAll.bind(this));
+        this.router.get('/:productSlug', this.findOne.bind(this));
     }
 
-    checkCategory(req: Request, res: Response, next: NextFunction) {
+    checkCategory(req: VenzraRequest, res: Response, next: NextFunction) {
         if (!req.query.category) {
             return next();
         }
 
         const slug = req.query.category;
-        const subscription = this.subscription._id;
+        const subscription = req.venzra.subscription._id;
 
         CategoryModel
             .find({ subscription, slug })
@@ -44,9 +41,9 @@ export class ProductsController extends StoreController {
             .catch((error) => next(error));
     }
 
-    findOne(req: Request, res: Response, next: NextFunction) {
+    findOne(req: VenzraRequest, res: Response, next: NextFunction) {
         const slug = req.params.productSlug;
-        const subscription = this.subscription._id;
+        const subscription = req.venzra.subscription._id;
         const status = 'ACTIVE';
 
         ProductModel
@@ -55,8 +52,8 @@ export class ProductsController extends StoreController {
             .then((product) => product ? res.status(200).send(product) : next(new NotFoundError()));
     }
 
-    findAll(req: Request, res: Response, next: NextFunction) {
-        const searchParams: any = { subscription: this.subscription._id, status: 'ACTIVE' };
+    findAll(req: VenzraRequest, res: Response, next: NextFunction) {
+        const searchParams: any = { subscription: req.venzra.subscription._id, status: 'ACTIVE' };
         const skip = parseInt(req.query.skip, 10) || 0;
         const limit = parseInt(req.query.limit, 10) || 24;
 

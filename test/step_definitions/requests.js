@@ -7,6 +7,10 @@ Given(/^the request origin headers are set to "([^"]*)"$/, function (requestOrig
     this.setHeader('Host', requestOrigin);
 });
 
+Given(/^I am logged in with the "([^"]*)" account$/, function (userIdentity) {
+    return Promise.resolve(this.performPost('/store/identity/login', { identity: userIdentity, password: 'VenzraTest$1' }));
+});
+
 When(/^I make a (GET) request to the API endpoint "([^"]*)" as "([^"]*)"$/, function (requestMethod, requestEndpoint, historyName) {
     return Promise.resolve(this.performGet(requestEndpoint, historyName));
 });

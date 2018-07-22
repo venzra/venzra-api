@@ -1,5 +1,8 @@
+const crypto = require('crypto');
 const fs = require('fs');
+const moment = require('moment');
 const path = require('path');
+const uuid = require('uuid');
 
 const { setWorldConstructor } = require('cucumber');
 
@@ -35,14 +38,28 @@ class World {
     parseTemplateString(string) {
         let template = string.match(/{{\s?(\S*)\s?}}/);
         if (template !== null) {
+            let history;
             let target = template[1].split('.');
             let request = target.shift();
             let parts = request.match(/\[(\d+)\]/);
+
             if (parts) {
-                let history = this.getHistory(request.replace(parts[0], ''), parts[1] - 1);
-                target.forEach((field) => history = history[field]);
-                string = string.replace(template[0], history);
+                history = this.getHistory(request.replace(parts[0], ''), parts[1] - 1);
+            } else {
+                history = this.getHistory(request)['response'];
             }
+
+            target.forEach((field) => {
+                let subArray = field.match(/\[(\d+)\]/);
+                if(subArray) {
+                    field = field.replace(subArray[0], '');
+                    history = history[field][subArray[1] - 1];
+                } else {
+                    history = history[field]
+                }
+            });
+
+            string = string.replace(template[0], history);
             string = this.parseTemplateString(string);
         }
         return string;
@@ -65,8 +82,15 @@ class World {
                 const keyword = keywords ? keywords[1] : row[hash];
 
                 switch (keyword) {
+                    case 'DATE':
+                        row[hash] = moment().add(keywords[2], 'hours').toISOString();
+                        break;
                     case 'DATETIME':
                         row[hash] = Date.now();
+                        break;
+                    case 'PASSWORD':
+                        const salt = crypto.createHash('sha1').update(uuid.v4()).digest('hex');
+                        row[hash] = { salt: salt, secure: crypto.pbkdf2Sync('VenzraTest$1', salt, 10000, 256, 'sha512').toString('base64'), created: Date.now() };
                         break;
                 }
 

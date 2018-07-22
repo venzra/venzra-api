@@ -1,4 +1,4 @@
-<%- include('common/header.ejs', { subject }) %>
+<%- include('common/venzra.ejs', { subject }) %>
             <tr>
                 <td>
                     <h2>Account recovery,</h2>
@@ -24,4 +24,4 @@
                     <a href="<%= recoveryUrl %>"><%= recoveryUrl %></a>
                 </td>
             </tr>
-<%- include('common/footer.ejs') %>
+<%- include('common/footer.ejs', { sender: 'Venzra' }) %>

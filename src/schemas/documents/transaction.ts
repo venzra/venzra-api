@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 
-const FeeSchema: Schema = new Schema({
+const TransactionSchema: Schema = new Schema({
     base: {
         type: Number,
         required: true,
@@ -13,4 +13,4 @@ const FeeSchema: Schema = new Schema({
     }
 }, { _id: false });
 
-export { FeeSchema };
+export { TransactionSchema };

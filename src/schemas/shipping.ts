@@ -1,6 +1,6 @@
 import { Schema, Model, model, models } from 'mongoose';
 
-import { Shipping } from '../models/index';
+import { Shipping } from '../models';
 
 const ShippingSchema: Schema = new Schema({
     subscription: {
