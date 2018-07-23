@@ -170,6 +170,17 @@ class World {
         });
     }
 
+    performDelete(endpoint, storage) {
+        return new Promise((resolve, reject) => {
+            const uri = this.parseTemplateString(endpoint);
+            const request = this.agent.delete(uri);
+
+            this.headers.forEach((header) => request.set(header.name, header.value));
+            request.expect((res) => this.processResponse(res, storage));
+            request.end((err, res) => err ? reject(err) : resolve(res));
+        });
+    }
+
 }
 
 setWorldConstructor(World);

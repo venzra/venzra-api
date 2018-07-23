@@ -38,3 +38,7 @@ When(/^I make a (PATCH) request to the API endpoint "([^"]*)" as "([^"]*)" using
     requestData = this.getHashes(requestData);
     return Promise.resolve(this.performPatch(requestEndpoint, requestData, historyName));
 });
+
+When(/^I make a (DELETE) request to the API endpoint "([^"]*)" as "([^"]*)"$/, function (requestMethod, requestEndpoint, historyName) {
+    return Promise.resolve(this.performDelete(requestEndpoint, historyName));
+});

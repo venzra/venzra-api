@@ -9,6 +9,7 @@ import { CorsOptions } from 'cors';
 
 import ContactController from './controllers/store/contact';
 import ContentController from './controllers/store/content';
+import CustomerController from './controllers/store/customer';
 import IdentityController from './controllers/store/identity';
 import ImagesController from './controllers/store/images';
 import LocationController from './controllers/store/locations';
@@ -59,6 +60,7 @@ app.use(VenzraSession);
 
 app.use('/store/contact', ContactController);
 app.use('/store/content', ContentController);
+app.use('/store/customer', CustomerController);
 app.use('/store/identity', IdentityController);
 app.use('/store/images', ImagesController);
 app.use('/store/locations', LocationController);

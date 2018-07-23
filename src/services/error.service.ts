@@ -27,25 +27,35 @@ export class ErrorService {
         const detail = new Set();
 
         switch(exception.name) {
+            case 'AcceptedError':
+                exception.code = 202;
+                logger.info(`[${exception.name}] ${exception.code} - ${exception.message}`);
+                break;
             case 'AuthenticationError':
                 logger.info(`[${exception.name}] ${exception.code} - ${exception.message}`);
-                message = 'Invalid credentials';
-                break;
-            case 'AccessDeniedError':
+                exception.message = 'Invalid credentials';
+                /* falls through */
             case 'BadRequestError':
+                exception.code = 400;
                 message = exception.message;
-                break;
-            case 'AcceptedError':
-                logger.info(`[${exception.name}] ${exception.code} - ${exception.message}`);
                 break;
             case 'ValidationError':
-                message = exception.message;
+                message = 'Validation failed';
+                exception.code = 400;
+
+                if(exception.errors) {
+                    exception.detail = Object.values(exception.errors);
+                }
 
                 exception.detail.forEach((error) => {
                     detail.add(`${error.path} ${error.kind}`.trim());
                 });
 
                 logger.debug(`[${exception.name}] ${exception.message} - ${exception.detail.join(', ')}`);
+                break;
+            case 'AccessDeniedError':
+                exception.code = 401;
+                message = exception.message;
                 break;
             case 'CastError':
             case 'NotFound':
@@ -55,6 +65,7 @@ export class ErrorService {
                 break;
             case 'GatewayError':
                 message = 'Third party error';
+                exception.code = 503;
                 logger.error(`[${exception.name}] ${exception.message}`);
                 break;
             case 'MongoNetworkError':
