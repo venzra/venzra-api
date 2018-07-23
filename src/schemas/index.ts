@@ -1,6 +1,7 @@
 export * from './accounts';
 export * from './cart';
 export * from './category';
+export * from './content';
 export * from './customer';
 export * from './images';
 export * from './locations';

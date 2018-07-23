@@ -6,6 +6,7 @@ export * from './customer';
 export * from './category';
 export * from './charges';
 export * from './contact';
+export * from './content';
 export * from './gateway';
 export * from './history';
 export * from './image';
