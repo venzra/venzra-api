@@ -1,5 +1,6 @@
 const { Given, When, Then } = require('cucumber');
 const { expect } = require('chai');
+const sharp = require('sharp');
 
 const cookieParser = require('cookie');
 const checkValues = require('../support/compare');
@@ -21,6 +22,18 @@ Then(/^(?:there should be a (200|400|500|503) (?:response|error) from )?the "([^
         .then((history) => Promise.all([
                 statusCode ? expect(history.status).to.equal(parseInt(statusCode)) : true,
                 checkValues(expectedData[0], expectedField && expectedRecord ? history.response[expectedField][expectedRecord - 1] : history.response)
+            ])
+        );
+});
+
+Then(/^there should be a 200 response from the "([^"]*)" request with an "([^"]*)" binary containing:$/, function (historyName, expectedType, expectedData) {
+    expectedData = this.getHashes(expectedData);
+
+    return Promise.resolve(this.getHistory(historyName))
+        .then((history) => Promise.all([
+                expect(history.status).to.equal(parseInt(200)),
+                expect(history.headers['content-type']).to.equal(expectedType),
+                sharp(history.response).metadata().then((metadata) => checkValues(expectedData[0], metadata, false))
             ])
         );
 });

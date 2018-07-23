@@ -47,7 +47,10 @@ export class ErrorService {
 
                 logger.debug(`[${exception.name}] ${exception.message} - ${exception.detail.join(', ')}`);
                 break;
+            case 'CastError':
+            case 'NotFound':
             case 'NotFoundError':
+                exception.code = 404;
                 logger.warn(`[${exception.name}] ${exception.code} - ${req.url}`);
                 break;
             case 'GatewayError':

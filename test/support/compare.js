@@ -1,10 +1,10 @@
 const { expect } = require('chai');
 
-const checkValues = (expected, actual) => {
+const checkValues = (expected, actual, exact = true) => {
     const expectedKeys = Object.keys(expected);
     const actualKeys = Object.keys(actual);
 
-    expect(actualKeys, 'Response keys do not match expectation').to.have.members(expectedKeys);
+    expect(actualKeys, 'Response keys do not match expectation').to[exact ? 'have' : 'contain'].members(expectedKeys);
 
     expectedKeys.map((key) => {
         let check;
