@@ -1,0 +1,23 @@
+<%- include('common/venzra.ejs', { subject }) %>
+            <tr>
+                <td>
+                    <h2><%= subject %></h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>Alias: <%= alias %></p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>Email: <%= emailAddress %></p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>Message:</p>
+                    <pre><%= message %></pre>
+                </td>
+            </tr>
+<%- include('common/footer.ejs', { sender: 'Venzra' }) %>

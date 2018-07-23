@@ -44,7 +44,7 @@ export class SupportController {
         const content = { subject, alias, emailAddress, message };
 
         mailer
-            .send('contact', content)
+            .send('support', content)
             .then(() => res.status(202).send())
             .catch((err: Error) => next(err));
     }
