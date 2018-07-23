@@ -10,6 +10,7 @@ export * from './gateway';
 export * from './history';
 export * from './image';
 export * from './item';
+export * from './location';
 export * from './order';
 export * from './plan';
 export * from './product';

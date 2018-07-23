@@ -3,6 +3,7 @@ export * from './cart';
 export * from './category';
 export * from './customer';
 export * from './images';
+export * from './locations';
 export * from './orders';
 export * from './plans';
 export * from './products';

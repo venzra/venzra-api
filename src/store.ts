@@ -9,6 +9,7 @@ import { CorsOptions } from 'cors';
 
 import IdentityController from './controllers/store/identity';
 import ImagesController from './controllers/store/images';
+import LocationController from './controllers/store/locations';
 import OrdersController from './controllers/store/orders';
 import ProductController from './controllers/store/products';
 import ShippingController from './controllers/store/shipping';
@@ -56,6 +57,7 @@ app.use(VenzraSession);
 
 app.use('/store/identity', IdentityController);
 app.use('/store/images', ImagesController);
+app.use('/store/locations', LocationController);
 app.use('/store/orders', OrdersController);
 app.use('/store/products', ProductController);
 app.use('/store/shipping', ShippingController);
