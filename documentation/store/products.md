@@ -31,7 +31,8 @@ GET /store/products/:productId HTTP/1.1
 | currentPrice | Price in pence (lowest denomination) which the product is now available for, and will be paid for by a customer ordering the product |
 
 ```http
-HTTP/1.1 202 Accepted
+HTTP/1.1 200 OK
+Content-Type: application/json
 
 {
   "_id": "123412341234123412341234",
@@ -81,7 +82,8 @@ GET /store/products HTTP/1.1
 Default ordering of results is by `displayName`.
 
 ```http
-HTTP/1.1 202 Accepted
+HTTP/1.1 200 OK
+Content-Type: application/json
 
 {
   "list": {

@@ -28,7 +28,8 @@ GET /store/shipping HTTP/1.1
 Default ordering of results is by `currentPrice`.
 
 ```http
-HTTP/1.1 202 Accepted
+HTTP/1.1 200 OK
+Content-Type: application/json
 
 {
   "list": {

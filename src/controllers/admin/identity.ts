@@ -18,8 +18,8 @@ export class IdentityController {
     private errorService: ErrorService;
 
     constructor() {
-        this.registerRoutes();
         this.errorService = new ErrorService();
+        this.registerRoutes();
     }
 
     registerRoutes() {

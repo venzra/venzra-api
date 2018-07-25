@@ -26,7 +26,8 @@ GET /store/subscription HTTP/1.1
 | gateway | The currently active API key for generation of card / payment tokens |
 
 ```http
-HTTP/1.1 202 Accepted
+HTTP/1.1 200 OK
+Content-Type: application/json
 
 {
   "_id": "123412341234123412341234",
