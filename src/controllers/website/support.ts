@@ -16,12 +16,12 @@ export class SupportController {
     private errorService: ErrorService;
 
     constructor() {
-        this.registerRoutes();
+        this.router = Router();
         this.errorService = new ErrorService();
+        this.registerRoutes();
     }
 
     registerRoutes() {
-        this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.post('/contact', this.contact.bind(this));

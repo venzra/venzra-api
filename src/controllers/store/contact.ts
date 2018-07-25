@@ -14,12 +14,12 @@ export class ContactController {
     private errorService: ErrorService;
 
     constructor() {
+        this.router = Router();
         this.errorService = new ErrorService();
         this.registerRoutes();
     }
 
     registerRoutes() {
-        this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.post('/', this.sendMessage.bind(this));

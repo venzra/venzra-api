@@ -15,11 +15,11 @@ export class IdentityController  {
     public router: Router;
 
     constructor() {
+        this.router = Router();
         this.registerRoutes();
     }
 
     registerRoutes() {
-        this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.post('/login', this.authorise.bind(this), this.tokenise.bind(this));

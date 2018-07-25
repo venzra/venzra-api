@@ -10,11 +10,11 @@ export class ProductsController {
     public router: Router;
 
     constructor() {
+        this.router = Router();
         this.registerRoutes();
     }
 
     registerRoutes() {
-        this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.get('/', this.checkCategory.bind(this), this.findAll.bind(this));

@@ -16,12 +16,12 @@ export class ImagesController {
     public router: Router;
 
     constructor() {
+        this.router = Router();
         this.awsClient = new S3({ region: 'eu-west-1' });
         this.registerRoutes();
     }
 
     registerRoutes() {
-        this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.get('/:imageId', this.findOne.bind(this));

@@ -18,13 +18,13 @@ export class OrdersController {
     private identityService: IdentityService;
 
     constructor() {
+        this.router = Router();
         this.errorService = new ErrorService();
         this.identityService = new IdentityService();
         this.registerRoutes();
     }
 
     registerRoutes() {
-        this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.get('/', this.identityService.validate.bind(this), this.findAll.bind(this));
