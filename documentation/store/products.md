@@ -25,8 +25,8 @@ GET /store/products/:productId HTTP/1.1
 | slug | A short human readable value used to create a unique URI for the product, this is created from the product display name automatically |
 | displayName | The visual name to show customer who are going to purchase this product |
 | description | Some descriptive text which supports markdown formatting tags. |
-| featureImage | A reference to the feature image which should be displayed on the site (see displaying images). |
-| promotionalImage | A reference to a promotional image which should be displayed on the site (see displaying images). |
+| featureImage | A reference to the feature image which should be displayed on the site (see [displaying images](images.md)). |
+| promotionalImage | A reference to a promotional image which should be displayed on the site (see [displaying images](images.md)). |
 | previousPrice | Price in pence (lowest denomination) which the product was previously available for. |
 | currentPrice | Price in pence (lowest denomination) which the product is now available for, and will be paid for by a customer ordering the product. |
 

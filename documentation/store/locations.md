@@ -18,7 +18,7 @@ GET /store/locations HTTP/1.1
 | :--- | :--- |
 | displayName | The name given to this location. |
 | address | Full address information to enable finding this location. |
-| featureImage | A reference to the feature image which should be displayed on the site (see displaying images). |
+| featureImage | A reference to the feature image which should be displayed on the site (see [displaying images](images.md)). |
 | usage | Possible statuses are `CREATED`, `AUTHORISED`, `PROCESSING`, `DISPATCHED`, `DELIVERED`, `REFUNDED`. |
 
 Default ordering of results is by `displayName`.
