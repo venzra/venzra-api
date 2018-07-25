@@ -1,4 +1,4 @@
-## Account Identity
+## Website :: Identity
 
 This is a set of endpoints used to enable account access with the ability to create a new subscriber.
 

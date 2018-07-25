@@ -1,4 +1,4 @@
-## Account Identity
+## Admin :: Identity
 
 This is a set of endpoints used to manage account access with the ability to login (creation of access tokens) and recover credentials.
 

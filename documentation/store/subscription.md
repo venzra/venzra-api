@@ -1,4 +1,4 @@
-## Store subscription details
+## Store :: Subscription
 
 Whenever you show the store these endpoints are at the heart of all capabilities.
 

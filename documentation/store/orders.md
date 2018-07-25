@@ -1,4 +1,4 @@
-## Orders information
+## Store :: Orders
 
 Create and retrieve orders that a customer has placed.
 
@@ -78,7 +78,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "list": {
+  "list": [{
     "_id": "123412341234123412341234",
     "destination": {
       "addressee": "Wade Wilson",
@@ -111,7 +111,7 @@ Content-Type: application/json
     },
     "status": "AUTHORISED",
     "created": "2018-01-01T00:00:00.000Z"
-  },
+  }],
   "total": 5,
   "skip": 2,
   "limit": 1

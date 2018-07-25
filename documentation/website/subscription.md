@@ -1,4 +1,4 @@
-## Subscription
+## Website :: Subscription
 
 This section gives access to information about subscriptions, in the case of the website this is information on available subscription plans.
 

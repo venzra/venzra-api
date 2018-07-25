@@ -1,4 +1,4 @@
-## Shipping options
+## Store :: Shipping
 
 The available options for shipping as set by the subscription account.
 

@@ -1,4 +1,4 @@
-## Support
+## Website :: Support
 
 These endpoints are to assist users in their day to day operations when using Venzra as an ecommerce platform.
 

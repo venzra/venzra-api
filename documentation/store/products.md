@@ -1,4 +1,4 @@
-## Product information
+## Store :: Products
 
 These endpoints allow for searching and displaying of products to be used on the store. Only products that are in an ACTIVE state can be returned when using these endpoints on the store.
 
@@ -25,10 +25,10 @@ GET /store/products/:productId HTTP/1.1
 | slug | A short human readable value used to create a unique URI for the product, this is created from the product display name automatically |
 | displayName | The visual name to show customer who are going to purchase this product |
 | description | Some descriptive text which supports markdown formatting tags. |
-| featureImage | A reference to the feature image which should be displayed on the site (see displaying images) |
-| promotionalImage | A reference to a promotional image which should be displayed on the site (see displaying images) |
-| previousPrice | Price in pence (lowest denomination) which the product was previously available for |
-| currentPrice | Price in pence (lowest denomination) which the product is now available for, and will be paid for by a customer ordering the product |
+| featureImage | A reference to the feature image which should be displayed on the site (see displaying images). |
+| promotionalImage | A reference to a promotional image which should be displayed on the site (see displaying images). |
+| previousPrice | Price in pence (lowest denomination) which the product was previously available for. |
+| currentPrice | Price in pence (lowest denomination) which the product is now available for, and will be paid for by a customer ordering the product. |
 
 ```http
 HTTP/1.1 200 OK

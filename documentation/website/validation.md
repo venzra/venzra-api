@@ -1,4 +1,4 @@
-## Validations
+## Website :: Validation
 
 A set of common validators which can be used to assit in checking input of data.
 
