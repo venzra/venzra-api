@@ -7,6 +7,7 @@ import * as http from 'http';
 import { AddressInfo } from 'net';
 import { CorsOptions } from 'cors';
 
+import CategoryController from './controllers/store/category';
 import ContactController from './controllers/store/contact';
 import ContentController from './controllers/store/content';
 import CustomerController from './controllers/store/customer';
@@ -58,6 +59,7 @@ app.use(VenzraSubscription);
 app.use(VenzraCustomer);
 app.use(VenzraSession);
 
+app.use('/store/categories', CategoryController);
 app.use('/store/contact', ContactController);
 app.use('/store/content', ContentController);
 app.use('/store/customer', CustomerController);
