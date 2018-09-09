@@ -1,3 +1,4 @@
+const moment = require('moment');
 const { expect } = require('chai');
 
 const checkValues = (expected, actual, exact = true) => {
@@ -15,9 +16,15 @@ const checkValues = (expected, actual, exact = true) => {
             }
         }
 
+        let date = new Date();
+
         switch (expected[key]) {
             case 'OBJECT_ID':
                 expect(actual[key]).to.match(/^[0-9A-F]{24}$/i);
+                break;
+            case 'DATE':
+                date = moment().endOf('day').add(check[1], 'hours').toDate();
+                expect(actual[key]).to.equal(date.toISOString());
                 break;
             case 'DATE_TIME':
                 expect(actual[key]).to.match(/^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)$/);
