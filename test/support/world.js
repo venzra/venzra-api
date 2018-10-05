@@ -26,6 +26,11 @@ class World {
         this.headers.add({ name, value });
     }
 
+    setCookie(name, value) {
+        value = this.parseTemplateString(value);
+        this.agent.jar.setCookie(`${name}=${value}`);
+    }
+
     addMock(mock) {
         this.mocks.push(mock);
     }

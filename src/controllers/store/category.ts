@@ -4,19 +4,13 @@ import { Response, NextFunction, Router } from 'express';
 
 import { NotFoundError, VenzraRequest } from '../../models';
 import { CategoryModel } from '../../schemas';
-import { ErrorService, IdentityService } from '../../services';
 
 export class CategoryController {
 
     public router: Router;
 
-    private errorService: ErrorService;
-    private identityService: IdentityService;
-
     constructor() {
         this.router = Router();
-        this.errorService = new ErrorService();
-        this.identityService = new IdentityService();
         this.registerRoutes();
     }
 

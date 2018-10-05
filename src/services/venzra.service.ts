@@ -7,6 +7,7 @@ export class VenzraService {
 
     session(req: Request, res: Response, next: NextFunction) {
         const domainName = req.subdomains.pop();
+
         SubscriptionModel
             .findOne({ domainName })
             .then((subscription) => {

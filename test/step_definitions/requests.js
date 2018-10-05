@@ -11,6 +11,10 @@ Given(/^I am logged in with the "([^"]*)" account$/, function (userIdentity) {
     return Promise.resolve(this.performPost('/store/identity/login', { identity: userIdentity, password: 'VenzraTest$1' }));
 });
 
+Given(/^I set the "([^"]*)" cookie to the value "([^"]*)"$/, function (cookieName, cookieValue) {
+    return this.setCookie(cookieName, cookieValue);
+});
+
 When(/^I make a (GET) request to the API endpoint "([^"]*)" as "([^"]*)"(?: with "([^"]*)" content type)?$/, function (requestMethod, requestEndpoint, historyName, contentType) {
     this.setHeader('content-type', contentType ? contentType : 'application/json');
     return Promise.resolve(this.performGet(requestEndpoint, historyName));

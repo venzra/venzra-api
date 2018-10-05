@@ -23,7 +23,7 @@ const checkValues = (expected, actual, exact = true) => {
                 expect(actual[key]).to.match(/^[0-9A-F]{24}$/i);
                 break;
             case 'DATE':
-                date = moment().endOf('day').add(check[1], 'hours').toDate();
+                date = moment().add(check[1], 'hours').endOf('day').toDate();
                 expect(actual[key]).to.equal(date.toISOString());
                 break;
             case 'DATE_TIME':

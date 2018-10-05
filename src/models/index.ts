@@ -14,6 +14,7 @@ export * from './image';
 export * from './item';
 export * from './location';
 export * from './order';
+export * from './patch-request';
 export * from './plan';
 export * from './product';
 export * from './shipment';
