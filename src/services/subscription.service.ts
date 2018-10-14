@@ -6,7 +6,25 @@ import { NotFoundError, Subscription, VenzraRequest } from '../models';
 export class VenzraSubscription {
 
     static load(req: VenzraRequest, res: Response, next: NextFunction): void {
-        const domainName = req.subdomains.pop();
+        let domainName: string = '';
+
+        if (req.headers && req.headers.origin) {
+            const origin = <string>req.headers.origin;
+            domainName = origin.replace(/https?:\/\//, '');
+        } else if (req.headers && req.headers.referer) {
+            const referer = <string>req.headers.referer;
+            domainName = referer.replace(/https?:\/\//, '');
+        }
+
+        if (domainName.indexOf('/') > 0) {
+            domainName = domainName.substr(0, domainName.indexOf('/'));
+        }
+
+        if (domainName.indexOf(':') > 0) {
+            domainName = domainName.substr(0, domainName.indexOf(':'));
+        }
+
+        domainName = domainName.split('.').shift() || '';
 
         SubscriptionModel
             .findOne({ domainName })

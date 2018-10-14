@@ -2,9 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import * as mongoose from 'mongoose';
 
 import { MongoError } from 'mongodb';
-import { Mongoose } from 'mongoose';
-
-let databaseConnection: number = 0;
 
 export class VenzraDatabase {
 
@@ -19,13 +16,10 @@ export class VenzraDatabase {
             }
         };
 
-        if (!databaseConnection) {
+        if (!mongoose.connection.readyState) {
             mongoose
                 .connect(mongo.uri, mongo.options)
-                .then((db: Mongoose) => {
-                    databaseConnection = db.connection.readyState;
-                    next();
-                })
+                .then(() => next())
                 .catch((err: MongoError) => next(err));
         } else {
             next();

@@ -7,7 +7,8 @@ const AccountAccessSchema: Schema = new Schema({
     },
     ip: {
         type: String,
-        required: true
+        required: true,
+        default: '0.0.0.0'
     },
     created: {
         type: Date,

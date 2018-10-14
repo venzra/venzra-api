@@ -16,13 +16,6 @@ export class VenzraCustomer {
 
                 return decode(jwt, config.secret, false, 'HS512');
             })
-            .then((token) => {
-                if (req.ip !== token.ip) {
-                    throw new Error('Change of IP address detected');
-                }
-
-                return token;
-            })
             .then((token) =>
                 CustomerModel
                     .findOne({ _id: token._id, 'access.key': token.key, subscription: req.venzra.subscription._id })
@@ -37,7 +30,7 @@ export class VenzraCustomer {
                         req.venzra = req.venzra || {};
                         Object.assign(req.venzra, { customer });
                     }))
-            .catch(() => null)
+            .catch(() => {})
             .then(() => next());
     }
 }

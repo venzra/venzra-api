@@ -1,21 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 
-import { CartModel, SubscriptionModel } from '../schemas';
-import { NotFoundError } from '../models';
+import { CartModel } from '../schemas';
+import { VenzraRequest } from '../models';
 
 export class VenzraService {
 
-    session(req: Request, res: Response, next: NextFunction) {
-        const domainName = req.subdomains.pop();
-
-        SubscriptionModel
-            .findOne({ domainName })
-            .then((subscription) => {
-                if (!subscription) {
-                    throw new NotFoundError();
-                }
-                return subscription._id;
-            })
+    session(req: VenzraRequest, res: Response, next: NextFunction) {
+        Promise.resolve(req.venzra.subscription._id)
             .then((subscription) => {
                 const _id = req.cookies.vid;
                 return CartModel.findOne({ _id, subscription })

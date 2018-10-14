@@ -7,7 +7,9 @@ const AccountBlockedSchema: Schema = new Schema({
         default: 0
     },
     ip: {
-        type: String
+        type: String,
+        required: true,
+        default: '0.0.0.0'
     },
     updated: {
         type: Date
