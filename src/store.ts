@@ -2,9 +2,7 @@ import * as express from 'express';
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as helmet from 'helmet';
-import * as http from 'http';
 
-import { AddressInfo } from 'net';
 import { CorsOptions } from 'cors';
 
 import CareerController from './controllers/store/careers';

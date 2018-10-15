@@ -1,9 +1,7 @@
 import * as express from 'express';
 import * as cors from 'cors';
 import * as helmet from 'helmet';
-import * as http from 'http';
 
-import { AddressInfo } from 'net';
 import { CorsOptions } from 'cors';
 
 import IdentityController from './controllers/website/identity';
