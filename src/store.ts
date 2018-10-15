@@ -41,7 +41,7 @@ app.use(VenzraDatabase);
  * Configure security elements
  */
 const corsOpts: CorsOptions = {
-    origin: '*',
+    origin: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
     allowedHeaders: ['Content-Type'],
     credentials: true,
