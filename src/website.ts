@@ -50,18 +50,4 @@ app.use('/website/validation', ValidationController);
 
 app.use(ErrorService);
 
-/*
- * Create the server
- */
-const server = http.createServer(app);
-const port = process.env['PORT'];
-
-server.listen(port);
-server.on('listening', listening);
-
-function listening() {
-    const addr = <AddressInfo>server.address();
-    console.log(`Listening on ${addr.address}:${addr.port}`);
-}
-
 module.exports = app;
