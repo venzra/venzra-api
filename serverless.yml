@@ -13,19 +13,23 @@ provider:
     MARKETING_URL: ${file(./config.json):${opt:stage}.MARKETING_URL}
     REPLY_TO: ${file(./config.json):${opt:stage}.REPLY_TO}
   iamRoleStatements:
-    - Effect: "Allow"
+    - Effect: 'Allow'
       Action:
-        - "ses:SendEmail"
+      - 'S3:*'
+      Resource: '*'
+    - Effect: 'Allow'
+      Action:
+      - 'ses:SendEmail'
       Resource: '*'
 
 package:
   exclude:
-    - "**/*.ts"
-    - "*"
+    - '**/*.ts'
+    - '*'
   include:
-    - "src/**/*.js"
-    - "src/**/*.md"
-    - "src/**/*.ejs"
+    - 'src/**/*.js'
+    - 'src/**/*.md'
+    - 'src/**/*.ejs'
 
 plugins:
   - serverless-domain-manager
