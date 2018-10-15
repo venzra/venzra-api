@@ -32,7 +32,7 @@
         "DOMAIN": "venzra.io",
         "JWT_SECRET": "{{ JwtSecret }}",
         "MARKETING_URL": "https://www.venzra.com",
-        "NODE_ENV": "TEST",
+        "NODE_ENV": "PRODUCTION",
         "REPLY_TO": "support@venzra.com"
     }
 }

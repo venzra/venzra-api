@@ -8,9 +8,13 @@ provider:
   timeout: 5
   environment:
     ADMIN_URL: ${file(./config.json):${opt:stage}.ADMIN_URL}
+    AWS_IMAGE_BUCKET: ${file(./config.json):${opt:stage}.AWS_IMAGE_BUCKET}
     CONTACT_EMAIL: ${file(./config.json):${opt:stage}.CONTACT_EMAIL}
     DB_URI: ${file(./config.json):${opt:stage}.DB_URI}
+    DOMAIN: ${file(./config.json):${opt:stage}.DOMAIN}
+    JWT_SECRET: ${file(./config.json):${opt:stage}.JWT_SECRET}
     MARKETING_URL: ${file(./config.json):${opt:stage}.MARKETING_URL}
+    NODE_ENV: ${file(./config.json):${opt:stage}.NODE_ENV}
     REPLY_TO: ${file(./config.json):${opt:stage}.REPLY_TO}
   iamRoleStatements:
     - Effect: 'Allow'
