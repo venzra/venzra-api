@@ -48,7 +48,7 @@
         "cucumber": "5.0.2",
         "nock": "10.0.1",
         "nyc": "13.0.1",
-        "serverless": "1.32.0",
+        "serverless": "1.28.0",
         "serverless-domain-manager": "2.6.5",
         "serverless-offline": "3.27.0",
         "serverless-plugin-typescript": "1.1.5",
