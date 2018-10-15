@@ -4,16 +4,15 @@ import { createServer, proxy } from 'aws-serverless-express';
 import { Context } from 'aws-lambda';
 
 const mimeTypes: Array<string> = [
-    'image/*'
+    'application/octet-stream',
+    'image/jpeg',
+    'image/png'
     // 'application/javascript',
     // 'application/json',
-    // 'application/octet-stream',
     // 'application/xml',
     // 'font/eot',
     // 'font/opentype',
     // 'font/otf',
-    // 'image/jpeg',
-    // 'image/png',
     // 'image/svg+xml',
     // 'text/comma-separated-values',
     // 'text/css',
