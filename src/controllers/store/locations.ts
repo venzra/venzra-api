@@ -3,7 +3,7 @@ import * as parser from 'body-parser';
 import { Response, NextFunction, Router } from 'express';
 
 import { VenzraRequest } from '../../models';
-import { LocationModel } from '../../schemas';
+import { ImageModel, LocationModel } from '../../schemas';
 
 export class LocationController {
 
@@ -33,6 +33,10 @@ export class LocationController {
                         { $sort: order },
                         { $project: { displayName: 1, description: 1, address: 1, featureImage: 1, usage: 1 } }
                     ])
+                    .then((result) => ImageModel.populate(result, {
+                        path: 'featureImage',
+                        select: '_id name usage'
+                    }))
                     .then((list) => res.status(200).send({ list, total }))
             )
             .catch((error) => next(error));

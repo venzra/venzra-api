@@ -111,7 +111,11 @@ export class CartController {
             .populate({
                 path: 'items.product',
                 select: 'displayName promotionalImage currentPrice',
-                match: { status: 'ACTIVE' }
+                match: { status: 'ACTIVE' },
+                populate: {
+                    path: 'promotionalImage',
+                    select: '_id name usage'
+                }
             })
             .then((cart) => (<Cart>cart).toObject())
             .then((cart: Cart) => {

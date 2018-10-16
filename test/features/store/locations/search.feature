@@ -28,13 +28,13 @@ Feature: Searching of available locations options
       | list     | total |
       | ARRAY[6] | 6     |
     And the response from the "location" request has a "list" that contains rows:
-      | _id                    | displayName          | address | featureImage        | usage    |
-      | {{ locations[3]._id }} | Locations Search A   | OBJECT  | {{ images[1]._id }} | BUSINESS |
-      | {{ locations[2]._id }} | Locations Search AA  | OBJECT  | {{ images[1]._id }} | STORE    |
-      | {{ locations[1]._id }} | Locations Search AAA | OBJECT  | {{ images[1]._id }} | BUSINESS |
-      | {{ locations[4]._id }} | Locations Search B   | OBJECT  | {{ images[1]._id }} | BUSINESS |
-      | {{ locations[5]._id }} | Locations Search C   | OBJECT  | {{ images[1]._id }} | STORE    |
-      | {{ locations[6]._id }} | Locations Search D   | OBJECT  | {{ images[1]._id }} | STORE    |
+      | _id                    | displayName          | address | featureImage           | usage    |
+      | {{ locations[3]._id }} | Locations Search A   | OBJECT  | OBJECT[_id,name,usage] | BUSINESS |
+      | {{ locations[2]._id }} | Locations Search AA  | OBJECT  | OBJECT[_id,name,usage] | STORE    |
+      | {{ locations[1]._id }} | Locations Search AAA | OBJECT  | OBJECT[_id,name,usage] | BUSINESS |
+      | {{ locations[4]._id }} | Locations Search B   | OBJECT  | OBJECT[_id,name,usage] | BUSINESS |
+      | {{ locations[5]._id }} | Locations Search C   | OBJECT  | OBJECT[_id,name,usage] | STORE    |
+      | {{ locations[6]._id }} | Locations Search D   | OBJECT  | OBJECT[_id,name,usage] | STORE    |
 
   Scenario: Requesting a list of locations should be empty when there are none for that subscription
     Given the request origin headers are set to "locations-search-three.venzra-test.io"

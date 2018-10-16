@@ -3,7 +3,7 @@ import * as parser from 'body-parser';
 import { Response, NextFunction, Router } from 'express';
 
 import { NotFoundError, VenzraRequest } from '../../models';
-import { CategoryModel, ProductModel } from '../../schemas';
+import { CategoryModel, ImageModel, ProductModel } from '../../schemas';
 
 export class ProductsController {
 
@@ -49,6 +49,14 @@ export class ProductsController {
         ProductModel
             .findOne({ slug, subscription, status })
             .select('slug code displayName description featureImage promotionalImage previousPrice currentPrice')
+            .populate({
+                path: 'featureImage',
+                select: '_id name usage'
+            })
+            .populate({
+                path: 'promotionalImage',
+                select: '_id name usage'
+            })
             .then((product) => product ? res.status(200).send(product) : next(new NotFoundError()));
     }
 
@@ -79,6 +87,10 @@ export class ProductsController {
                         { $limit: limit },
                         { $project: { slug: 1, code: 1, displayName: 1, promotionalImage: 1, previousPrice: 1, currentPrice: 1 } }
                     ])
+                    .then((result) => ImageModel.populate(result, {
+                            path: 'promotionalImage',
+                            select: '_id name usage'
+                    }))
                     .then((list) => res.status(200).send({ list, total, skip, limit }))
             )
             .catch((productError) => next(productError));

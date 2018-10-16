@@ -2,7 +2,7 @@ import * as parser from 'body-parser';
 
 import { Response, NextFunction, Router } from 'express';
 
-import { VenzraRequest } from '../../models';
+import { Subscription, VenzraRequest } from '../../models';
 
 export class SubscriptionController {
 
@@ -20,8 +20,22 @@ export class SubscriptionController {
     }
 
     retrieve(req: VenzraRequest, res: Response, next: NextFunction) {
-        const { _id, features, domainName, storeName, strapline, icon, logo, gateway, contact, created } = req.venzra.subscription;
-        return res.status(200).send({ _id, features, domainName, storeName, strapline, icon, logo, contact, gateway: (gateway ? gateway.publicKey : ''), created });
+        const subscription: Subscription = req.venzra.subscription;
+
+        subscription
+            .populate({
+                path: 'icon',
+                select: '_id name usage'
+            })
+            .populate({
+                path: 'logo',
+                select: '_id name usage'
+            })
+            .execPopulate()
+            .then((subscription) => {
+                const { _id, features, domainName, storeName, strapline, icon, logo, gateway, contact, created } = subscription;
+                return res.status(200).send({ _id, features, domainName, storeName, strapline, icon, logo, contact, gateway: (gateway ? gateway.publicKey : ''), created });
+            });
     }
 
 }

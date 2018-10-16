@@ -3,7 +3,7 @@ import * as parser from 'body-parser';
 import { Response, NextFunction, Router } from 'express';
 
 import { NotFoundError, VenzraRequest } from '../../models';
-import { CategoryModel } from '../../schemas';
+import { CategoryModel, ImageModel } from '../../schemas';
 
 export class CategoryController {
 
@@ -27,15 +27,27 @@ export class CategoryController {
 
         CategoryModel
             .findOne({ subscription, slug })
-            .select('slug name description featureImage')
+            .select('slug name description featureImage parent children')
+            .populate({
+                path: 'featureImage',
+                select: '_id name usage'
+            })
             .populate({
                 path: 'parent',
-                select: 'slug name featureImage'
+                select: 'slug name featureImage',
+                populate: {
+                    path: 'featureImage',
+                    select: '_id name usage'
+                }
             })
             .populate({
                 path: 'children',
                 select: 'slug name featureImage'
             })
+            .then((category) => ImageModel.populate(category, {
+                path: 'children.featureImage',
+                select: '_id name usage'
+            }))
             .then((category) => {
                 if (!category) {
                     throw new NotFoundError();
@@ -57,6 +69,10 @@ export class CategoryController {
 
         CategoryModel.find(query)
             .select('slug name featureImage')
+            .populate({
+                path: 'featureImage',
+                select: '_id name usage'
+            })
             .populate({
                 path: 'children',
                 select: 'slug name',
