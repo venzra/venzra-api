@@ -38,4 +38,4 @@ ContentSchema.pre('save', function (this: Content, next: any) {
     next();
 });
 
-export const ContentModel: Model<Content> = models['content'] ? <Model<Content>>models['content'] : <Model<Content>>model('content', ContentSchema);
+export const ContentModel: Model<Content> = models['content'] ? <Model<Content>>models['content'] : <Model<Content>>model('content', ContentSchema, 'content');

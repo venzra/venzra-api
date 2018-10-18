@@ -24,16 +24,16 @@ export class ContentController {
 
     getContent(req: VenzraRequest, res: Response, next: NextFunction) {
         const subscription = req.venzra.subscription._id;
-        const usage = req.params.contentUsage;
+        const usage = req.params.contentUsage.toUpperCase();
 
-        ContentModel.findOne({ subscription, usage })
+        if (usage === 'TERMS') {
+            return res.status(200).send({ content: defaultTerms });
+        }
+
+        return ContentModel.findOne({ subscription, usage })
             .select('content')
             .then((content) => {
                 if (!content) {
-                    if (usage === 'terms') {
-                        return res.status(200).send({ content: defaultTerms });
-                    }
-
                     throw new NotFoundError();
                 }
 
