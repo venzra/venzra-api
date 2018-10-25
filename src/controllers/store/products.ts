@@ -51,11 +51,11 @@ export class ProductsController {
             .select('slug code displayName description featureImage promotionalImage previousPrice currentPrice')
             .populate({
                 path: 'featureImage',
-                select: '_id name usage'
+                select: '_id name path'
             })
             .populate({
                 path: 'promotionalImage',
-                select: '_id name usage'
+                select: '_id name path'
             })
             .then((product) => product ? res.status(200).send(product) : next(new NotFoundError()));
     }
@@ -89,7 +89,7 @@ export class ProductsController {
                     ])
                     .then((result) => ImageModel.populate(result, {
                             path: 'promotionalImage',
-                            select: '_id name usage'
+                            select: '_id name path'
                     }))
                     .then((list) => res.status(200).send({ list, total, skip, limit }))
             )

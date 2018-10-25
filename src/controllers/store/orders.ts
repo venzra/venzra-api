@@ -162,7 +162,7 @@ export class OrdersController {
                         select: '-_id slug displayName promotionalImage status',
                         populate: {
                             path: 'featureImage',
-                            select: '_id name usage'
+                            select: '_id name path'
                         }
                     }))
                     .then((list) => res.status(200).send({ list, total, skip, limit }))

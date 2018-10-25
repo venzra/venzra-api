@@ -30,31 +30,12 @@ export class ImagesController {
     findOne(req: VenzraRequest, res: Response, next: NextFunction) {
         ImageModel
             .findOne({ _id: req.params.imageId, subscription: req.venzra.subscription._id })
-            .select('_id name usage size')
+            .select('_id name usage path size')
             .then((image: Image) => {
                 if (!image) {
                     throw new NotFoundError();
                 }
-
-                return Promise.resolve()
-                    .then(() => {
-                        const Bucket = config.imageBucket;
-                        const Key = `${req.venzra.subscription._id}/${image.usage}/${image._id}`;
-
-                        const params = { Bucket, Key };
-
-                        return this.awsClient.headObject(params).promise();
-                    })
-                    .then((meta) => res.setHeader('content-type', meta.ContentType || 'application/octet-stream'))
-                    .then(() => {
-                        const Bucket = config.imageBucket;
-                        const Key = `${req.venzra.subscription._id}/${image.usage}/${image._id}`;
-
-                        const params = { Bucket, Key };
-
-                        return this.awsClient.getObject(params).createReadStream();
-                    })
-                    .then((result: stream.Readable) => result.pipe(res));
+                res.status(200).send(image);
             })
             .catch((error) => next(error));
     }

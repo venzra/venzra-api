@@ -33,39 +33,39 @@ Feature: Retrieve information for a category
     Given the request origin headers are set to "category-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories/{{ categories[1].slug }}" as "category"
     Then there should be a 200 response from the "category" request that contains:
-      | _id       | slug                | name                | description           | featureImage           | children |
-      | OBJECT_ID | category-retrieve-a | Category Retrieve A | Automated description | OBJECT[_id,name,usage] | ARRAY[0] |
+      | _id       | slug                | name                | description           | featureImage          | children |
+      | OBJECT_ID | category-retrieve-a | Category Retrieve A | Automated description | OBJECT[_id,name,path] | ARRAY[0] |
     And the response path "featureImage" from the "category" request contains:
-      | _id       | name                     | usage   |
-      | OBJECT_ID | CategoryRetrieve Image A | feature |
+      | _id       | name                     | path                                                         |
+      | OBJECT_ID | CategoryRetrieve Image A | {{ images[1].subscription }}/feature/{{ images[1]._id }}.jpg |
 
   Scenario: Retrieval of a category contains correct data
     Given the request origin headers are set to "category-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories/{{ categories[2].slug }}" as "category"
     Then there should be a 200 response from the "category" request that contains:
-      | _id       | slug                | name                | description           | featureImage           | children |
-      | OBJECT_ID | category-retrieve-b | Category Retrieve B | Automated description | OBJECT[_id,name,usage] | ARRAY[2] |
+      | _id       | slug                | name                | description           | featureImage          | children |
+      | OBJECT_ID | category-retrieve-b | Category Retrieve B | Automated description | OBJECT[_id,name,path] | ARRAY[2] |
     And the response path "children" from the "category" request contains:
-      | _id       | slug                | name                | featureImage           |
-      | OBJECT_ID | category-retrieve-c | Category Retrieve C | OBJECT[_id,name,usage] |
-      | OBJECT_ID | category-retrieve-d | Category Retrieve D | OBJECT[_id,name,usage] |
+      | _id       | slug                | name                | featureImage          |
+      | OBJECT_ID | category-retrieve-c | Category Retrieve C | OBJECT[_id,name,path] |
+      | OBJECT_ID | category-retrieve-d | Category Retrieve D | OBJECT[_id,name,path] |
 
   Scenario: A category with only inactive products is returned
     Given the request origin headers are set to "category-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories/{{ categories[3].slug }}" as "category"
     Then there should be a 200 response from the "category" request that contains:
-      | _id       | slug                | name                | description           | featureImage           | parent                             | children |
-      | OBJECT_ID | category-retrieve-c | Category Retrieve C | Automated description | OBJECT[_id,name,usage] | OBJECT[_id,slug,name,featureImage] | ARRAY[0] |
+      | _id       | slug                | name                | description           | featureImage          | parent                             | children |
+      | OBJECT_ID | category-retrieve-c | Category Retrieve C | Automated description | OBJECT[_id,name,path] | OBJECT[_id,slug,name,featureImage] | ARRAY[0] |
     And the response path "parent" from the "category" request contains:
-      | _id       | slug                | name                | featureImage           |
-      | OBJECT_ID | category-retrieve-b | Category Retrieve B | OBJECT[_id,name,usage] |
+      | _id       | slug                | name                | featureImage          |
+      | OBJECT_ID | category-retrieve-b | Category Retrieve B | OBJECT[_id,name,path] |
 
   Scenario: A category with no products is returned
     Given the request origin headers are set to "category-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories/{{ categories[4].slug }}" as "category"
     Then there should be a 200 response from the "category" request that contains:
-      | _id       | slug                | name                | description           | featureImage           | parent                             | children |
-      | OBJECT_ID | category-retrieve-d | Category Retrieve D | Automated description | OBJECT[_id,name,usage] | OBJECT[_id,slug,name,featureImage] | ARRAY[0] |
+      | _id       | slug                | name                | description           | featureImage          | parent                             | children |
+      | OBJECT_ID | category-retrieve-d | Category Retrieve D | Automated description | OBJECT[_id,name,path] | OBJECT[_id,slug,name,featureImage] | ARRAY[0] |
 
   Scenario: Another subscription user cannot retrieve a record that does not belong to them
     Given the request origin headers are set to "category-retrieve-two.venzra-test.io"

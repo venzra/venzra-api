@@ -29,14 +29,14 @@ Feature: Creation of a new product entry
     Given the request origin headers are set to "products-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/products/{{ products[2].slug }}" as "product"
     Then there should be a 200 response from the "product" request that contains:
-      | _id       | code            | slug                | displayName         | description           | featureImage           | promotionalImage       | previousPrice | currentPrice |
-      | OBJECT_ID | RETRIEVE-01-002 | product-retrieve-aa | Product Retrieve AA | Automated description | OBJECT[_id,name,usage] | OBJECT[_id,name,usage] | 50            | 99           |
+      | _id       | code            | slug                | displayName         | description           | featureImage          | promotionalImage      | previousPrice | currentPrice |
+      | OBJECT_ID | RETRIEVE-01-002 | product-retrieve-aa | Product Retrieve AA | Automated description | OBJECT[_id,name,path] | OBJECT[_id,name,path] | 50            | 99           |
     And the response path "featureImage" from the "product" request contains:
-      | _id       | name                     | usage   |
-      | OBJECT_ID | ProductsRetrieve Image A | feature |
+      | _id       | name                     | path                                                         |
+      | OBJECT_ID | ProductsRetrieve Image A | {{ images[1].subscription }}/feature/{{ images[1]._id }}.jpg |
     And the response path "promotionalImage" from the "product" request contains:
-      | _id       | name                     | usage     |
-      | OBJECT_ID | ProductsRetrieve Image B | promotion |
+      | _id       | name                     | path                                                           |
+      | OBJECT_ID | ProductsRetrieve Image B | {{ images[2].subscription }}/promotion/{{ images[2]._id }}.jpg |
 
   Scenario: It is not possible to retrieve a product that belongs to a different subscription
     Given the request origin headers are set to "products-retrieve-two.venzra-test.io"
@@ -47,5 +47,5 @@ Feature: Creation of a new product entry
     Given the request origin headers are set to "products-retrieve-two.venzra-test.io"
     When I make a GET request to the API endpoint "/store/products/{{ products[1].slug }}" as "product"
     Then there should be a 200 response from the "product" request that contains:
-      | _id       | code            | slug               | displayName        | description           | featureImage           | promotionalImage       | previousPrice | currentPrice |
-      | OBJECT_ID | RETRIEVE-02-001 | product-retrieve-a | Product Retrieve A | Automated description | OBJECT[_id,name,usage] | OBJECT[_id,name,usage] | 2000          | 999          |
+      | _id       | code            | slug               | displayName        | description           | featureImage          | promotionalImage      | previousPrice | currentPrice |
+      | OBJECT_ID | RETRIEVE-02-001 | product-retrieve-a | Product Retrieve A | Automated description | OBJECT[_id,name,path] | OBJECT[_id,name,path] | 2000          | 999          |

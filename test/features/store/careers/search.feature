@@ -26,12 +26,12 @@ Feature: Searching of available career positions
       | list     | total |
       | ARRAY[5] | 5     |
     And the response from the "career" request has a "list" that contains rows:
-      | _id                  | position                    | description        | expires    |
-      | {{ careers[2]._id }} | Careers Search Position AA  | Automated position | DATE[0]    |
-      | {{ careers[1]._id }} | Careers Search Position A   | Automated position | DATE[120]  |
-      | {{ careers[4]._id }} | Careers Search Position B   | Automated position | DATE[120]  |
-      | {{ careers[5]._id }} | Careers Search Position C   | Automated position | DATE[240]  |
-      | {{ careers[6]._id }} | Careers Search Position D   | Automated position | DATE[720]  |
+      | _id                  | position                   | description        | expires   |
+      | {{ careers[2]._id }} | Careers Search Position AA | Automated position | DATE[0]   |
+      | {{ careers[1]._id }} | Careers Search Position A  | Automated position | DATE[120] |
+      | {{ careers[4]._id }} | Careers Search Position B  | Automated position | DATE[120] |
+      | {{ careers[5]._id }} | Careers Search Position C  | Automated position | DATE[240] |
+      | {{ careers[6]._id }} | Careers Search Position D  | Automated position | DATE[720] |
 
   Scenario: Requesting a list of career positions should be empty when there are none for that subscription
     Given the request origin headers are set to "careers-search-three.venzra-test.io"

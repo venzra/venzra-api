@@ -30,14 +30,14 @@ export class CategoryController {
             .select('slug name description featureImage parent children')
             .populate({
                 path: 'featureImage',
-                select: '_id name usage'
+                select: '_id name path'
             })
             .populate({
                 path: 'parent',
                 select: 'slug name featureImage',
                 populate: {
                     path: 'featureImage',
-                    select: '_id name usage'
+                    select: '_id name path'
                 }
             })
             .populate({
@@ -46,7 +46,7 @@ export class CategoryController {
             })
             .then((category) => ImageModel.populate(category, {
                 path: 'children.featureImage',
-                select: '_id name usage'
+                select: '_id name path'
             }))
             .then((category) => {
                 if (!category) {
@@ -71,7 +71,7 @@ export class CategoryController {
             .select('slug name featureImage')
             .populate({
                 path: 'featureImage',
-                select: '_id name usage'
+                select: '_id name path'
             })
             .populate({
                 path: 'children',

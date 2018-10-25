@@ -38,6 +38,9 @@ const checkValues = (expected, actual, exact = true) => {
                 break;
             case 'OBJECT':
                 expect(actual[key]).to.be.an('object');
+                if (check instanceof Array) {
+                    expect(actual[key]).to.have.keys(check[1].split(','));
+                }
                 break;
             case 'REGEX':
                 expect(actual[key]).to.match(new RegExp(check[1]));

@@ -35,7 +35,7 @@ export class LocationController {
                     ])
                     .then((result) => ImageModel.populate(result, {
                         path: 'featureImage',
-                        select: '_id name usage'
+                        select: '_id name path'
                     }))
                     .then((list) => res.status(200).send({ list, total }))
             )

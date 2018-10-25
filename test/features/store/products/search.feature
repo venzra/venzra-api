@@ -54,8 +54,8 @@ Feature: Creation of a new product entry
       | list     | total | skip | limit |
       | ARRAY[9] | 9     | 0    | 24    |
     And the "product" request that has a "list" field and row 1 contains:
-      | _id       | slug             | code          | displayName      | promotionalImage       | previousPrice | currentPrice |
-      | OBJECT_ID | product-search-a | SEARCH-01-001 | Product Search A | OBJECT[_id,name,usage] | 0             | 9            |
+      | _id       | slug             | code          | displayName      | promotionalImage      | previousPrice | currentPrice |
+      | OBJECT_ID | product-search-a | SEARCH-01-001 | Product Search A | OBJECT[_id,name,path] | 0             | 9            |
 
   Scenario: Requesting a list of products should return only records for that subscription (subscription two)
     Given the request origin headers are set to "products-search-two.venzra-test.io"
@@ -64,8 +64,8 @@ Feature: Creation of a new product entry
       | list     | total | skip | limit |
       | ARRAY[2] | 2     | 0    | 24    |
     And the "product" request that has a "list" field and row 1 contains:
-      | _id       | slug             | code          | displayName      | promotionalImage       | previousPrice | currentPrice |
-      | OBJECT_ID | product-search-a | SEARCH-02-001 | Product Search A | OBJECT[_id,name,usage] | 0             | 999          |
+      | _id       | slug             | code          | displayName      | promotionalImage      | previousPrice | currentPrice |
+      | OBJECT_ID | product-search-a | SEARCH-02-001 | Product Search A | OBJECT[_id,name,path] | 0             | 999          |
 
   Scenario: Requesting a list of products should return no results when there are no products (subscription three)
     Given the request origin headers are set to "products-search-three.venzra-test.io"
@@ -81,8 +81,8 @@ Feature: Creation of a new product entry
       | list     | total | skip | limit |
       | ARRAY[4] | 9     | 2    | 4     |
     And the "product" request that has a "list" field and row 1 contains:
-      | _id       | slug               | code          | displayName        | promotionalImage       | previousPrice | currentPrice |
-      | OBJECT_ID | product-search-aaa | SEARCH-01-003 | Product Search AAA | OBJECT[_id,name,usage] | 5000          | 999          |
+      | _id       | slug               | code          | displayName        | promotionalImage      | previousPrice | currentPrice |
+      | OBJECT_ID | product-search-aaa | SEARCH-01-003 | Product Search AAA | OBJECT[_id,name,path] | 5000          | 999          |
 
   Scenario: Listing of products supports searching by name
     Given the request origin headers are set to "products-search-one.venzra-test.io"
@@ -91,8 +91,8 @@ Feature: Creation of a new product entry
       | list     | total | skip | limit |
       | ARRAY[3] | 3     | 0    | 24    |
     And the "product" request that has a "list" field and row 1 contains:
-      | _id       | slug              | code          | displayName       | promotionalImage       | previousPrice | currentPrice |
-      | OBJECT_ID | product-search-aa | SEARCH-01-002 | Product Search AA | OBJECT[_id,name,usage] | 0             | 99           |
+      | _id       | slug              | code          | displayName       | promotionalImage      | previousPrice | currentPrice |
+      | OBJECT_ID | product-search-aa | SEARCH-01-002 | Product Search AA | OBJECT[_id,name,path] | 0             | 99           |
 
   Scenario: Listing of products supports searching by category
     Given the request origin headers are set to "products-search-one.venzra-test.io"
@@ -101,8 +101,8 @@ Feature: Creation of a new product entry
       | list     | total | skip | limit |
       | ARRAY[2] | 2     | 0    | 24    |
     And the "product" request that has a "list" field and row 1 contains:
-      | _id       | slug              | code          | displayName       | promotionalImage       | previousPrice | currentPrice |
-      | OBJECT_ID | product-search-aa | SEARCH-01-002 | Product Search AA | OBJECT[_id,name,usage] | 0             | 99           |
+      | _id       | slug              | code          | displayName       | promotionalImage      | previousPrice | currentPrice |
+      | OBJECT_ID | product-search-aa | SEARCH-01-002 | Product Search AA | OBJECT[_id,name,path] | 0             | 99           |
 
   Scenario: Listing of products supports searching by parent category
     Given the request origin headers are set to "products-search-one.venzra-test.io"
@@ -111,8 +111,8 @@ Feature: Creation of a new product entry
       | list     | total | skip | limit |
       | ARRAY[4] | 4     | 0    | 24    |
     And the "product" request that has a "list" field and row 1 contains:
-      | _id       | slug              | code          | displayName       | promotionalImage       | previousPrice | currentPrice |
-      | OBJECT_ID | product-search-aa | SEARCH-01-002 | Product Search AA | OBJECT[_id,name,usage] | 0             | 99           |
+      | _id       | slug              | code          | displayName       | promotionalImage      | previousPrice | currentPrice |
+      | OBJECT_ID | product-search-aa | SEARCH-01-002 | Product Search AA | OBJECT[_id,name,path] | 0             | 99           |
 
   Scenario: Listing of products returns no results for a non-existent category
     Given the request origin headers are set to "products-search-one.venzra-test.io"

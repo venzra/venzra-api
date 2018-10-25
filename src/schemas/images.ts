@@ -19,6 +19,11 @@ const ImageSchema: Schema = new Schema({
         required: true,
         trim: true
     },
+    path: {
+        type: String,
+        required: true,
+        trim: true
+    },
     size: {
         type: Number,
         required: true
@@ -28,6 +33,18 @@ const ImageSchema: Schema = new Schema({
         required: true,
         default: Date.now
     }
+});
+
+ImageSchema.pre('validate', function (this: Image, next: any) {
+    switch (this.usage) {
+        case 'feature':
+        case 'promotion':
+            this.path = `${this.subscription}/${this.usage}/${this._id}.jpg`;
+            break;
+        default:
+            this.path = `${this.subscription}/${this.usage}/${this._id}.png`;
+    }
+    next();
 });
 
 export const ImageModel: Model<Image> = models['images'] ? <Model<Image>>models['images'] : <Model<Image>>model('images', ImageSchema);

@@ -25,11 +25,11 @@ export class SubscriptionController {
         subscription
             .populate({
                 path: 'icon',
-                select: '_id name usage'
+                select: '_id name path'
             })
             .populate({
                 path: 'logo',
-                select: '_id name usage'
+                select: '_id name path'
             })
             .execPopulate()
             .then((subscription) => {
