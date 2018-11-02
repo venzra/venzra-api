@@ -58,4 +58,4 @@ ShippingSchema.pre('save', function (this: Shipping, next: any) {
     next();
 });
 
-export const ShippingModel: Model<Shipping> = models['shipping'] ? <Model<Shipping>>models['shipping'] : <Model<Shipping>>model('shipping', ShippingSchema);
+export const ShippingModel: Model<Shipping> = models['shipping'] ? <Model<Shipping>>models['shipping'] : <Model<Shipping>>model('shipping', ShippingSchema, 'shipping');
