@@ -161,7 +161,7 @@ export class OrdersController {
                         path: 'items.product',
                         select: '-_id slug displayName promotionalImage status',
                         populate: {
-                            path: 'featureImage',
+                            path: 'promotionalImage',
                             select: '_id name path'
                         }
                     }))
