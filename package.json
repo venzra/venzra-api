@@ -46,7 +46,7 @@
         "aws-sdk": "2.348.0",
         "chai": "4.2.0",
         "cucumber": "5.0.2",
-        "nock": "10.0.1",
+        "nock": "10.0.2",
         "nyc": "13.1.0",
         "serverless": "1.32.0",
         "serverless-domain-manager": "2.6.5",
