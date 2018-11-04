@@ -7,6 +7,7 @@ export interface Subscription extends Document {
     addons: Addon[];
     strapline: string;
     domainName: string;
+    additionalDomains: string[];
     icon: string;
     logo: string;
     theme: Theme;

@@ -24,10 +24,12 @@ export class VenzraSubscription {
             domainName = domainName.substr(0, domainName.indexOf(':'));
         }
 
+        const additionalDomains = domainName;
+
         domainName = domainName.split('.').shift() || '';
 
         SubscriptionModel
-            .findOne({ domainName })
+            .findOne({ $or: [{ domainName }, { additionalDomains }] })
             .then((subscription: Subscription) => {
                 if(!subscription) {
                     throw new NotFoundError();

@@ -26,6 +26,11 @@ const SubscriptionSchema: Schema = new Schema({
         lowercase: true,
         required: true
     },
+    additionalDomains: {
+        type: [String],
+        lowercase: true,
+        default: []
+    },
     icon: {
         type: Schema.Types.ObjectId,
         ref: 'images'
