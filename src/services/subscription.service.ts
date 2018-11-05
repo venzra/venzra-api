@@ -39,6 +39,7 @@ export class VenzraSubscription {
                 path: 'logo',
                 select: '_id name path'
             })
+            .lean()
             .then((subscription: Subscription) => {
                 if(!subscription) {
                     throw new NotFoundError();
