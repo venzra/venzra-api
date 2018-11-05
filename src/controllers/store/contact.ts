@@ -32,13 +32,15 @@ export class ContactController {
             return next(new ValidationError(requestErrors));
         }
 
+        const alias = req.body.fullName;
+        const email = req.body.email;
         const subject = req.body.subject || 'Web Contact';
         const sender = `${req.venzra.subscription.storeName} <${req.venzra.subscription.domainName}@${config.emailDomain}>`;
         const subscription = req.venzra.subscription;
         const message = req.body;
 
         const mailer = new MailService(subject, sender, [req.venzra.subscription.contact.recipient]);
-        const content = { subject, subscription, message, sender };
+        const content = { subject, alias, email, subscription, message, sender };
 
         return mailer
             .send('contact', content)

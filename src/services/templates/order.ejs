@@ -18,14 +18,14 @@
                 <th style="text-align: center">Price</th>
                 <th style="text-align: right">Subtotal</th>
             </tr>
-            <%= for(let i = 0; i < order.items.length; i++) { %>
+            <% for(let item of order.items) { %>
             <tr>
                 <td style="text-align: left"><%= item.product.displayName %></td>
                 <td style="text-align: center"><%= item.quantity %></td>
                 <td style="text-align: center"><%= item.price / 100 %></td>
                 <td style="text-align: right"><%= item.price * item.quantity / 100 %></td>
             </tr>
-            <%= } %>
+            <% } %>
             <tr>
                 <td style="text-align: right" colspan="4">Total: <%= order.payment.value / 100 %></td>
             </tr>

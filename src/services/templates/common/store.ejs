@@ -75,10 +75,10 @@
         <table>
             <tr style="background-color:#673ab7;">
                 <td class="centered" style="padding:3em;">
-                    <%= if(subscription.logo) { %>
+                    <% if (subscription.logo) { %>
                         <img src="<%= subscription.logo %>" alt="<%= subscription.storeName %>" title="<%= subscription.storeName %>" />
-                    <%= } else { %>
+                    <% } else { %>
                         <h2><%= subscription.storeName %></h2>
-                    <%= } %>
+                    <% } %>
                 </td>
             </tr>

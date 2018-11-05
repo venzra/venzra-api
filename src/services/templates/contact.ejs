@@ -1,10 +1,10 @@
 <%- include('common/store.ejs', { subject, subscription }) %>
 <tr>
     <td>
-        <p>Message from <strong><%= contact.fullName %></strong>.</p>
+        <p>Message from <strong><%= alias %></strong> <<%= email %>>.</p>
     </td>
 </tr>
 <tr>
-    <td><%= contact.message %></td>
+    <td><%= message %></td>
 </tr>
 <%- include('common/footer.ejs', { sender }) %>
