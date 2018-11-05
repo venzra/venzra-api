@@ -6,7 +6,7 @@
 </tr>
 <tr>
     <td>
-        <p>Your order <strong>${order.reference}</strong> has been placed successfully.</p>
+        <p>Your order <strong><%= order.reference %></strong> has been placed successfully.</p>
     </td>
 </tr>
 <tr>
@@ -18,16 +18,16 @@
                 <th style="text-align: center">Price</th>
                 <th style="text-align: right">Subtotal</th>
             </tr>
-            ${order.items.map((item: any) => `
+            <%= for(let i = 0; i < order.items.length; i++) { %>
             <tr>
-                <td style="text-align: left">${item.product.displayName}</td>
-                <td style="text-align: center">${item.quantity}</td>
-                <td style="text-align: center">${item.price / 100}</td>
-                <td style="text-align: right">${item.price * item.quantity / 100}</td>
+                <td style="text-align: left"><%= item.product.displayName %></td>
+                <td style="text-align: center"><%= item.quantity %></td>
+                <td style="text-align: center"><%= item.price / 100 %></td>
+                <td style="text-align: right"><%= item.price * item.quantity / 100 %></td>
             </tr>
-            `).join('\n')}
+            <%= } %>
             <tr>
-                <td style="text-align: right" colspan="4">Total: ${order.payment.value / 100}</td>
+                <td style="text-align: right" colspan="4">Total: <%= order.payment.value / 100 %></td>
             </tr>
         </table>
     </td>
