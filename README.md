@@ -30,3 +30,13 @@ This is the API which will back all Venzra products and is designed as a highly 
 ### Deployment
 
 This is performed via Circle CI and uses the scripts `npm run test:ci` and `npm run deploy:prod` to perform required checks and deployments
+
+#### Image CDN (managed by the API)
+
+The image CDN is managed by the API for deployments to different environments the following variables should be set for the environment.
+
+| variable | example | description |
+| :--- | :--- | :--- |
+| DEPLOY_CERT | arn:aws:acm:us-east-1:xxxxxxxxxxxx | AWS certificate ARN, certificate must exist on US-EAST-1 |
+| DEPLOY_URI | images.venzra.com | The domain for which to create this CDN |
+| DEPLOY_STACK | image-cdn-venzra | The name for AWS to use to reference this environment |
