@@ -8,8 +8,8 @@ export interface Subscription extends Document {
     strapline: string;
     domainName: string;
     additionalDomains: string[];
-    icon: string;
-    logo: string;
+    icon: any;
+    logo: any;
     theme: Theme;
     payment: {
         package: string;
