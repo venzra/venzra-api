@@ -3,6 +3,7 @@ import * as parser from 'body-parser';
 import { Response, NextFunction, Router } from 'express';
 
 import { Subscription, VenzraRequest } from '../../models';
+import { config } from '../../config';
 
 export class SubscriptionController {
 
@@ -20,7 +21,7 @@ export class SubscriptionController {
     }
 
     retrieve(req: VenzraRequest, res: Response, next: NextFunction) {
-        const subscription: Subscription = req.venzra.subscription;
+        const subscription: any = req.venzra.subscription;
 
         subscription
             .populate({
@@ -32,8 +33,12 @@ export class SubscriptionController {
                 select: '_id name path'
             })
             .execPopulate()
-            .then((subscription) => {
-                const { _id, features, domainName, storeName, strapline, icon, logo, gateway, contact, created } = subscription;
+            .then((subscription: any) => {
+                let { _id, features, domainName, storeName, strapline, icon, logo, gateway, contact, created } = subscription;
+
+                icon = icon ? `https://${config.imageBucket}/${icon.path}` : icon;
+                logo = logo ? `https://${config.imageBucket}/${logo.path}` : logo;
+
                 return res.status(200).send({ _id, features, domainName, storeName, strapline, icon, logo, contact, gateway: (gateway ? gateway.publicKey : ''), created });
             });
     }

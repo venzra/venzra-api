@@ -5,7 +5,7 @@ import { ICard } from 'stripe';
 import { Response, NextFunction, Router } from 'express';
 
 import { Address, BadRequestError, GatewayError, NotFoundError, Order, ValidationError, VenzraRequest } from '../../models';
-import { CartModel, OrderModel, ProductModel } from '../../schemas';
+import { CartModel, OrderModel } from '../../schemas';
 import { ErrorService, IdentityService, MailService } from '../../services';
 
 import { config } from '../../config';
@@ -73,14 +73,21 @@ export class OrdersController {
                         },
                         statement_descriptor: req.venzra.subscription.storeName.substr(0, 22)
                     })
-                    .then((payment) => stripe.balance.retrieveTransaction(<string> payment.balance_transaction).then((transaction) => ({ payment, transaction })))
+                    .then((payment) => stripe.balance.retrieveTransaction(<string> payment.balance_transaction).then((transaction) => ({
+                        payment,
+                        transaction
+                    })))
                     .then(({ payment, transaction }) => {
                         const card = <ICard>payment.source;
                         const order = new OrderModel({
                             subscription: req.venzra.subscription,
                             customer: req.venzra.customer,
                             reference: Math.floor((Math.random() * 0.9 + 0.1) * Math.pow(10, 10)),
-                            items: cart.items.map((item) => ({ product: item.product, quantity: item.quantity, price: item.product.currentPrice })),
+                            items: cart.items.map((item) => ({
+                                product: item.product,
+                                quantity: item.quantity,
+                                price: item.product.currentPrice
+                            })),
                             shipping: cart.shipping,
                             destination: destination,
                             billing: {
@@ -146,6 +153,7 @@ export class OrdersController {
         const limit = parseInt(req.query.limit, 10) || 5;
         const order = { created: -1 };
 
+
         OrderModel
             .count(searchParams).exec()
             .then((total) =>
@@ -155,19 +163,54 @@ export class OrdersController {
                         { $sort: order },
                         { $skip: skip },
                         { $limit: limit },
-                        { $project: { reference: 1, shipping: 1, destination: 1, payment: { name: 1, card: 1, brand: 1, value: 1 }, items: 1, status: 1, created: 1 } }
+                        { $unwind: '$items' },
+                        { $lookup: { from: 'products', localField: 'items.product', foreignField: '_id', as: 'items.product' } },
+                        { $unwind: '$items.product' },
+                        {
+                            $lookup: {
+                                from: 'images',
+                                localField: 'items.product.promotionalImage',
+                                foreignField: '_id',
+                                as: 'items.fullImage'
+                            }
+                        },
+                        {
+                            $project: {
+                                reference: 1,
+                                shipping: 1,
+                                destination: 1,
+                                payment: { name: 1, card: 1, brand: 1, value: 1 },
+                                items: {
+                                    product: {
+                                        slug: 1,
+                                        displayName: 1,
+                                        promotionalImage: { $concat: ['https://', config.imageBucket, '/', { $arrayElemAt: ['$items.fullImage.path', 0] }] },
+                                        status: 1
+                                    },
+                                    quantity: 1,
+                                    price: 1
+                                },
+                                status: 1,
+                                created: 1
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: '$_id',
+                                reference: { '$first': '$reference' },
+                                shipping: { '$first': '$shipping' },
+                                destination: { '$first': '$destination' },
+                                payment: { '$first': '$payment' },
+                                items: { $push: '$items' },
+                                status: { '$first': '$status' },
+                                created: { '$first': '$created' }
+                            }
+                        },
+                        { $sort: order }
                     ])
-                    .then((result) => ProductModel.populate(result, {
-                        path: 'items.product',
-                        select: '-_id slug displayName promotionalImage status',
-                        populate: {
-                            path: 'promotionalImage',
-                            select: '_id name path'
-                        }
-                    }))
                     .then((list) => res.status(200).send({ list, total, skip, limit }))
             )
-            .catch((productError) => next(productError));
+            .catch((orderError) => next(orderError));
     }
 
 }

@@ -1,6 +1,7 @@
 import { Schema, Model, model, models } from 'mongoose';
 
 import { Image } from '../models';
+import { config } from '../config';
 
 const ImageSchema: Schema = new Schema({
     subscription: {

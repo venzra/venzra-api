@@ -3,7 +3,8 @@ import * as parser from 'body-parser';
 import { Response, NextFunction, Router } from 'express';
 
 import { NotFoundError, VenzraRequest } from '../../models';
-import { CategoryModel, ImageModel, ProductModel } from '../../schemas';
+import { CategoryModel, ImageModel, LocationModel, ProductModel } from '../../schemas';
+import { config } from '../../config';
 
 export class ProductsController {
 
@@ -47,17 +48,22 @@ export class ProductsController {
         const status = 'ACTIVE';
 
         ProductModel
-            .findOne({ slug, subscription, status })
-            .select('slug code displayName description featureImage promotionalImage previousPrice currentPrice')
-            .populate({
-                path: 'featureImage',
-                select: '_id name path'
-            })
-            .populate({
-                path: 'promotionalImage',
-                select: '_id name path'
-            })
-            .then((product) => product ? res.status(200).send(product) : next(new NotFoundError()));
+            .aggregate([
+                { $match: { slug, subscription, status } },
+                { $lookup: { from: 'images', localField: 'promotionalImage', foreignField: '_id', as: 'fullImage' } },
+                {
+                    $project: {
+                        slug: 1,
+                        code: 1,
+                        displayName: 1,
+                        description: 1,
+                        promotionalImage: { $concat: ['https://', config.imageBucket, '/', { $arrayElemAt: ['$fullImage.path', 0] }] },
+                        previousPrice: 1,
+                        currentPrice: 1
+                    }
+                }
+            ])
+            .then((products) => products.length ? res.status(200).send(products[0]) : next(new NotFoundError()));
     }
 
     findAll(req: VenzraRequest, res: Response, next: NextFunction) {
@@ -85,15 +91,56 @@ export class ProductsController {
                         { $sort: order },
                         { $skip: skip },
                         { $limit: limit },
-                        { $project: { slug: 1, code: 1, displayName: 1, promotionalImage: 1, previousPrice: 1, currentPrice: 1 } }
+                        {
+                            $lookup: {
+                                from: 'images',
+                                localField: 'promotionalImage',
+                                foreignField: '_id',
+                                as: 'promotionalImage'
+                            }
+                        },
+                        {
+                            $project: {
+                                slug: 1,
+                                code: 1,
+                                displayName: 1,
+                                promotionalImage: { $concat: ['https://', config.imageBucket, '/', { $arrayElemAt: ['$promotionalImage.path', 0] }] },
+                                previousPrice: 1,
+                                currentPrice: 1
+                            }
+                        }
                     ])
-                    .then((result) => ImageModel.populate(result, {
-                            path: 'promotionalImage',
-                            select: '_id name path'
-                    }))
                     .then((list) => res.status(200).send({ list, total, skip, limit }))
             )
-            .catch((productError) => next(productError));
+            .catch((error) => next(error));
+
+        // ProductModel
+        //     .count(searchParams).exec()
+        //     .then((total) =>
+        //         ProductModel
+        //             .aggregate([
+        //                 { $match: searchParams },
+        //                 { $sort: order },
+        //                 { $skip: skip },
+        //                 { $limit: limit },
+        //                 {
+        //                     $project: {
+        //                         slug: 1,
+        //                         code: 1,
+        //                         displayName: 1,
+        //                         promotionalImage: 1,
+        //                         previousPrice: 1,
+        //                         currentPrice: 1
+        //                     }
+        //                 }
+        //             ])
+        //             .then((result) => ImageModel.populate(result, {
+        //                 path: 'promotionalImage',
+        //                 select: '_id name path'
+        //             }))
+        //             .then((list) => res.status(200).send({ list, total, skip, limit }))
+        //     )
+        //     .catch((productError) => next(productError));
     }
 
 }

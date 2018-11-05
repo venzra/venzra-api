@@ -1,5 +1,4 @@
 import * as parser from 'body-parser';
-import * as stream from 'stream';
 
 import { Response, NextFunction, Router } from 'express';
 import { S3 } from 'aws-sdk';
@@ -35,6 +34,7 @@ export class ImagesController {
                 if (!image) {
                     throw new NotFoundError();
                 }
+                image.path = `https://${config.imageBucket}/${image.path}`;
                 res.status(200).send(image);
             })
             .catch((error) => next(error));

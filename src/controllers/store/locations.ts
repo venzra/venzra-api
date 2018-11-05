@@ -2,8 +2,9 @@ import * as parser from 'body-parser';
 
 import { Response, NextFunction, Router } from 'express';
 
-import { VenzraRequest } from '../../models';
-import { ImageModel, LocationModel } from '../../schemas';
+import { NotFoundError, VenzraRequest } from '../../models';
+import { ImageModel, LocationModel, ProductModel } from '../../schemas';
+import { config } from '../../config';
 
 export class LocationController {
 
@@ -31,12 +32,24 @@ export class LocationController {
                     .aggregate([
                         { $match: searchParams },
                         { $sort: order },
-                        { $project: { displayName: 1, description: 1, address: 1, featureImage: 1, usage: 1 } }
+                        {
+                            $lookup: {
+                                from: 'images',
+                                localField: 'featureImage',
+                                foreignField: '_id',
+                                as: 'featureImage'
+                            }
+                        },
+                        {
+                            $project: {
+                                displayName: 1,
+                                description: 1,
+                                address: 1,
+                                featureImage: { $concat: ['https://', config.imageBucket, '/', { $arrayElemAt: ['$featureImage.path', 0] }] },
+                                usage: 1
+                            }
+                        }
                     ])
-                    .then((result) => ImageModel.populate(result, {
-                        path: 'featureImage',
-                        select: '_id name path'
-                    }))
                     .then((list) => res.status(200).send({ list, total }))
             )
             .catch((error) => next(error));

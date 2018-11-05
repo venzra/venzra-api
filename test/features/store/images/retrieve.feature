@@ -26,5 +26,5 @@ Feature: Retrieval of images stored on S3
     Given the request origin headers are set to "images-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/images/{{ images[1]._id }}" as "image"
     Then there should be a 200 response from the "image" request that contains:
-      | _id                 | name                   | usage | path                                                      | size |
-      | {{ images[1]._id }} | ImagesRetrieve Image A | icon  | {{ images[1].subscription }}/icon/{{ images[1]._id }}.png | 128  |
+      | _id                 | name                   | usage | path                                                                                     | size |
+      | {{ images[1]._id }} | ImagesRetrieve Image A | icon  | https://images.venzra-test.com/{{ images[1].subscription }}/icon/{{ images[1]._id }}.png | 128  |
