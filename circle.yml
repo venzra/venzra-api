@@ -48,6 +48,7 @@ jobs:
       docker:
       - image: circleci/node:8
       steps:
+      - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install python3 python3-pip
       - run: sudo pip3 install awscli --upgrade
