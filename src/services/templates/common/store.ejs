@@ -76,7 +76,7 @@
             <tr style="background-color:#673ab7;">
                 <td class="centered" style="padding:3em;">
                     ${subscription.logo ?
-                        `<img src="https://${subscription.domainName}.venzra.io/api/images/${subscription.logo}" alt="${subscription.storeName}" title="${subscription.storeName}" />`
+                        `<img src="${subscription.logo}" alt="${subscription.storeName}" title="${subscription.storeName}" />`
                         :
                         `<h2>${subscription.storeName}</h2>`
                     }
