@@ -29,7 +29,7 @@ export class CareerController {
         const order = { expires: 1, position: 1 };
 
         CareerModel
-            .count(searchParams).exec()
+            .countDocuments(searchParams).exec()
             .then((total) =>
                 CareerModel
                     .aggregate([

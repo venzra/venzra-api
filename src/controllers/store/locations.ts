@@ -26,7 +26,7 @@ export class LocationController {
         const order = { displayName: 1 };
 
         LocationModel
-            .count(searchParams).exec()
+            .countDocuments(searchParams).exec()
             .then((total) =>
                 LocationModel
                     .aggregate([

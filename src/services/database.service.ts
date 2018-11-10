@@ -12,10 +12,12 @@ export class VenzraDatabase {
                 autoIndex: true,
                 bufferCommands: false,
                 bufferMaxEntries: 0,
-                socketTimeoutMS: 0,
                 keepAlive: 120,
+                poolSize: 1,
                 reconnectTries: 30,
-                poolSize: 1
+                socketTimeoutMS: 0,
+                useCreateIndex: true,
+                useNewUrlParser: true
             }
         };
 

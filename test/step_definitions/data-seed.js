@@ -7,7 +7,21 @@ Given(/^there are the following "([^"]*)" records in the database(?: (in series)
     dataset = this.getHashes(dataset);
 
     if (!mongoose.connection.readyState) {
-        mongoose.connect(process.env['DB_URI']);
+        const mongo = {
+            uri: process.env['DB_URI'],
+            options: {
+                autoIndex: true,
+                bufferCommands: false,
+                bufferMaxEntries: 0,
+                keepAlive: 120,
+                poolSize: 2,
+                reconnectTries: 30,
+                socketTimeoutMS: 0,
+                useCreateIndex: true,
+                useNewUrlParser: true
+            }
+        };
+        mongoose.connect(mongo.uri, mongo.options);
     }
 
     return Promise.resolve()

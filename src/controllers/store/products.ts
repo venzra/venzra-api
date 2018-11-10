@@ -83,7 +83,7 @@ export class ProductsController {
         }
 
         ProductModel
-            .count(searchParams).exec()
+            .countDocuments(searchParams).exec()
             .then((total) =>
                 ProductModel
                     .aggregate([

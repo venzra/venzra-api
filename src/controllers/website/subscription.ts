@@ -23,7 +23,7 @@ export class SubscriptionController {
         const order = { price: 1, name: 1 };
 
         PlanModel
-            .count(undefined)
+            .countDocuments()
             .exec()
             .then((total) =>
                 PlanModel

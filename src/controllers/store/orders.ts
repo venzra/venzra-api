@@ -155,7 +155,7 @@ export class OrdersController {
 
 
         OrderModel
-            .count(searchParams).exec()
+            .countDocuments(searchParams).exec()
             .then((total) =>
                 OrderModel
                     .aggregate([

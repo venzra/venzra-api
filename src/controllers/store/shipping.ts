@@ -25,7 +25,7 @@ export class ShippingController {
         const order = { currentPrice: 1, shipmentTime: 1 };
 
         ShippingModel
-            .count(searchParams).exec()
+            .countDocuments(searchParams).exec()
             .then((total) =>
                 ShippingModel
                     .aggregate([
