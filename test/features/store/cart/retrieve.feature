@@ -55,6 +55,9 @@ Feature: Access cart data available for a customer
     And the "cart" request that has an "items" field and row 1 contains:
       | _id       | product                                               | quantity |
       | OBJECT_ID | OBJECT[_id,displayName,promotionalImage,currentPrice] | 1        |
+    And the "cart" request that has an "items" field and row 1 contains an object called "product" with:
+      | _id       | displayName     | promotionalImage                                                                              | currentPrice |
+      | OBJECT_ID | Cart Retrieve A | https://images.venzra-test.com/{{ images[1].subscription }}/promotion/{{ images[1]._id }}.jpg | 9            |
 
   Scenario: Successful retrieval of a complex cart will give a result with quantity counts and any inactive products removed
     Given the request origin headers are set to "cart-retrieve-one.venzra-test.io"

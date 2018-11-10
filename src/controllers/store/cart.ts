@@ -5,6 +5,8 @@ import { Response, NextFunction, Router } from 'express';
 import { Cart, PatchRequest, Product, Shipping, VenzraRequest } from '../../models';
 import { CartModel, ProductModel, ShippingModel } from '../../schemas';
 
+import { config } from '../../config';
+
 export class CartController {
 
     public router: Router;
@@ -51,7 +53,7 @@ export class CartController {
                                             if (item) {
                                                 item.quantity++;
                                             } else {
-                                                cart.items.push({ product: product._id ,quantity: 1 });
+                                                cart.items.push({ product: product._id, quantity: 1 });
                                             }
 
                                             cart.set('shipping', undefined);
@@ -117,9 +119,14 @@ export class CartController {
                     select: '_id name path'
                 }
             })
-            .then((cart) => (<Cart>cart).toObject())
+            .lean()
             .then((cart: Cart) => {
-                const items = cart.items.filter((item) => item.product);
+                const items = cart.items
+                    .filter((item) => item.product)
+                    .map((item) => {
+                        item.product.promotionalImage = `https://${config.imageBucket}/${item.product.promotionalImage.path}`;
+                        return item;
+                    });
                 const value = items.reduce((total, item) => total + (item.quantity * (<Product>item.product).currentPrice), 0);
                 return { ...cart, items, value };
             })
