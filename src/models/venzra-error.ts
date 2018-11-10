@@ -16,12 +16,6 @@ export class AcceptedError extends VenzraError {
     }
 }
 
-export class BadRequestError extends VenzraError {
-    constructor(reason: string) {
-        super(reason);
-    }
-}
-
 export class ValidationError extends VenzraError {
     constructor(detail: Array<{ path: string, kind: string }>) {
         super('Validation failed', detail);

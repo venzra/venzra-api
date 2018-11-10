@@ -34,8 +34,6 @@ export class ErrorService {
             case 'AuthenticationError':
                 logger.info(`[${exception.name}] ${exception.code} - ${exception.message}`);
                 exception.message = 'Invalid credentials';
-                /* falls through */
-            case 'BadRequestError':
                 exception.code = 400;
                 message = exception.message;
                 break;

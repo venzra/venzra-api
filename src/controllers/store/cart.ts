@@ -60,20 +60,6 @@ export class CartController {
                                         });
                             }
                             break;
-                        case 'replace':
-                            switch (operation.path) {
-                                case 'shipping':
-                                    promise = promise
-                                        .then(() => ShippingModel.findOne({ _id: operation.value, subscription }).exec())
-                                        .then((shipping: Shipping) => {
-                                            if (!shipping) {
-                                                return;
-                                            }
-
-                                            cart.set('shipping', { reference: shipping._id, name: shipping.displayName, price: shipping.currentPrice });
-                                        });
-                            }
-                            break;
                         case 'remove':
                             switch (operation.path) {
                                 case 'product':
@@ -109,7 +95,7 @@ export class CartController {
 
         CartModel
             .findOne({ _id, subscription })
-            .select('items shipping')
+            .select('items')
             .populate({
                 path: 'items.product',
                 select: 'displayName promotionalImage currentPrice',

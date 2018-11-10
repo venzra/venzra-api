@@ -1,6 +1,5 @@
 import { Schema, Model, model, models } from 'mongoose';
 
-import { ShipmentSchema } from './documents';
 import { Cart } from '../models';
 
 const CartSchema: Schema = new Schema({
@@ -23,9 +22,6 @@ const CartSchema: Schema = new Schema({
             }
         }],
         default: []
-    },
-    shipping: {
-        type: ShipmentSchema
     },
     ip: {
         type: String,
