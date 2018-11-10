@@ -9,10 +9,13 @@ export class VenzraDatabase {
         const mongo = {
             uri: <string>process.env['DB_URI'],
             options: {
+                autoIndex: false,
+                bufferCommands: false,
+                bufferMaxEntries: 0,
                 socketTimeoutMS: 0,
                 keepAlive: 120,
                 reconnectTries: 30,
-                poolSize: 5
+                poolSize: 1
             }
         };
 
