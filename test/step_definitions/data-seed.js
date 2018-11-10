@@ -68,7 +68,7 @@ Given(/^the following "([^"]*)" records are updated in the database$/, function 
     }
 });
 
-Then(/^the database record for "([^"]*)" in the "([^"]*)" table equals:$/, function (record, collection, dataset) {
+Then(/^the database record for "([^"]*)" in the "([^"]*)" table(?: has a field called "([^"]*)" that)? equals:$/, function (record, collection, field, dataset) {
     record = this.parseTemplateString(record);
     dataset = this.getHashes(dataset);
 
@@ -82,6 +82,11 @@ Then(/^the database record for "([^"]*)" in the "([^"]*)" table equals:$/, funct
         })
         .then((result) => {
             result = JSON.parse(JSON.stringify(result));
+
+            if (field) {
+                result = result[field];
+            }
+
             return checkValues(dataset[0], result);
         });
 });
