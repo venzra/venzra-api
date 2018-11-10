@@ -2,8 +2,9 @@ import * as parser from 'body-parser';
 
 import { Response, NextFunction, Router } from 'express';
 
-import { NotFoundError, VenzraRequest } from '../../models';
-import { CategoryModel, ImageModel, LocationModel, ProductModel } from '../../schemas';
+import { Image, NotFoundError, Product, VenzraRequest } from '../../models';
+import { CategoryModel, ProductModel } from '../../schemas';
+
 import { config } from '../../config';
 
 export class ProductsController {
@@ -48,22 +49,21 @@ export class ProductsController {
         const status = 'ACTIVE';
 
         ProductModel
-            .aggregate([
-                { $match: { slug, subscription, status } },
-                { $lookup: { from: 'images', localField: 'promotionalImage', foreignField: '_id', as: 'fullImage' } },
-                {
-                    $project: {
-                        slug: 1,
-                        code: 1,
-                        displayName: 1,
-                        description: 1,
-                        promotionalImage: { $concat: ['https://', config.imageBucket, '/', { $arrayElemAt: ['$fullImage.path', 0] }] },
-                        previousPrice: 1,
-                        currentPrice: 1
-                    }
+            .findOne({ slug, subscription, status })
+            .select('slug code displayName description promotionalImage previousPrice currentPrice')
+            .populate({
+                path: 'promotionalImage',
+                select: '_id name path'
+            })
+            .lean()
+            .then((product: Product) => {
+                if(!product) {
+                    throw new NotFoundError();
                 }
-            ])
-            .then((products) => products.length ? res.status(200).send(products[0]) : next(new NotFoundError()));
+                product.promotionalImage = `https://${config.imageBucket}/${(<Image>product.promotionalImage).path}`;
+                res.status(200).send(product);
+            })
+            .catch((productError) => next(productError));
     }
 
     findAll(req: VenzraRequest, res: Response, next: NextFunction) {
@@ -113,34 +113,6 @@ export class ProductsController {
                     .then((list) => res.status(200).send({ list, total, skip, limit }))
             )
             .catch((error) => next(error));
-
-        // ProductModel
-        //     .count(searchParams).exec()
-        //     .then((total) =>
-        //         ProductModel
-        //             .aggregate([
-        //                 { $match: searchParams },
-        //                 { $sort: order },
-        //                 { $skip: skip },
-        //                 { $limit: limit },
-        //                 {
-        //                     $project: {
-        //                         slug: 1,
-        //                         code: 1,
-        //                         displayName: 1,
-        //                         promotionalImage: 1,
-        //                         previousPrice: 1,
-        //                         currentPrice: 1
-        //                     }
-        //                 }
-        //             ])
-        //             .then((result) => ImageModel.populate(result, {
-        //                 path: 'promotionalImage',
-        //                 select: '_id name path'
-        //             }))
-        //             .then((list) => res.status(200).send({ list, total, skip, limit }))
-        //     )
-        //     .catch((productError) => next(productError));
     }
 
 }
