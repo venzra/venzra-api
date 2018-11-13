@@ -42,32 +42,35 @@ Feature: Place an order using cart information
     And I am logged in with the "orders-create-one@venzra-test.io" account
     When I make an empty POST request to the API endpoint "/store/orders" as "order"
     Then there should be a 400 error from the "order" request that contains:
-      | message           | detail                                                                           |
-      | Validation failed | ["cart required", "destination required", "shipping required", "token required"] |
+      | message           | detail                                                          |
+      | Validation failed | ["token required", "destination required", "shipping required"] |
 
   Scenario: Handle a rejection from stripe occurring when attempting to place an order
     Given the request origin headers are set to "orders-create-one.venzra-test.io"
+    And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     And I am logged in with the "orders-create-one@venzra-test.io" account
     And there is a POST consumer at "https://api.stripe.com" for "/v1/charges" that will return "stripe/charges/create-invalid.json" with status 400
     When I make a POST request to the API endpoint "/store/orders" as "order" using:
-      | cart               | shipping              | token                                    | destination                         |
-      | {{ carts[2]._id }} | {{ shipping[2]._id }} | { "id": "tok_xxxxxxxxxxxxxxxxxxxxxxxx" } | {{ customers[1].addresses[1]._id }} |
+      | token                                    | destination                         | shipping              |
+      | { "id": "tok_xxxxxxxxxxxxxxxxxxxxxxxx" } | {{ customers[1].addresses[1]._id }} | {{ shipping[2]._id }} |
     Then there should be a 503 error from the "order" request that contains:
       | message           | detail |
       | Third party error | []     |
 
   Scenario: Cannot use a cart from another subscription to place an order
     Given the request origin headers are set to "orders-create-one.venzra-test.io"
+    And I set the "vid" cookie to the value "{{ carts[3]._id }}"
     And I am logged in with the "orders-create-one@venzra-test.io" account
     When I make a POST request to the API endpoint "/store/orders" as "order" using:
-      | cart               | shipping              | token                                    | destination                         |
-      | {{ carts[3]._id }} | {{ shipping[3]._id }} | { "id": "tok_xxxxxxxxxxxxxxxxxxxxxxxx" } | {{ customers[1].addresses[1]._id }} |
+      | token                                    | destination                         | shipping              |
+      | { "id": "tok_xxxxxxxxxxxxxxxxxxxxxxxx" } | {{ customers[1].addresses[1]._id }} | {{ shipping[3]._id }} |
     Then there should be a 400 error from the "order" request that contains:
       | message           | detail                               |
       | Validation failed | ["cart invalid", "shipping invalid"] |
 
   Scenario: Placing an order with required fields successfully creates a new record
     Given the request origin headers are set to "orders-create-one.venzra-test.io"
+    And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     And I am logged in with the "orders-create-one@venzra-test.io" account
     And there is a POST consumer at "https://api.stripe.com" for "/v1/charges" that will return "stripe/charges/create-success.json" with status 200 when called with:
       | amount | currency | application_fee | source                       | statement_descriptor |
@@ -75,8 +78,8 @@ Feature: Place an order using cart information
     And there is a GET consumer at "https://api.stripe.com" for "/v1/balance/history/txn_xxxxxxxxxxxxxxxxxxxxxxxx" that will return "stripe/balance/retrieve-history.json" with status 200
     And there is a POST consumer at "https://email.eu-west-1.amazonaws.com" that will return status 200
     When I make a POST request to the API endpoint "/store/orders" as "order" using:
-      | cart               | shipping              | token                                    | destination                         |
-      | {{ carts[2]._id }} | {{ shipping[2]._id }} | { "id": "tok_xxxxxxxxxxxxxxxxxxxxxxxx" } | {{ customers[1].addresses[1]._id }} |
+      | token                                    | destination                         | shipping              |
+      | { "id": "tok_xxxxxxxxxxxxxxxxxxxxxxxx" } | {{ customers[1].addresses[1]._id }} | {{ shipping[2]._id }} |
     Then there should be a 200 response from the "order" request that contains:
       | _id       | reference       |
       | OBJECT_ID | REGEX[^\d{10}$] |

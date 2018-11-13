@@ -33,7 +33,7 @@ export class OrdersController {
 
     async createOrder(req: VenzraRequest, res: Response, next: NextFunction) {
         const destination = <Address>req.venzra.customer.addresses.find((address: Address) => address.id === req.body.destination);
-        const requestErrors = this.errorService.requiredFields(req.body, ['cart', 'destination', 'shipping', 'token']);
+        const requestErrors = this.errorService.requiredFields(req.body, ['token', 'destination', 'shipping']);
 
         if (requestErrors.length) {
             return next(new ValidationError(requestErrors));
@@ -43,14 +43,18 @@ export class OrdersController {
         let shipping: Shipping;
         [cart, shipping] = await Promise
             .all([
-                <any>CartModel.findOne({ _id: req.body.cart, subscription: req.venzra.subscription._id }).populate({ path: 'items.product' }),
+                <any>CartModel.findOne({ _id: req.cookies.vid, subscription: req.venzra.subscription._id }).populate({ path: 'items.product' }),
                 <any>ShippingModel.findOne({ _id: req.body.shipping, subscription: req.venzra.subscription._id })
             ]);
 
         const errors = [];
 
-        if (!cart) {
+        if (!cart.items.length) {
             errors.push({ path: 'cart', kind: 'invalid' });
+        }
+
+        if (!destination) {
+            errors.push({ path: 'destination', kind: 'invalid' });
         }
 
         if (!shipping) {
@@ -85,7 +89,10 @@ export class OrdersController {
                 },
                 statement_descriptor: req.venzra.subscription.storeName.substr(0, 22)
             })
-            .then((payment) => stripe.balance.retrieveTransaction(<string> payment.balance_transaction).then((transaction) => ({ payment, transaction })))
+            .then((payment) => stripe.balance.retrieveTransaction(<string> payment.balance_transaction).then((transaction) => ({
+                payment,
+                transaction
+            })))
             .then(({ payment, transaction }) => {
                 const card = <ICard>payment.source;
                 const order = new OrderModel({
