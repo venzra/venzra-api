@@ -4,9 +4,9 @@ Feature: Access cart data available for a customer
   @Seed
   Scenario: Setup test data seed for feature
     Given there are the following "subscriptions" records in the database
-      | storeName         | status |
-      | Cart Retrieve One | ACTIVE |
-      | Cart Retrieve Two | ACTIVE |
+      | storeName               | status |
+      | Store Cart Retrieve One | ACTIVE |
+      | Store Cart Retrieve Two | ACTIVE |
     And there are the following "images" records in the database
       | subscription               | name                 | usage     | size |
       | {{ subscriptions[1]._id }} | CartRetrieve Image A | promotion | 1024 |
@@ -26,7 +26,7 @@ Feature: Access cart data available for a customer
       | {{ subscriptions[2]._id }} | 127.0.0.1 | [{ "product": "{{ products[4]._id }}" }, { "product": "{{ products[5]._id }}" }]                                                        |
 
   Scenario: Attempting to a cart which belongs to another subscription will give a new empty cart in return
-    Given the request origin headers are set to "cart-retrieve-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-retrieve-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[4]._id }}"
     When I make a GET request to the API endpoint "/store/cart" as "cart"
     Then there should be a 200 response from the "cart" request that contains:
@@ -34,7 +34,7 @@ Feature: Access cart data available for a customer
       | OBJECT_ID | ARRAY[0] | 0     |
 
   Scenario: Requesting a cart without the "vid" cookie will yield a new cart
-    Given the request origin headers are set to "cart-retrieve-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/cart" as "cart"
     Then there should be a 200 response from the "cart" request that contains:
       | _id       | items    | value |
@@ -42,7 +42,7 @@ Feature: Access cart data available for a customer
     And there is a cookie called "vid" in the "cart" response header
 
   Scenario: Successful retrieval of an empty cart will give a result
-    Given the request origin headers are set to "cart-retrieve-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-retrieve-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[1]._id }}"
     When I make a GET request to the API endpoint "/store/cart" as "cart"
     Then there should be a 200 response from the "cart" request that contains:
@@ -50,7 +50,7 @@ Feature: Access cart data available for a customer
       | OBJECT_ID | ARRAY[0] | 0     |
 
   Scenario: Successful retrieval of a cart with a single item will give a result
-    Given the request origin headers are set to "cart-retrieve-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-retrieve-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     When I make a GET request to the API endpoint "/store/cart" as "cart"
     Then there should be a 200 response from the "cart" request that contains:
@@ -64,7 +64,7 @@ Feature: Access cart data available for a customer
       | OBJECT_ID | Cart Retrieve A | https://images.venzra-test.com/{{ images[1].subscription }}/promotion/{{ images[1]._id }}.jpg | 9            |
 
   Scenario: Successful retrieval of a complex cart will give a result with quantity counts and any inactive products removed
-    Given the request origin headers are set to "cart-retrieve-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-retrieve-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[3]._id }}"
     When I make a GET request to the API endpoint "/store/cart" as "cart"
     Then there should be a 200 response from the "cart" request that contains:

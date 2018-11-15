@@ -4,9 +4,9 @@ Feature: Retrieve information for a category
   @Seed
   Scenario: Setup test data seed for feature
     Given there are the following "subscriptions" records in the database
-      | storeName             | status |
-      | Category Retrieve One | ACTIVE |
-      | Category Retrieve Two | ACTIVE |
+      | storeName                   | status |
+      | Store Category Retrieve One | ACTIVE |
+      | Store Category Retrieve Two | ACTIVE |
     And there are the following "images" records in the database
       | subscription               | name                     | usage     | size |
       | {{ subscriptions[1]._id }} | CategoryRetrieve Image A | feature   | 1024 |
@@ -30,14 +30,14 @@ Feature: Retrieve information for a category
       | {{ categories[4]._id }} | {{ categories[2]._id }} | []                                                     |
 
   Scenario: Retrieval of a category contains correct data
-    Given the request origin headers are set to "category-retrieve-one.venzra-test.io"
+    Given the request origin headers are set to "store-category-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories/{{ categories[1].slug }}" as "category"
     Then there should be a 200 response from the "category" request that contains:
       | _id       | slug                | name                | description           | featureImage                                                                                | children |
       | OBJECT_ID | category-retrieve-a | Category Retrieve A | Automated description | https://images.venzra-test.com/{{ images[1].subscription }}/feature/{{ images[1]._id }}.jpg | ARRAY[0] |
 
   Scenario: Retrieval of a category contains correct data
-    Given the request origin headers are set to "category-retrieve-one.venzra-test.io"
+    Given the request origin headers are set to "store-category-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories/{{ categories[2].slug }}" as "category"
     Then there should be a 200 response from the "category" request that contains:
       | _id       | slug                | name                | description           | featureImage                                                                                | children |
@@ -48,7 +48,7 @@ Feature: Retrieve information for a category
       | OBJECT_ID | category-retrieve-d | Category Retrieve D | https://images.venzra-test.com/{{ images[1].subscription }}/feature/{{ images[1]._id }}.jpg |
 
   Scenario: A category with only inactive products is returned
-    Given the request origin headers are set to "category-retrieve-one.venzra-test.io"
+    Given the request origin headers are set to "store-category-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories/{{ categories[3].slug }}" as "category"
     Then there should be a 200 response from the "category" request that contains:
       | _id       | slug                | name                | description           | featureImage                                                                                | parent                             | children |
@@ -58,13 +58,13 @@ Feature: Retrieve information for a category
       | OBJECT_ID | category-retrieve-b | Category Retrieve B | https://images.venzra-test.com/{{ images[1].subscription }}/feature/{{ images[1]._id }}.jpg |
 
   Scenario: A category with no products is returned
-    Given the request origin headers are set to "category-retrieve-one.venzra-test.io"
+    Given the request origin headers are set to "store-category-retrieve-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories/{{ categories[4].slug }}" as "category"
     Then there should be a 200 response from the "category" request that contains:
       | _id       | slug                | name                | description           | featureImage                                                                                | parent                             | children |
       | OBJECT_ID | category-retrieve-d | Category Retrieve D | Automated description | https://images.venzra-test.com/{{ images[1].subscription }}/feature/{{ images[1]._id }}.jpg | OBJECT[_id,slug,name,featureImage] | ARRAY[0] |
 
   Scenario: Another subscription user cannot retrieve a record that does not belong to them
-    Given the request origin headers are set to "category-retrieve-two.venzra-test.io"
+    Given the request origin headers are set to "store-category-retrieve-two.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories/{{ categories[2].slug }}" as "category"
     Then the status returned from the "category" request should be a 404 error

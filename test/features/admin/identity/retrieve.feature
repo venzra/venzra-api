@@ -4,8 +4,8 @@ Feature: Retrieve currently logged in account information
   @Seed
   Scenario: Setup test data seed for feature
     Given there are the following "subscriptions" records in the database
-      | storeName            | status |
-      | Account Retrieve One | TRIAL  |
+      | storeName                  | status |
+      | Admin Account Retrieve One | TRIAL  |
     And there are the following "accounts" records in the database
       | identity                            | password | status | subscription               |
       | account-retrieve-one@venzra-test.io | PASSWORD | ACTIVE | {{ subscriptions[1]._id }} |

@@ -1,8 +1,9 @@
 import { Document } from 'mongoose';
+import { Subscription } from '.';
 
 export interface Account extends Document {
     _id: any;
-    subscription: string;
+    subscription: Subscription;
     identity: string;
     password: {
         salt: string;

@@ -4,15 +4,15 @@ Feature: Ability for a customer to change their password
   @Seed
   Scenario: Setup test data seed for feature
     Given there are the following "subscriptions" records in the database
-      | storeName             | status |
-      | Customer Password One | ACTIVE |
-      | Customer Password Two | ACTIVE |
+      | storeName                   | status |
+      | Store Customer Password One | ACTIVE |
+      | Store Customer Password Two | ACTIVE |
     And there are the following "customers" records in the database
       | identity                             | password | status | subscription               |
       | customer-password-one@venzra-test.io | PASSWORD | ACTIVE | {{ subscriptions[1]._id }} |
 
   Scenario: The password request must contain the correct current password
-    Given the request origin headers are set to "customer-password-one.venzra-test.io"
+    Given the request origin headers are set to "store-customer-password-one.venzra-test.io"
     And I am logged in with the "customer-password-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/customer/password" as "password" using:
       | current      |
@@ -22,7 +22,7 @@ Feature: Ability for a customer to change their password
       | Validation failed | ["password required"] |
 
   Scenario: The password request must contain the correct current password
-    Given the request origin headers are set to "customer-password-one.venzra-test.io"
+    Given the request origin headers are set to "store-customer-password-one.venzra-test.io"
     And I am logged in with the "customer-password-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/customer/password" as "password" using:
       | current      | password | confirmation |
@@ -32,7 +32,7 @@ Feature: Ability for a customer to change their password
       | Validation failed | ["password strength"] |
 
   Scenario: The password request must contain the correct current password
-    Given the request origin headers are set to "customer-password-one.venzra-test.io"
+    Given the request origin headers are set to "store-customer-password-one.venzra-test.io"
     And I am logged in with the "customer-password-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/customer/password" as "password" using:
       | current      | password     | confirmation |
@@ -42,7 +42,7 @@ Feature: Ability for a customer to change their password
       | Validation failed | ["current invalid"] |
 
   Scenario: The password request must contain a confirmation matching the new password
-    Given the request origin headers are set to "customer-password-one.venzra-test.io"
+    Given the request origin headers are set to "store-customer-password-one.venzra-test.io"
     And I am logged in with the "customer-password-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/customer/password" as "password" using:
       | current      | password     | confirmation |
@@ -52,7 +52,7 @@ Feature: Ability for a customer to change their password
       | Validation failed | ["confirmation invalid"] |
 
   Scenario: Sending a request to change a password is accepted
-    Given the request origin headers are set to "customer-password-one.venzra-test.io"
+    Given the request origin headers are set to "store-customer-password-one.venzra-test.io"
     And I am logged in with the "customer-password-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/customer/password" as "password" using:
       | current      | password     | confirmation |

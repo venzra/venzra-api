@@ -4,9 +4,9 @@ Feature: Adding products into a cart
   @Seed
   Scenario: Setup test data seed for feature
     Given there are the following "subscriptions" records in the database
-      | storeName    | status |
-      | Cart Add One | ACTIVE |
-      | Cart Add Two | ACTIVE |
+      | storeName          | status |
+      | Store Cart Add One | ACTIVE |
+      | Store Cart Add Two | ACTIVE |
     And there are the following "images" records in the database
       | subscription               | name            | usage     | size |
       | {{ subscriptions[1]._id }} | CartAdd Image A | promotion | 1024 |
@@ -25,7 +25,7 @@ Feature: Adding products into a cart
       | {{ subscriptions[2]._id }} | 127.0.0.1 | [{ "product": "{{ products[4]._id }}" }] |
 
   Scenario: Sending an empty patch request does not alter the cart information
-    Given the request origin headers are set to "cart-add-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-add-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[1]._id }}"
     When I make an empty PATCH request to the API endpoint "/store/cart" as "cart"
     Then there should be a 200 response from the "cart" request that contains:
@@ -33,7 +33,7 @@ Feature: Adding products into a cart
       | OBJECT_ID | ARRAY[1] | 9     |
 
   Scenario: Adding a product that is inactive does not update the cart
-    Given the request origin headers are set to "cart-add-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-add-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op  | path    | value                 |
@@ -43,7 +43,7 @@ Feature: Adding products into a cart
       | OBJECT_ID | ARRAY[0] | 0     |
 
   Scenario: Updating a cart to add a product
-    Given the request origin headers are set to "cart-add-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-add-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op  | path    | value                 |
@@ -56,7 +56,7 @@ Feature: Adding products into a cart
       | OBJECT_ID | OBJECT[_id,displayName,promotionalImage,currentPrice] | 1        |
 
   Scenario: Updating a cart to add another product
-    Given the request origin headers are set to "cart-add-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-add-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op  | path    | value                 |
@@ -72,7 +72,7 @@ Feature: Adding products into a cart
       | OBJECT_ID | OBJECT[_id,displayName,promotionalImage,currentPrice] | 1        |
 
   Scenario: Adding a product that is already in the basket should increment the quantity only
-    Given the request origin headers are set to "cart-add-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-add-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op  | path    | value                 |
@@ -88,7 +88,7 @@ Feature: Adding products into a cart
       | OBJECT_ID | OBJECT[_id,displayName,promotionalImage,currentPrice] | 1        |
 
   Scenario: If the cart does not exist (for the subscription) a new cart is created automatically and the product added
-    Given the request origin headers are set to "cart-add-two.venzra-test.io"
+    Given the request origin headers are set to "store-cart-add-two.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op  | path    | value                 |
@@ -101,7 +101,7 @@ Feature: Adding products into a cart
       | OBJECT_ID | OBJECT[_id,displayName,promotionalImage,currentPrice] | 1        |
 
   Scenario: Adding a product that does not belong to the subscription is ignored
-    Given the request origin headers are set to "cart-add-two.venzra-test.io"
+    Given the request origin headers are set to "store-cart-add-two.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[3]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op  | path    | value                 |

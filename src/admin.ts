@@ -6,6 +6,7 @@ import * as helmet from 'helmet';
 import { CorsOptions } from 'cors';
 
 import IdentityController from './controllers/admin/identity';
+import CareersController from './controllers/admin/careers';
 
 import VenzraSession from './services/session.service';
 import VenzraDatabase from './services/database.service';
@@ -44,6 +45,7 @@ app.use(cookieParser());
 app.use(VenzraSession);
 
 app.use('/admin/identity', IdentityController);
+app.use('/admin/careers', CareersController);
 
 app.use(ErrorService);
 

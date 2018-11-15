@@ -4,9 +4,9 @@ Feature: Removing products from a cart
   @Seed
   Scenario: Setup test data seed for feature
     Given there are the following "subscriptions" records in the database
-      | storeName       | status |
-      | Cart Remove One | ACTIVE |
-      | Cart Remove Two | ACTIVE |
+      | storeName             | status |
+      | Store Cart Remove One | ACTIVE |
+      | Store Cart Remove Two | ACTIVE |
     And there are the following "images" records in the database
       | subscription               | name               | usage     | size |
       | {{ subscriptions[1]._id }} | CartRemove Image A | promotion | 1024 |
@@ -26,7 +26,7 @@ Feature: Removing products from a cart
       | {{ subscriptions[2]._id }} | 127.0.0.1 | [{ "product": "{{ products[4]._id }}" }, { "product": "{{ products[5]._id }}" }]                               |
 
   Scenario: Removing a product that is not in the cart is ignored
-    Given the request origin headers are set to "cart-remove-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-remove-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[1]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op     | path    | value                 |
@@ -36,7 +36,7 @@ Feature: Removing products from a cart
       | OBJECT_ID | ARRAY[0] | 0     |
 
   Scenario: Removing a product that is inactive does not matter
-    Given the request origin headers are set to "cart-remove-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-remove-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op     | path    | value                 |
@@ -46,7 +46,7 @@ Feature: Removing products from a cart
       | OBJECT_ID | ARRAY[1] | 9     |
 
   Scenario: Updating a cart to remove a product will take it out of the cart
-    Given the request origin headers are set to "cart-remove-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-remove-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op     | path    | value                 |
@@ -56,7 +56,7 @@ Feature: Removing products from a cart
       | OBJECT_ID | ARRAY[0] | 0     |
 
   Scenario: Removing a product that has more than 1 quantity from the cart just decrements the quantity by 1
-    Given the request origin headers are set to "cart-remove-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-remove-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[3]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op     | path    | value                 |
@@ -72,7 +72,7 @@ Feature: Removing products from a cart
       | OBJECT_ID | OBJECT[_id,displayName,promotionalImage,currentPrice] | 2        |
 
   Scenario: It is possible to run multiple operations in a single call to remove several quantity or when quantity would hit 0 remove the item
-    Given the request origin headers are set to "cart-remove-one.venzra-test.io"
+    Given the request origin headers are set to "store-cart-remove-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[3]._id }}"
     When I make a PATCH request to the API endpoint "/store/cart" as "cart" using:
       | op     | path    | value                 |

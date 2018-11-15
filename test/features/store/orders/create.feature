@@ -4,9 +4,9 @@ Feature: Place an order using cart information
   @Seed
   Scenario: Setup test data seed for feature
     Given there are the following "subscriptions" records in the database
-      | storeName         | gateway                         | transactions                      | status |
-      | Orders Create One | { "privateKey": "pk_xxxxxxxx" } | { "rate": "0.021", "base": "10" } | ACTIVE |
-      | Orders Create Two | { "privateKey": "pk_xxxxxxxx" } | { "rate": "0.021", "base": "10" } | ACTIVE |
+      | storeName               | gateway                         | transactions                      | status |
+      | Store Orders Create One | { "privateKey": "pk_xxxxxxxx" } | { "rate": "0.021", "base": "10" } | ACTIVE |
+      | Store Orders Create Two | { "privateKey": "pk_xxxxxxxx" } | { "rate": "0.021", "base": "10" } | ACTIVE |
     And there are the following "customers" records in the database
       | identity                         | password | addresses                                                                                                          | status | subscription               |
       | orders-create-one@venzra-test.io | PASSWORD | [{ "addressee": "Mr Address", "street": "Street", "county": "County", "postalCode": "po57 3ox", "country": "GB" }] | ACTIVE | {{ subscriptions[1]._id }} |
@@ -33,12 +33,12 @@ Feature: Place an order using cart information
       | {{ subscriptions[2]._id }} | 127.0.0.1 | [{ "product": "{{ products[4]._id }}" }, { "product": "{{ products[5]._id }}" }]                                                        |
 
   Scenario: Missing request body throws required fields error
-    Given the request origin headers are set to "orders-create-one.venzra-test.io"
+    Given the request origin headers are set to "store-orders-create-one.venzra-test.io"
     When I make an empty POST request to the API endpoint "/store/orders" as "order"
     Then the status returned from the "order" request should be a 401 error
 
   Scenario: Missing request body throws required fields error
-    Given the request origin headers are set to "orders-create-one.venzra-test.io"
+    Given the request origin headers are set to "store-orders-create-one.venzra-test.io"
     And I am logged in with the "orders-create-one@venzra-test.io" store account
     When I make an empty POST request to the API endpoint "/store/orders" as "order"
     Then there should be a 400 error from the "order" request that contains:
@@ -46,7 +46,7 @@ Feature: Place an order using cart information
       | Validation failed | ["token required", "destination required", "shipping required"] |
 
   Scenario: Handle a rejection from stripe occurring when attempting to place an order
-    Given the request origin headers are set to "orders-create-one.venzra-test.io"
+    Given the request origin headers are set to "store-orders-create-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     And I am logged in with the "orders-create-one@venzra-test.io" store account
     And there is a POST consumer at "https://api.stripe.com" for "/v1/charges" that will return "stripe/charges/create-invalid.json" with status 400
@@ -58,7 +58,7 @@ Feature: Place an order using cart information
       | Third party error | []     |
 
   Scenario: Cannot use a cart from another subscription to place an order
-    Given the request origin headers are set to "orders-create-one.venzra-test.io"
+    Given the request origin headers are set to "store-orders-create-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[3]._id }}"
     And I am logged in with the "orders-create-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/orders" as "order" using:
@@ -69,7 +69,7 @@ Feature: Place an order using cart information
       | Validation failed | ["cart invalid", "shipping invalid"] |
 
   Scenario: Placing an order with required fields successfully creates a new record
-    Given the request origin headers are set to "orders-create-one.venzra-test.io"
+    Given the request origin headers are set to "store-orders-create-one.venzra-test.io"
     And I set the "vid" cookie to the value "{{ carts[2]._id }}"
     And I am logged in with the "orders-create-one@venzra-test.io" store account
     And there is a POST consumer at "https://api.stripe.com" for "/v1/charges" that will return "stripe/charges/create-success.json" with status 200 when called with:

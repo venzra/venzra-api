@@ -4,10 +4,10 @@ Feature: Summary information for all categories
   @Seed
   Scenario: Setup test data seed for feature
     Given there are the following "subscriptions" records in the database
-      | storeName              | status |
-      | Category Summary One   | ACTIVE |
-      | Category Summary Two   | ACTIVE |
-      | Category Summary Three | ACTIVE |
+      | storeName                    | status |
+      | Store Category Summary One   | ACTIVE |
+      | Store Category Summary Two   | ACTIVE |
+      | Store Category Summary Three | ACTIVE |
     And there are the following "images" records in the database
       | subscription               | name                    | usage   | size |
       | {{ subscriptions[1]._id }} | CategorySummary Image A | feature | 1024 |
@@ -32,7 +32,7 @@ Feature: Summary information for all categories
       | {{ categories[6]._id }} | {{ categories[5]._id }} | []                                                     |
 
   Scenario: Requesting a list of categories should return only records for that subscription (subscription one)
-    Given the request origin headers are set to "category-summary-one.venzra-test.io"
+    Given the request origin headers are set to "store-category-summary-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories" as "summary"
     Then there should be a 200 response from the "summary" request that contains:
       | list     |
@@ -51,7 +51,7 @@ Feature: Summary information for all categories
       | OBJECT_ID | category-summary-c | Category Summary C | https://images.venzra-test.com/{{ images[1].subscription }}/feature/{{ images[2]._id }}.jpg | ARRAY[1] |
 
   Scenario: Requesting a list of categories supports filtering by primary
-    Given the request origin headers are set to "category-summary-one.venzra-test.io"
+    Given the request origin headers are set to "store-category-summary-one.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories?primary=true" as "summary"
     Then there should be a 200 response from the "summary" request that contains:
       | list     |
@@ -63,7 +63,7 @@ Feature: Summary information for all categories
       | Category Summary ABC |
 
   Scenario: A subscription with no categories will return empty summary data
-    Given the request origin headers are set to "category-summary-three.venzra-test.io"
+    Given the request origin headers are set to "store-category-summary-three.venzra-test.io"
     When I make a GET request to the API endpoint "/store/categories" as "summary"
     Then there should be a 200 response from the "summary" request that contains:
       | list     |
