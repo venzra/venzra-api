@@ -13,7 +13,7 @@ Feature: Retrieval of images stored on S3
       | {{ subscriptions[1]._id }} | ImagesRetrieve Image B | logo  | 256  |
 
   Scenario: Requesting an image that does not belong to the subscription
-    Given I am logged in with the "images-retrieve-two@venzra-test.io" account
+    Given I am logged in with the "images-retrieve-two@venzra-test.io" store account
     When I make a GET request to the API endpoint "/store/images/{{ images[1]._id }}" as "image"
     Then the status returned from the "image" request should be a 404 error
 

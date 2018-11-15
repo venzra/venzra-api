@@ -36,7 +36,7 @@ Feature: Creation of a new product entry
 
   Scenario: Requesting a list of orders should return only records for that account (account one)
     Given the request origin headers are set to "orders-search-one.venzra-test.io"
-    And I am logged in with the "orders-search-one@venzra-test.io" account
+    And I am logged in with the "orders-search-one@venzra-test.io" store account
     When I make a GET request to the API endpoint "/store/orders" as "order"
     Then there should be a 200 response from the "order" request that contains:
       | list     | total | skip | limit |
@@ -47,7 +47,7 @@ Feature: Creation of a new product entry
 
   Scenario: Requesting a list of orders should return only records for that account (account two)
     Given the request origin headers are set to "orders-search-one.venzra-test.io"
-    And I am logged in with the "orders-search-two@venzra-test.io" account
+    And I am logged in with the "orders-search-two@venzra-test.io" store account
     When I make a GET request to the API endpoint "/store/orders" as "order"
     Then there should be a 200 response from the "order" request that contains:
       | list     | total | skip | limit |
@@ -58,7 +58,7 @@ Feature: Creation of a new product entry
 
   Scenario: Requesting a list of orders adheres to pagination values for skip and limit
     Given the request origin headers are set to "orders-search-one.venzra-test.io"
-    And I am logged in with the "orders-search-one@venzra-test.io" account
+    And I am logged in with the "orders-search-one@venzra-test.io" store account
     When I make a GET request to the API endpoint "/store/orders?skip=1&limit=2" as "order"
     Then there should be a 200 response from the "order" request that contains:
       | list     | total | skip | limit |
@@ -69,7 +69,7 @@ Feature: Creation of a new product entry
 
   Scenario: Requesting a list of orders returns an empty array when none have been placed
     Given the request origin headers are set to "orders-search-two.venzra-test.io"
-    And I am logged in with the "orders-search-three@venzra-test.io" account
+    And I am logged in with the "orders-search-three@venzra-test.io" store account
     When I make a GET request to the API endpoint "/store/orders" as "order"
     Then there should be a 200 response from the "order" request that contains:
       | list     | total | skip | limit |

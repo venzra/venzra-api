@@ -27,8 +27,8 @@ export class OrdersController {
     registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
-        this.router.get('/', this.identityService.validate.bind(this), this.findAll.bind(this));
-        this.router.post('/', this.identityService.validate.bind(this), this.createOrder.bind(this), this.findOne.bind(this));
+        this.router.get('/', this.identityService.validateCustomer.bind(this), this.findAll.bind(this));
+        this.router.post('/', this.identityService.validateCustomer.bind(this), this.createOrder.bind(this), this.findOne.bind(this));
     }
 
     async createOrder(req: VenzraRequest, res: Response, next: NextFunction) {

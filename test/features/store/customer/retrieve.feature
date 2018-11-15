@@ -19,14 +19,14 @@ Feature: Retrieve currently logged in customer information
 
   Scenario: After logging in using another subdomain will result in no record
     Given the request origin headers are set to "customer-retrieve-one.venzra-test.io"
-    And I am logged in with the "customer-retrieve-one@venzra-test.io" account
+    And I am logged in with the "customer-retrieve-one@venzra-test.io" store account
     And the request origin headers are set to "customer-retrieve-two.venzra-test.io"
     When I make a GET request to the API endpoint "/store/customer" as "customer"
     Then the status returned from the "customer" request should be a 401 error
 
   Scenario: Retrieve customer profile information (without addresses)
     Given the request origin headers are set to "customer-retrieve-one.venzra-test.io"
-    And I am logged in with the "customer-retrieve-one@venzra-test.io" account
+    And I am logged in with the "customer-retrieve-one@venzra-test.io" store account
     When I make a GET request to the API endpoint "/store/customer" as "customer"
     Then there should be a 200 response from the "customer" request that contains:
       | _id       | identity                             | addresses | status |
@@ -34,7 +34,7 @@ Feature: Retrieve currently logged in customer information
 
   Scenario: Retrieve customer profile information (with addresses)
     Given the request origin headers are set to "customer-retrieve-one.venzra-test.io"
-    And I am logged in with the "customer-retrieve-two@venzra-test.io" account
+    And I am logged in with the "customer-retrieve-two@venzra-test.io" store account
     When I make a GET request to the API endpoint "/store/customer" as "customer"
     Then there should be a 200 response from the "customer" request that contains:
       | _id       | identity                             | addresses | status |

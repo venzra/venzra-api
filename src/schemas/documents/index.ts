@@ -1,6 +1,7 @@
 export * from './account-access';
 export * from './account-blocked';
 export * from './account-password';
+export * from './account-validation';
 export * from './addons';
 export * from './address';
 export * from './contact';

@@ -12,7 +12,7 @@ Feature: Perform a logout command that removes any customer authentication token
 
   Scenario: Logging out an customer that has previously logged in should be a success
     Given the request origin headers are set to "identity-logout-one.venzra-test.io"
-    And I am logged in with the "identity-logout-one@venzra-test.io" account
+    And I am logged in with the "identity-logout-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/identity/logout" as "logout" using:
       | logout |
       | true   |

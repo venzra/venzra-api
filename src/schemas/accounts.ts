@@ -1,30 +1,37 @@
 import { Account } from '../models';
 
 import { Model, model, models, Schema } from 'mongoose';
+import { AccountAccessSchema, AccountBlockedSchema, AccountPasswordSchema, AccountValidationSchema } from './documents';
 
 const EMAIL_REGEX = /^[a-z0-9!#$%&'*+\/=?^_`{|}~.-]+@[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/;
 
 const AccountSchema = new Schema({
+    subscription: {
+        type: Schema.Types.ObjectId,
+        ref: 'subscriptions'
+    },
     identity: {
         type: String,
         required: true,
         trim: true,
         lowercase: true,
+        maxlength: 255,
         validate: [
             (val: string) => EMAIL_REGEX.test(val), 'Invalid email address'
         ]
     },
     validation: {
-        type: {
-            key: {
-                type: String,
-                required: true
-            },
-            expires: {
-                type: Date,
-                required: true
-            }
-        }
+        type: AccountValidationSchema
+    },
+    password: {
+        type: AccountPasswordSchema
+    },
+    access: {
+        type: AccountAccessSchema
+    },
+    lock: {
+        type: AccountBlockedSchema,
+        default: AccountBlockedSchema
     },
     terms: {
         type: Date,

@@ -24,10 +24,10 @@ export class CustomerController {
     registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
-        this.router.get('/', this.identityService.validate.bind(this), this.getCustomer.bind(this));
-        this.router.post('/password', this.identityService.validate.bind(this), this.changePassword.bind(this));
-        this.router.post('/addresses', this.identityService.validate.bind(this), this.createAddress.bind(this), this.getCustomer.bind(this));
-        this.router.delete('/addresses/:addressId', this.identityService.validate.bind(this), this.removeAddress.bind(this));
+        this.router.get('/', this.identityService.validateCustomer.bind(this), this.getCustomer.bind(this));
+        this.router.post('/password', this.identityService.validateCustomer.bind(this), this.changePassword.bind(this));
+        this.router.post('/addresses', this.identityService.validateCustomer.bind(this), this.createAddress.bind(this), this.getCustomer.bind(this));
+        this.router.delete('/addresses/:addressId', this.identityService.validateCustomer.bind(this), this.removeAddress.bind(this));
     }
 
     getCustomer(req: VenzraRequest, res: Response, next: NextFunction) {

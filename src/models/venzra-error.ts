@@ -29,8 +29,8 @@ export class AuthenticationError extends VenzraError {
 }
 
 export class AccessDeniedError extends VenzraError {
-    constructor() {
-        super('Access Denied');
+    constructor(reason?: string) {
+        super(reason || 'Access Denied');
     }
 }
 

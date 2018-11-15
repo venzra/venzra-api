@@ -1,13 +1,14 @@
 import * as parser from 'body-parser';
 import * as moment from 'moment';
 
-import { createHash } from 'crypto';
-import { Request, Response, NextFunction, Router } from 'express';
+import { createHash, pbkdf2Sync } from 'crypto';
+import { Response, NextFunction, Router } from 'express';
+import { encode } from 'jwt-simple';
 import { v4 } from 'uuid';
 
-import { AcceptedError, ValidationError } from '../../models';
+import { Account, AcceptedError, AuthenticationError, ValidationError, VenzraRequest } from '../../models';
 import { AccountModel } from '../../schemas';
-import { ErrorService, MailService } from '../../services';
+import { ErrorService, IdentityService, MailService } from '../../services';
 
 import { config } from '../../config';
 
@@ -15,21 +16,26 @@ export class IdentityController {
 
     public router: Router;
 
+    private identityService: IdentityService;
+
     private errorService: ErrorService;
 
     constructor() {
         this.router = Router();
         this.errorService = new ErrorService();
+        this.identityService = new IdentityService();
         this.registerRoutes();
     }
 
     registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
+        this.router.get('/', this.identityService.validateAdmin.bind(this), this.identityService.getAccount.bind(this));
         this.router.post('/', this.recover.bind(this));
+        this.router.post('/login', this.authorise.bind(this), this.tokenise.bind(this));
     }
 
-    recover(req: Request, res: Response, next: NextFunction): void {
+    recover(req: VenzraRequest, res: Response, next: NextFunction): void {
         const requestErrors = this.errorService.requiredFields(req.body, ['identity']);
 
         if (requestErrors.length) {
@@ -69,6 +75,95 @@ export class IdentityController {
             })
             .then(() => res.status(202).send())
             .catch((err) => next(new AcceptedError(err.message)));
+    }
+
+    authorise(req: VenzraRequest, res: Response, next: NextFunction) {
+        if (!req.body.identity || !req.body.password) {
+            return next(new AuthenticationError(`Missing ${req.body.identity ? 'identity' : 'password'} credential`));
+        }
+
+        const identity = (req.body.identity || '').toLowerCase();
+
+        AccountModel.findOne({ identity })
+            .then((account: Account) => {
+                if (!account) {
+                    throw new AuthenticationError(`Account "${identity}" not found`);
+                }
+
+                switch (account.status) {
+                    case 'ACTIVE':
+                    case 'RECOVERY':
+                        break;
+                    case 'REGISTERED':
+                        throw new AuthenticationError(`Account "${account.identity}" not activated`);
+                    case 'LOCKED':
+                        // TODO: Allow for timeout on account lock for new attempts
+                        throw new AuthenticationError(`Account "${account.identity}" locked`);
+                    default:
+                        throw new AuthenticationError(`Account "${account.identity}" state is ${account.status}`);
+                }
+
+                const password = pbkdf2Sync(req.body.password, account.password.salt, 10000, 256, 'sha512');
+
+                if (account.password.secure === password.toString('base64')) {
+                    const token = {
+                        key: createHash('sha256').update(v4()).digest('hex').toString(),
+                        ip: req.ip,
+                        created: new Date()
+                    };
+
+                    const changes = {
+                        $unset: { validation: 1 },
+                        $set: {
+                            access: token,
+                            lock: { failures: 0 },
+                            status: 'ACTIVE'
+                        }
+                    };
+
+                    return account
+                        .update(changes)
+                        .exec()
+                        .then(() => account);
+                } else {
+                    const changes = {
+                        $unset: { access: 1 },
+                        $set: {
+                            'lock.ip': req.ip,
+                            'lock.attempted': new Date()
+                        },
+                        $inc: { 'lock.failures': 1 },
+                        status: (account.lock.failures >= 4 ? 'LOCKED' : account.status)
+                    };
+
+                    return account
+                        .update(changes)
+                        .exec()
+                        .then(() => {
+                            throw new AuthenticationError(`Password for "${account.identity}" incorrect`);
+                        })
+                        .then(() => account);
+                }
+            })
+            .then((account: Account) => {
+                return AccountModel.findById(account._id).then((account: Account) => {
+                    Object.assign(req.venzra, { account });
+                    next();
+                })
+            })
+            .catch((error: any) => next(error));
+    }
+
+    tokenise(req: VenzraRequest, res: Response, next: NextFunction) {
+        const account = {
+            _id: req.venzra.account._id,
+            key: req.venzra.account.access.key,
+            ip: req.venzra.account.access.ip
+        };
+        const encoded = encode(account, config.secret, 'HS512');
+
+        res.cookie('jwt', encoded, { httpOnly: true, secure: config.secure });
+        res.status(202).send();
     }
 
 }

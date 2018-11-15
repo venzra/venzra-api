@@ -13,7 +13,7 @@ Feature: Add or remove an address for a customer
 
   Scenario: Adding an address to a customer record (missing fields)
     Given the request origin headers are set to "customer-addresses-one.venzra-test.io"
-    And I am logged in with the "customer-addresses-one@venzra-test.io" account
+    And I am logged in with the "customer-addresses-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/customer/addresses" as "customer" using:
       | building |
       | one      |
@@ -23,7 +23,7 @@ Feature: Add or remove an address for a customer
 
   Scenario: Adding an address to a customer record all fields present
     Given the request origin headers are set to "customer-addresses-one.venzra-test.io"
-    And I am logged in with the "customer-addresses-one@venzra-test.io" account
+    And I am logged in with the "customer-addresses-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/customer/addresses" as "customer" using:
       | addressee    | building | street         | city         | county         | postalCode | country |
       | Mr Automated | One      | Example street | Example city | Example county | ex4 mp1    | GB      |
@@ -36,7 +36,7 @@ Feature: Add or remove an address for a customer
 
   Scenario: Adding a second address to a customer record does not change the primary address
     Given the request origin headers are set to "customer-addresses-one.venzra-test.io"
-    And I am logged in with the "customer-addresses-one@venzra-test.io" account
+    And I am logged in with the "customer-addresses-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/customer/addresses" as "customer" using:
       | addressee        | street         | county         | postalCode | country |
       | Mr Automated Two | Example street | Example county | ex4 mp1    | GB      |
@@ -52,7 +52,7 @@ Feature: Add or remove an address for a customer
 
   Scenario: Adding a third address to a customer record will change the primary address when the flag is set
     Given the request origin headers are set to "customer-addresses-one.venzra-test.io"
-    And I am logged in with the "customer-addresses-one@venzra-test.io" account
+    And I am logged in with the "customer-addresses-one@venzra-test.io" store account
     When I make a POST request to the API endpoint "/store/customer/addresses" as "customer" using:
       | addressee          | street         | county         | postalCode | country | makeDefault |
       | Mr Automated Three | Example street | Example county | ex4 mp1    | GB      | true        |
@@ -71,7 +71,7 @@ Feature: Add or remove an address for a customer
 
   Scenario: Removing the default address assigns the first record to be the default
     Given the request origin headers are set to "customer-addresses-one.venzra-test.io"
-    And I am logged in with the "customer-addresses-one@venzra-test.io" account
+    And I am logged in with the "customer-addresses-one@venzra-test.io" store account
     When I make a DELETE request to the API endpoint "/store/customer/addresses/{{ customer.addresses[3]._id }}" as "check"
     Then the status returned from the "check" request should be 202
     When I make a GET request to the API endpoint "/store/customer" as "customer"
@@ -87,7 +87,7 @@ Feature: Add or remove an address for a customer
 
   Scenario: Removing a normal (non-default) address is acceptable
     Given the request origin headers are set to "customer-addresses-one.venzra-test.io"
-    And I am logged in with the "customer-addresses-one@venzra-test.io" account
+    And I am logged in with the "customer-addresses-one@venzra-test.io" store account
     When I make a DELETE request to the API endpoint "/store/customer/addresses/{{ customer.addresses[2]._id }}" as "check"
     Then the status returned from the "check" request should be 202
     When I make a GET request to the API endpoint "/store/customer" as "customer"
@@ -100,7 +100,7 @@ Feature: Add or remove an address for a customer
 
   Scenario: Removing an address to a customer record is ignored (invalid reference)
     Given the request origin headers are set to "customer-addresses-one.venzra-test.io"
-    And I am logged in with the "customer-addresses-one@venzra-test.io" account
+    And I am logged in with the "customer-addresses-one@venzra-test.io" store account
     When I make a DELETE request to the API endpoint "/store/customer/addresses/{{ customers[1]._id }}" as "check"
     Then the status returned from the "check" request should be 202
     When I make a GET request to the API endpoint "/store/customer" as "customer"
@@ -110,7 +110,7 @@ Feature: Add or remove an address for a customer
 
   Scenario: Removing the last address of a customer record
     Given the request origin headers are set to "customer-addresses-one.venzra-test.io"
-    And I am logged in with the "customer-addresses-one@venzra-test.io" account
+    And I am logged in with the "customer-addresses-one@venzra-test.io" store account
     When I make a DELETE request to the API endpoint "/store/customer/addresses/{{ customer.addresses[1]._id }}" as "check"
     Then the status returned from the "check" request should be 202
     When I make a GET request to the API endpoint "/store/customer" as "customer"

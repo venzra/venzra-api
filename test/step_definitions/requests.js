@@ -7,8 +7,8 @@ Given(/^the request origin headers are set to "([^"]*)"$/, function (requestOrig
     this.setHeader('Host', requestOrigin);
 });
 
-Given(/^I am logged in with the "([^"]*)" account$/, function (userIdentity) {
-    return Promise.resolve(this.performPost('/store/identity/login', { identity: userIdentity, password: 'VenzraTest$1' }));
+Given(/^I am logged in with the "([^"]*)" (admin|store) account$/, function (userIdentity, userType) {
+    return Promise.resolve(this.performPost(`/${userType}/identity/login`, { identity: userIdentity, password: 'VenzraTest$1' }));
 });
 
 Given(/^I set the "([^"]*)" cookie to the value "([^"]*)"$/, function (cookieName, cookieValue) {

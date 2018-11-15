@@ -1,4 +1,4 @@
-@Admin @Accounts @AccountsRecovery
+@Admin @Identity @IdentityRecovery
 Feature: Begin the process of resetting a password for an existing account entry
 
   @Seed
@@ -26,5 +26,5 @@ Feature: Begin the process of resetting a password for an existing account entry
       | account-recovery@venzra-test.com |
     Then the status returned from the "forgotten" request should be 202
     And the database record for "{{ accounts[1]._id }}" in the "accounts" table equals:
-      | _id                   | identity                         | validation | terms     | status   | created   | updated   |
-      | {{ accounts[1]._id }} | account-recovery@venzra-test.com | OBJECT     | DATE_TIME | RECOVERY | DATE_TIME | DATE_TIME |
+      | _id                   | identity                         | validation | lock                               | terms     | status   | created   | updated   |
+      | {{ accounts[1]._id }} | account-recovery@venzra-test.com | OBJECT     | { "failures": 0, "ip": "0.0.0.0" } | DATE_TIME | RECOVERY | DATE_TIME | DATE_TIME |
