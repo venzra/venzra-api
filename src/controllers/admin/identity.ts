@@ -33,6 +33,7 @@ export class IdentityController {
         this.router.get('/', this.identityService.validateAdmin.bind(this), this.identityService.getAccount.bind(this));
         this.router.post('/', this.recover.bind(this));
         this.router.post('/login', this.authorise.bind(this), this.tokenise.bind(this));
+        this.router.post('/logout', this.identityService.validateAdmin.bind(this), this.logout.bind(this));
     }
 
     recover(req: VenzraRequest, res: Response, next: NextFunction): void {
@@ -164,6 +165,15 @@ export class IdentityController {
 
         res.cookie('jwt', encoded, { httpOnly: true, secure: config.secure });
         res.status(202).send();
+    }
+
+    logout(req: VenzraRequest, res: Response, next: NextFunction) {
+        Promise.resolve()
+            .then(() => req.venzra.account.update({ $unset: { access: 1 } }).exec())
+            .then(() => {
+                res.clearCookie('jwt');
+                res.status(202).send();
+            });
     }
 
 }
