@@ -7,6 +7,7 @@ import { CorsOptions } from 'cors';
 
 import IdentityController from './controllers/admin/identity';
 import CareersController from './controllers/admin/careers';
+import CategoryController from './controllers/admin/category';
 
 import VenzraSession from './services/session.service';
 import VenzraDatabase from './services/database.service';
@@ -46,6 +47,7 @@ app.use(VenzraSession);
 
 app.use('/admin/identity', IdentityController);
 app.use('/admin/careers', CareersController);
+app.use('/admin/categories', CategoryController);
 
 app.use(ErrorService);
 

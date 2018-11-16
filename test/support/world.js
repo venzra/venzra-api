@@ -97,6 +97,9 @@ class World {
                         const salt = crypto.createHash('sha1').update(uuid.v4()).digest('hex');
                         row[hash] = { salt: salt, secure: crypto.pbkdf2Sync('VenzraTest$1', salt, 10000, 256, 'sha512').toString('base64'), created: Date.now() };
                         break;
+                    case 'NULL':
+                        delete row[hash];
+                        break;
                 }
 
                 try {

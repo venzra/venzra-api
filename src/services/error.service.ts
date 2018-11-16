@@ -6,7 +6,7 @@ import { VenzraError } from '../models';
 
 export class ErrorService {
 
-    requiredFields(body: any, fields: Array<string>): Array<{ path: string, kind: string}> {
+    requiredFields(body: any, fields: Array<string>): Array<{ path: string, kind: string }> {
         return fields.filter((key) => !body[key]).map((key) => ({ path: key, kind: 'required' }));
     }
 
@@ -26,7 +26,7 @@ export class ErrorService {
         let message = 'Resource not found';
         const detail = new Set();
 
-        switch(exception.name) {
+        switch (exception.name) {
             case 'AcceptedError':
                 exception.code = 202;
                 logger.info(`[${exception.name}] ${exception.code} - ${exception.message}`);
@@ -41,7 +41,7 @@ export class ErrorService {
                 message = 'Validation failed';
                 exception.code = 400;
 
-                if(exception.errors) {
+                if (exception.errors) {
                     exception.detail = Object.values(exception.errors);
                 }
 
@@ -50,6 +50,11 @@ export class ErrorService {
                 });
 
                 logger.debug(`[${exception.name}] ${exception.message} - ${exception.detail.join(', ')}`);
+                break;
+            case 'MongoError':
+                exception.code = 400;
+                message = 'Record already exists';
+                logger.error(`[${exception.name}] ${exception.message}`);
                 break;
             case 'AccessDeniedError':
                 exception.code = 401;
