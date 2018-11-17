@@ -17,12 +17,6 @@ jobs:
             -d '{ "release": "'$BUILD'" }' \
             -X POST https://api-pipeline.dashboardhub.io/environments/$DH_ENV/deployed/$DH_TOKEN/startBuild
       - run:
-            name: Update server dependencies
-            command: |
-              sudo apt-get update
-              sudo apt-get install libvips
-              sudo apt-get install libvips-tools
-      - run:
           name: Install dependencies
           command: npm install
       - run:
