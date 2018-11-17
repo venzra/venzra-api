@@ -10,12 +10,12 @@ Then(/^the status returned from the "([^"]*)" request should be (201|202)$/, fun
         .then((history) => expect(history.status).to.equal(parseInt(statusCode)));
 });
 
-Then(/^the status returned from the "([^"]*)" request should be a (401|403|404) error$/, function (historyName, statusCode) {
+Then(/^the status returned from the "([^"]*)" request should be a (401|403|404|500) error$/, function (historyName, statusCode) {
     return Promise.resolve(this.getHistory(historyName))
         .then((history) => expect(history.status).to.equal(parseInt(statusCode)));
 });
 
-Then(/^(?:there should be a (200|400|500|503) (?:response|error) from )?the "([^"]*)" request that(?: has (?:a|an) "([^"]*)" field and row (\d+))? contains(?: an object called "([^"]*)" with)?:$/, function (statusCode, historyName, expectedField, expectedRecord, expectedObject, expectedData) {
+Then(/^(?:there should be a (200|400|413|500|503) (?:response|error) from )?the "([^"]*)" request that(?: has (?:a|an) "([^"]*)" field and row (\d+))? contains(?: an object called "([^"]*)" with)?:$/, function (statusCode, historyName, expectedField, expectedRecord, expectedObject, expectedData) {
     expectedData = this.getHashes(expectedData);
 
     return Promise.resolve(this.getHistory(historyName))

@@ -1,4 +1,14 @@
-export class VenzraError extends Error {
+export interface VenzraError {
+    name: string;
+    code: number;
+    message: string;
+    detail: Array<{ path: string, kind: string }>;
+    errors: { [key: string]: { path: string, kind: string } };
+    limit: number;
+    length: number;
+}
+
+export class BaseError extends Error {
     constructor(
         public message: string = 'Resource not found',
         public detail: Array<{ path: string, kind: string }> = [],
@@ -10,34 +20,34 @@ export class VenzraError extends Error {
     }
 }
 
-export class AcceptedError extends VenzraError {
+export class AcceptedError extends BaseError {
     constructor(message: string) {
         super(message);
     }
 }
 
-export class ValidationError extends VenzraError {
+export class ValidationError extends BaseError {
     constructor(detail: Array<{ path: string, kind: string }>) {
         super('Validation failed', detail);
     }
 }
 
-export class AuthenticationError extends VenzraError {
+export class AuthenticationError extends BaseError {
     constructor(reason: string) {
         super(reason);
     }
 }
 
-export class AccessDeniedError extends VenzraError {
+export class AccessDeniedError extends BaseError {
     constructor(reason?: string) {
         super(reason || 'Access Denied');
     }
 }
 
-export class GatewayError extends VenzraError {
+export class GatewayError extends BaseError {
     constructor(reason: string) {
         super(reason);
     }
 }
 
-export class NotFoundError extends VenzraError {}
+export class NotFoundError extends BaseError {}

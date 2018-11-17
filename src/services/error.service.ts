@@ -66,6 +66,11 @@ export class ErrorService {
                 exception.code = 404;
                 logger.warn(`[${exception.name}] ${exception.code} - ${req.url}`);
                 break;
+            case 'PayloadTooLargeError':
+                exception.code = 413;
+                message = `Request limit is: ${Math.floor(exception.limit / 1024)} KiB`;
+                detail.add(`Received: ${Math.ceil(exception.length / 1024)} KiB`);
+                break;
             case 'GatewayError':
                 message = 'Third party error';
                 exception.code = 503;
