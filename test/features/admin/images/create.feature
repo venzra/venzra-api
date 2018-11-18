@@ -35,7 +35,7 @@ Feature: Creation of images to be used by subscriptions and stored on S3
       | 2048  | 2048   | png    |
     Then there should be a 413 error from the "image" request that contains:
       | message                    | detail                 |
-      | Request limit is: 2048 KiB | ["Received: 2803 KiB"] |
+      | Request limit is: 2048 KiB | ["Received: 2819 KiB"] |
 
   Scenario: Sending a valid request to create a "feature" image will resize and save the image
     Given I am logged in with the "images-create-one@venzra-test.io" admin account
@@ -55,7 +55,7 @@ Feature: Creation of images to be used by subscriptions and stored on S3
       | 1024  | 512    | png    |
     Then there should be a 200 response from the "image" request that contains:
       | _id       | name         | usage   | path                                                   | size  |
-      | OBJECT_ID | test-one.png | feature | {{ subscriptions[1]._id }}/feature/{{ image._id }}.jpg | 49394 |
+      | OBJECT_ID | test-one.png | feature | {{ subscriptions[1]._id }}/feature/{{ image._id }}.jpg | 49058 |
 
   Scenario: Sending a valid request to create a "promotion" image will resize and save the image
     Given I am logged in with the "images-create-one@venzra-test.io" admin account
@@ -65,7 +65,7 @@ Feature: Creation of images to be used by subscriptions and stored on S3
       | 512   | 512    | png    |
     Then there should be a 200 response from the "image" request that contains:
       | _id       | name         | usage     | path                                                     | size  |
-      | OBJECT_ID | test-two.png | promotion | {{ subscriptions[1]._id }}/promotion/{{ image._id }}.jpg | 32887 |
+      | OBJECT_ID | test-two.png | promotion | {{ subscriptions[1]._id }}/promotion/{{ image._id }}.jpg | 32896 |
 
   Scenario: Sending a valid request to create a "logo" image will resize and save the image
     Given I am logged in with the "images-create-one@venzra-test.io" admin account
@@ -74,8 +74,8 @@ Feature: Creation of images to be used by subscriptions and stored on S3
       | width | height | format |
       | 512   | 512    | png    |
     Then there should be a 200 response from the "image" request that contains:
-      | _id       | name           | usage | path                                                | size  |
-      | OBJECT_ID | test-three.png | logo  | {{ subscriptions[1]._id }}/logo/{{ image._id }}.png | 30820 |
+      | _id       | name           | usage | path                                                | size   |
+      | OBJECT_ID | test-three.png | logo  | {{ subscriptions[1]._id }}/logo/{{ image._id }}.png | 120980 |
 
   Scenario: Sending a valid request to create a "icon" image will resize and save the image
     Given I am logged in with the "images-create-one@venzra-test.io" admin account
@@ -85,4 +85,4 @@ Feature: Creation of images to be used by subscriptions and stored on S3
       | 512   | 512    | png    |
     Then there should be a 200 response from the "image" request that contains:
       | _id       | name          | usage | path                                                | size  |
-      | OBJECT_ID | test-four.png | icon  | {{ subscriptions[1]._id }}/icon/{{ image._id }}.png | 97340 |
+      | OBJECT_ID | test-four.png | icon  | {{ subscriptions[1]._id }}/icon/{{ image._id }}.png | 97114 |
