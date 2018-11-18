@@ -2,8 +2,8 @@ import * as parser from 'body-parser';
 
 import { Response, NextFunction, Router } from 'express';
 
-import { NotFoundError, VenzraRequest } from '../../models';
-import { ImageModel, LocationModel, ProductModel } from '../../schemas';
+import { VenzraRequest } from '../../models';
+import { LocationModel } from '../../schemas';
 import { config } from '../../config';
 
 export class LocationController {

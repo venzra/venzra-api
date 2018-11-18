@@ -27,7 +27,8 @@ const LocationSchema: Schema = new Schema({
     },
     featureImage: {
         type: Schema.Types.ObjectId,
-        ref: 'images'
+        ref: 'images',
+        required: true
     },
     usage: {
         type: String,

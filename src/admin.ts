@@ -10,6 +10,7 @@ import CareersController from './controllers/admin/careers';
 import CategoryController from './controllers/admin/category';
 import ContentController from './controllers/admin/content';
 import ImageController from './controllers/admin/images';
+import LocationController from './controllers/admin/locations';
 
 import VenzraSession from './services/session.service';
 import VenzraDatabase from './services/database.service';
@@ -52,6 +53,7 @@ app.use('/admin/careers', CareersController);
 app.use('/admin/categories', CategoryController);
 app.use('/admin/content', ContentController);
 app.use('/admin/images', ImageController);
+app.use('/admin/locations', LocationController);
 
 app.use(ErrorService);
 
