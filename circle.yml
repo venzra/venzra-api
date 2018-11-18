@@ -18,7 +18,7 @@ jobs:
             -X POST https://api-pipeline.dashboardhub.io/environments/$DH_ENV/deployed/$DH_TOKEN/startBuild
       - run:
           name: Install dependencies
-          command: SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install
+          command: npm install
       - run:
           name: Execute API tests
           command: npm run test:ci
