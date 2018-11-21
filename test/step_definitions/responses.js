@@ -46,17 +46,18 @@ Then(/^there should be a 200 response from the "([^"]*)" request with an "([^"]*
         );
 });
 
-Then(/^the response path "([^"]*)" from the "([^"]*)" request contains:/, function (responsePath, historyName, expectedData) {
+Then(/^the response path "([^"]*)" from the "([^"]*)" request(?: (partially))? contains:/, function (responsePath, historyName, partial, expectedData) {
     expectedData = this.getHashes(expectedData);
+    partial = !partial;
 
     return Promise.resolve(this.getHistory(historyName))
         .then((history) => history.response)
         .then((response) => {
             response = responsePath.split('.').reduce((response, pathItem) => response[pathItem], response);
             if (response instanceof Array) {
-                return Promise.all(expectedData.map((expected, idx) => checkValues(expected, response[idx])));
+                return Promise.all(expectedData.map((expected, idx) => checkValues(expected, response[idx], partial)));
             } else {
-                return checkValues(expectedData[0], response);
+                return checkValues(expectedData[0], response, partial);
             }
         });
 });
