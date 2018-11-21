@@ -1,5 +1,7 @@
 import { Document } from 'mongoose';
+
 import { Category } from './category';
+import { History } from './history';
 import { Image } from './image';
 
 export interface Product extends Document {
@@ -11,6 +13,7 @@ export interface Product extends Document {
     previousPrice: number;
     currentPrice: number;
     categories: Array<Category>;
+    history: Array<History>;
     status: string;
     created: Date;
     updated: Date;

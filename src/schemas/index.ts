@@ -9,5 +9,6 @@ export * from './locations';
 export * from './orders';
 export * from './plans';
 export * from './products';
+export * from './product-history';
 export * from './shipping';
 export * from './subscription';

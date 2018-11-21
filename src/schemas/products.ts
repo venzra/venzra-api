@@ -31,10 +31,6 @@ const ProductSchema: Schema = new Schema({
         trim: true,
         maxlength: 2000
     },
-    featureImage: {
-        type: Schema.Types.ObjectId,
-        ref: 'images'
-    },
     promotionalImage: {
         type: Schema.Types.ObjectId,
         ref: 'images',
@@ -58,6 +54,12 @@ const ProductSchema: Schema = new Schema({
             ref: 'categories'
         }],
         default: []
+    },
+    history: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: 'productHistory'
+        }]
     },
     status: {
         type: String,
