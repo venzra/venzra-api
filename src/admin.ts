@@ -13,6 +13,7 @@ import ImageController from './controllers/admin/images';
 import LocationController from './controllers/admin/locations';
 import OrdersController from './controllers/admin/orders';
 import ProductsController from './controllers/admin/products';
+import ShippingController from './controllers/admin/shipping';
 
 import VenzraSession from './services/session.service';
 import VenzraDatabase from './services/database.service';
@@ -58,6 +59,7 @@ app.use('/admin/images', ImageController);
 app.use('/admin/locations', LocationController);
 app.use('/admin/orders', OrdersController);
 app.use('/admin/products', ProductsController);
+app.use('/admin/shipping', ShippingController);
 
 app.use(ErrorService);
 
