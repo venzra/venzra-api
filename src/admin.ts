@@ -14,6 +14,7 @@ import LocationController from './controllers/admin/locations';
 import OrdersController from './controllers/admin/orders';
 import ProductsController from './controllers/admin/products';
 import ShippingController from './controllers/admin/shipping';
+import StatisticsController from './controllers/admin/statistics';
 
 import VenzraSession from './services/session.service';
 import VenzraDatabase from './services/database.service';
@@ -60,6 +61,7 @@ app.use('/admin/locations', LocationController);
 app.use('/admin/orders', OrdersController);
 app.use('/admin/products', ProductsController);
 app.use('/admin/shipping', ShippingController);
+app.use('/admin/statistics', StatisticsController);
 
 app.use(ErrorService);
 

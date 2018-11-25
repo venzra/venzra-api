@@ -22,6 +22,18 @@ const checkValues = (expected, actual, exact = true) => {
             case 'OBJECT_ID':
                 expect(actual[key]).to.match(/^[0-9A-F]{24}$/i);
                 break;
+            case 'YEAR':
+                date = moment().add(check[1], 'hours').toDate();
+                expect(actual[key]).to.equal(date.getFullYear());
+                break;
+            case 'MONTH':
+                date = moment().add(check[1], 'hours').toDate();
+                expect(actual[key]).to.equal(date.getMonth() + 1);
+                break;
+            case 'DAY':
+                date = moment().add(check[1], 'hours').toDate();
+                expect(actual[key]).to.equal(date.getDate());
+                break;
             case 'DATE':
                 date = moment().add(check[1], 'hours').endOf('day').toDate();
                 expect(actual[key]).to.equal(date.toISOString());
