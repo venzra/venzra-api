@@ -15,6 +15,7 @@ import OrdersController from './controllers/admin/orders';
 import ProductsController from './controllers/admin/products';
 import ShippingController from './controllers/admin/shipping';
 import StatisticsController from './controllers/admin/statistics';
+import SubscriptionController from './controllers/admin/subscription';
 
 import VenzraSession from './services/session.service';
 import VenzraDatabase from './services/database.service';
@@ -62,6 +63,7 @@ app.use('/admin/orders', OrdersController);
 app.use('/admin/products', ProductsController);
 app.use('/admin/shipping', ShippingController);
 app.use('/admin/statistics', StatisticsController);
+app.use('/admin/subscription', SubscriptionController);
 
 app.use(ErrorService);
 

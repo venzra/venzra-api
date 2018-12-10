@@ -1,5 +1,5 @@
 export interface Addon {
     name: string;
-    activated: Date;
+    activated?: Date;
     value: number;
 }

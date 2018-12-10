@@ -1,0 +1,9 @@
+{
+    "stripe_user_id": "acct_xxxxxxxxxxxxxxxx",
+    "livemode": false,
+    "token_type": "bearer",
+    "scope": "read_write",
+    "access_token": "sk_test_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "stripe_publishable_key": "pk_test_xxxxxxxxxxxxxxxxxxxxxxxx",
+    "refresh_token": "rt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+}

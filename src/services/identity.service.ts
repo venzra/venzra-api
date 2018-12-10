@@ -3,14 +3,14 @@ import { Response, NextFunction } from 'express';
 import { decode } from 'jwt-simple';
 
 import { AccessDeniedError, Account, VenzraRequest } from '../models';
-import { AccountModel } from '../schemas';
+import { AccountModel, SubscriptionModel } from '../schemas';
 
 import { config } from '../config';
 
 export class IdentityService {
 
     validateCustomer(req: VenzraRequest, res: Response, next: NextFunction) {
-        if(req.venzra.customer && req.venzra.customer._id) {
+        if (req.venzra.customer && req.venzra.customer._id) {
             next();
         } else {
             next(new AccessDeniedError());
@@ -47,6 +47,22 @@ export class IdentityService {
             .findById(req.venzra.account.id)
             .select('identity subscription status')
             .then((account) => res.status(200).send(account));
+    }
+
+    getSubscription(req: VenzraRequest, res: Response) {
+        SubscriptionModel
+            .findById(req.venzra.account.subscription)
+            .select('storeName domainName additionalDomains strapline icon logo theme payment gateway.account gateway.modified transactions addons contact status')
+            .populate({
+                path: 'icon',
+                select: '_id name usage path'
+            })
+            .populate({
+                path: 'logo',
+                select: '_id name usage path'
+            })
+            .sort({ addons: 1 })
+            .then((subscription) => res.status(200).send(subscription));
     }
 
 }

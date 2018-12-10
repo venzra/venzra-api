@@ -2,8 +2,8 @@ export interface VenzraError {
     name: string;
     code: number;
     message: string;
-    detail: Array<{ path: string, kind: string }>;
-    errors: { [key: string]: { path: string, kind: string } };
+    detail: Array<{ path: string, kind: string, errors: any }>;
+    errors: { [key: string]: { path: string, kind: string, errors: any } };
     limit: number;
     length: number;
 }
@@ -41,6 +41,12 @@ export class AuthenticationError extends BaseError {
 export class AccessDeniedError extends BaseError {
     constructor(reason?: string) {
         super(reason || 'Access Denied');
+    }
+}
+
+export class StripeError extends BaseError {
+    constructor(reason: string) {
+        super(reason);
     }
 }
 

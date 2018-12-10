@@ -46,7 +46,9 @@ export class ErrorService {
                 }
 
                 exception.detail.forEach((error) => {
-                    detail.add(`${error.path} ${error.kind}`.trim());
+                    if (error.path && error.kind) {
+                        detail.add(`${error.path} ${error.kind}`.trim());
+                    }
                 });
 
                 logger.debug(`[${exception.name}] ${exception.message} - ${exception.detail.join(', ')}`);
@@ -73,6 +75,11 @@ export class ErrorService {
                 break;
             case 'GatewayError':
                 message = 'Third party error';
+                exception.code = 503;
+                logger.error(`[${exception.name}] ${exception.message}`);
+                break;
+            case 'StripeError':
+                message = 'Payment gateway error';
                 exception.code = 503;
                 logger.error(`[${exception.name}] ${exception.message}`);
                 break;

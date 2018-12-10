@@ -1,0 +1,7 @@
+{
+    "error": {
+        "type": "invalid_request_error",
+        "message": "No such token: tok_xxxxxxxxxxxxxxxxxxxxxxxx",
+        "param": "card"
+    }
+}

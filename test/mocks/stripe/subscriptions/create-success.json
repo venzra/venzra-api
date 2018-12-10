@@ -1,0 +1,65 @@
+{
+    "id": "sub_yyyyyyyyyyyyyy",
+    "object": "subscription",
+    "application_fee_percent": null,
+    "billing": "charge_automatically",
+    "cancel_at_period_end": false,
+    "canceled_at": null,
+    "created": 1600436220,
+    "current_period_end": 1601300220,
+    "current_period_start": 1600436220,
+    "customer": "cus_yyyyyyyyyyyyyy",
+    "discount": null,
+    "ended_at": null,
+    "items": {
+        "object": "list",
+        "data": [
+            {
+                "id": "si_xxxxxxxxxxxxxx",
+                "object": "subscription_item",
+                "created": 1511651631,
+                "metadata": {},
+                "plan": {
+                    "id": "TEST",
+                    "object": "plan",
+                    "amount": 125,
+                    "created": 1600436220,
+                    "currency": "gbp",
+                    "interval": "month",
+                    "interval_count": 1,
+                    "livemode": false,
+                    "metadata": {},
+                    "name": "Test Plan",
+                    "statement_descriptor": "VENZRA",
+                    "trial_period_days": null
+                },
+                "quantity": 20
+            }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "url": "/v1/subscription_items?subscription=sub_yyyyyyyyyyyyyy"
+    },
+    "livemode": false,
+    "metadata": {},
+    "plan": {
+        "id": "TEST",
+        "object": "plan",
+        "amount": 125,
+        "created": 1600436220,
+        "currency": "gbp",
+        "interval": "month",
+        "interval_count": 1,
+        "livemode": false,
+        "metadata": {},
+        "name": "Test Plan",
+        "statement_descriptor": "VENZRA",
+        "trial_period_days": null
+    },
+    "quantity": 20,
+    "start": 1600436220,
+    "status": "active",
+    "tax_percent": null,
+    "trial_end": null,
+    "trial_start": null
+}

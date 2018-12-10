@@ -2,8 +2,7 @@ import * as parser from 'body-parser';
 
 import { Response, NextFunction, Router } from 'express';
 
-import { Subscription, VenzraRequest } from '../../models';
-import { config } from '../../config';
+import { VenzraRequest } from '../../models';
 
 export class SubscriptionController {
 
