@@ -1,0 +1,79 @@
+{
+    "id": "evt_xxxxxxxxxxxxxx",
+    "object": "event",
+    "api_version": "2018-05-21",
+    "created": 1600436220,
+    "livemode": false,
+    "type": "customer.subscription.deleted",
+    "pending_webhooks": 1,
+    "request": null,
+    "data": {
+        "object": {
+            "id": "sub_xxxxxxxxxxyyyy",
+            "object": "subscription",
+            "application_fee_percent": null,
+            "billing": "charge_automatically",
+            "cancel_at_period_end": false,
+            "canceled_at": 1600436220,
+            "created": 1600436220,
+            "current_period_end": 1601300220,
+            "current_period_start": 1600436220,
+            "customer": "cus_xxxxxxxxxxyyyy",
+            "days_until_due": null,
+            "discount": null,
+            "ended_at": 1600436220,
+            "items": {
+                "object": "list",
+                "data": [
+                    {
+                        "id": "si_xxxxxxxxxxxxxx",
+                        "object": "subscription_item",
+                        "created": 1517441135,
+                        "metadata": {},
+                        "plan": {
+                            "id": "TEST",
+                            "object": "plan",
+                            "amount": 125,
+                            "created": 1600436220,
+                            "currency": "gbp",
+                            "interval": "month",
+                            "interval_count": 1,
+                            "livemode": false,
+                            "metadata": {},
+                            "name": "Test Plan",
+                            "statement_descriptor": "VENZRA",
+                            "trial_period_days": null
+                        },
+                        "quantity": 20,
+                        "subscription": "sub_xxxxxxxxxxyyyy"
+                    }
+                ],
+                "has_more": false,
+                "total_count": 1,
+                "url": "/v1/subscription_items?subscription=sub_xxxxxxxxxxyyyy"
+            },
+            "livemode": false,
+            "metadata": {},
+            "plan": {
+                "id": "TEST",
+                "object": "plan",
+                "amount": 26,
+                "created": 1514747853,
+                "currency": "gbp",
+                "interval": "week",
+                "interval_count": 1,
+                "livemode": false,
+                "metadata": {},
+                "name": "UK Weekly",
+                "statement_descriptor": "VENZRA",
+                "trial_period_days": null
+            },
+            "quantity": 20,
+            "start": 1517441134,
+            "status": "canceled",
+            "tax_percent": null,
+            "trial_end": null,
+            "trial_start": null
+        }
+    }
+}

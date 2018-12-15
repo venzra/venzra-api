@@ -12,8 +12,8 @@ Feature: Access a list of plans that a user will be able to subscribe to after r
   Scenario: Retrieve a list of plans
     When I make a GET request to the API endpoint "/website/subscription/plans" as "plans"
     Then there should be a 200 response from the "plans" request that contains:
-      | list     | total |
-      | ARRAY[3] | 3     |
+      | list  | total  |
+      | ARRAY | NUMBER |
     And there should be a 200 response from the "plans" request that has a "list" field and row 1 contains:
       | _id       | reference          | name                 | currency | price | interval | frequency |
       | OBJECT_ID | SubscriptionPlansC | Subscription Plans C | usd      | 100   | 5        | day       |

@@ -1,0 +1,124 @@
+{
+    "id": "evt_xxxxxxxxxxxxxx",
+    "object": "event",
+    "account": "acct_xxxxxxxxxxxxxx",
+    "api_version": "2018-05-21",
+    "created": 1600436220,
+    "data": {
+        "object": {
+            "id": "ch_refund_full_webhook",
+            "object": "charge",
+            "amount": 175,
+            "amount_refunded": 175,
+            "application": "ca_xxxxxxxxxxxxxx",
+            "application_fee": "fee_xxxxxxxxxxxxxx",
+            "balance_transaction": "txn_xxxxxxxxxxxxxxxxxxxxxxxx",
+            "captured": true,
+            "created": 1600436220,
+            "currency": "gbp",
+            "customer": null,
+            "description": null,
+            "destination": null,
+            "dispute": null,
+            "failure_code": null,
+            "failure_message": null,
+            "fraud_details": { },
+            "invoice": null,
+            "livemode": false,
+            "metadata": { },
+            "on_behalf_of": null,
+            "order": null,
+            "outcome": {
+                "network_status": "approved_by_network",
+                "reason": null,
+                "risk_level": "normal",
+                "seller_message": "Payment complete.",
+                "type": "authorized"
+            },
+            "paid": true,
+            "receipt_email": null,
+            "receipt_number": null,
+            "refunded": true,
+            "refunds": {
+                "object": "list",
+                "data": [
+                    {
+                        "id": "re_xxxxxxxxxxxxxxxxxxxxxxxx",
+                        "object": "refund",
+                        "amount": 175,
+                        "balance_transaction": "txn_xxxxxxxxxxxxxx",
+                        "charge": "ch_refund_full_webhook",
+                        "created": 1600436220,
+                        "currency": "gbp",
+                        "metadata": { },
+                        "reason": "Customer returned products",
+                        "receipt_number": null,
+                        "status": "succeeded"
+                    }
+                ],
+                "has_more": false,
+                "total_count": 1,
+                "url": "/v1/charges/ch_refund_full_webhook/refunds"
+            },
+            "review": null,
+            "shipping": {
+                "address": {
+                    "line1": "Test One",
+                    "line2": "Test Two",
+                    "city": "Test City",
+                    "state": "Test County",
+                    "postal_code": "TE51 3OD",
+                    "country": null
+                },
+                "carrier": null,
+                "name": "Mr Venzra Test",
+                "phone": null,
+                "tracking_number": null
+            },
+            "source": {
+                "id": "card_xxxxxxxxxxxxxxxxxxxxxxxx",
+                "object": "card",
+                "customer": "cus_xxxxxxxxxxxxxx",
+                "name": "Mr Venzra Test",
+                "address_line1": "Test One",
+                "address_line1_check": "pass",
+                "address_line2": "Test Two",
+                "address_city": "Test City",
+                "address_state": "Test County",
+                "address_country": null,
+                "address_zip": "TE51 3OD",
+                "address_zip_check": "pass",
+                "brand": "Visa",
+                "country": "US",
+                "funding": "credit",
+                "exp_month": 12,
+                "exp_year": 2050,
+                "last4": "4242",
+                "dynamic_last4": null,
+                "cvc_check": "pass",
+                "metadata": { },
+                "fingerprint": "xxxxxxxxxxxxxxxx",
+                "tokenization_method": null
+            },
+            "source_transfer": null,
+            "statement_descriptor": "VENZRA",
+            "status": "succeeded",
+            "transfer_group": null
+        },
+        "previous_attributes": {
+            "amount_refunded": 0,
+            "refunded": false,
+            "refunds": {
+                "data": [],
+                "total_count": 0
+            }
+        }
+    },
+    "livemode": false,
+    "pending_webhooks": 1,
+    "request": {
+        "id": "req_xxxxxxxxxxxxxx",
+        "idempotency_key": null
+    },
+    "type": "charge.refunded"
+}

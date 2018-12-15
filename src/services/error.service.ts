@@ -62,6 +62,12 @@ export class ErrorService {
                 exception.code = 401;
                 message = exception.message;
                 break;
+            case 'WebhookError':
+                message = 'Webhook Error';
+                detail.add('signature invalid');
+                exception.code = 403;
+                logger.error(`[${exception.name}] ${exception.message}`);
+                break;
             case 'CastError':
             case 'NotFound':
             case 'NotFoundError':

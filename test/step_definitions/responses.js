@@ -41,7 +41,7 @@ Then(/^there should be a 200 response from the "([^"]*)" request with an "([^"]*
         .then((history) => Promise.all([
                 expect(history.status).to.equal(parseInt(200)),
                 expect(history.headers['content-type']).to.equal(expectedType),
-                sharp(history.response).metadata().then((metadata) => checkValues(expectedData[0], metadata, false))
+                sharp(history.response).metadata().then((metadata) => checkValues(expectedData[0], metadata, '', false))
             ])
         );
 });
@@ -55,9 +55,9 @@ Then(/^the response path "([^"]*)" from the "([^"]*)" request(?: (partially))? c
         .then((response) => {
             response = responsePath.split('.').reduce((response, pathItem) => response[pathItem], response);
             if (response instanceof Array) {
-                return Promise.all(expectedData.map((expected, idx) => checkValues(expected, response[idx], partial)));
+                return Promise.all(expectedData.map((expected, idx) => checkValues(expected, response[idx], `row "${idx + 1}" does not match`, partial)));
             } else {
-                return checkValues(expectedData[0], response, partial);
+                return checkValues(expectedData[0], response, '', partial);
             }
         });
 });
@@ -84,5 +84,5 @@ Then(/^the response from the "([^"]*)" request has a "([^"]*)" that contains row
     expectedData = this.getHashes(expectedData);
 
     return Promise.resolve(this.getHistory(historyName))
-        .then((history) => expectedData.reduce((chain, next, idx) => chain.then(() => checkValues(next, history.response[expectedField][idx], false)), Promise.resolve()));
+        .then((history) => expectedData.reduce((chain, next, idx) => chain.then(() => checkValues(next, history.response[expectedField][idx], `row "${idx + 1}" does not match`, false)), Promise.resolve()));
 });

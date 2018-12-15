@@ -1,0 +1,10 @@
+{
+    "id": "fr_zzzzzzzzzzzzzz",
+    "object": "fee_refund",
+    "amount": 4,
+    "balance_transaction": "txn_zzzzzzzzzzzzzz",
+    "created": 1600436220,
+    "currency": "gbp",
+    "fee": "fee_zzzzzzzzzzzzzz",
+    "metadata": { }
+}

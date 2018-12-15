@@ -19,6 +19,7 @@ export * from './plan';
 export * from './product';
 export * from './shipment';
 export * from './shipping';
+export * from './stripe-webhook';
 export * from './subscription';
 export * from './theme';
 export * from './venzra-error';

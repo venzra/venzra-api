@@ -5,8 +5,7 @@ import { History } from '../models';
 const OrderHistorySchema: Schema = new Schema({
     account: {
         type: Schema.Types.ObjectId,
-        ref: 'accounts',
-        required: true
+        ref: 'accounts'
     },
     field: {
         type: String,

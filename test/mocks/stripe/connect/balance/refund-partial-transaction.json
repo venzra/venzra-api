@@ -1,0 +1,24 @@
+{
+    "id": "txn_zzzzzzzzzzzzzz",
+    "object": "balance_transaction",
+    "amount": -175,
+    "available_on": 1600436220,
+    "created": 1600436220,
+    "currency": "gbp",
+    "description": "REFUND FOR CHARGE",
+    "exchange_rate": null,
+    "fee": -5,
+    "fee_details": [
+        {
+            "amount": -5,
+            "application": null,
+            "currency": "gbp",
+            "description": "Stripe processing fee refund",
+            "type": "stripe_fee"
+        }
+    ],
+    "net": -170,
+    "source": "re_xxxxxxxxxxxxxx",
+    "status": "pending",
+    "type": "refund"
+}

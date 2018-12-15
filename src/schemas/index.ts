@@ -7,6 +7,7 @@ export * from './customer';
 export * from './images';
 export * from './locations';
 export * from './orders';
+export * from './order-history';
 export * from './plans';
 export * from './products';
 export * from './product-history';

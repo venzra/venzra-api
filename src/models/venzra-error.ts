@@ -56,4 +56,10 @@ export class GatewayError extends BaseError {
     }
 }
 
+export class WebhookError extends BaseError {
+    constructor(reason: string) {
+        super(reason);
+    }
+}
+
 export class NotFoundError extends BaseError {}

@@ -87,6 +87,6 @@ Then(/^the database record for "([^"]*)" in the "([^"]*)" table(?: has a field c
                 result = result[field];
             }
 
-            return checkValues(dataset[0], result, false);
+            return checkValues(dataset[0], result, '', false);
         });
 });

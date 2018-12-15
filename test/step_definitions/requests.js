@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -9,6 +10,19 @@ Given(/^the request origin headers are set to "([^"]*)"$/, function (requestOrig
     this.setHeader('Origin', `http://${requestOrigin}`);
     this.setHeader('Referer', `http://${requestOrigin}`);
     this.setHeader('Host', requestOrigin);
+});
+
+Given(/^there is a (stripe|connect) webhook signature for the mock payload "([^"]*)"$/, function (hookType, mockFile) {
+    const requestData = this.readMock(mockFile);
+    const hook = hookType === 'stripe' ? 'STRIPE_WEBHOOK_KEY' : 'STRIPE_CONNECT_KEY';
+
+    let headerValue = [];
+
+    headerValue.push(`t=${requestData.created}`);
+    headerValue.push(`v1=${crypto.createHmac('sha256', process.env[hook]).update(`${requestData.created}.${JSON.stringify(requestData)}`).digest('hex')}`);
+    headerValue.push(`v0=${crypto.createHmac('sha256', process.env[hook]).update(JSON.stringify(requestData)).digest('hex')}`);
+
+    this.setHeader('stripe-signature', headerValue.join(','));
 });
 
 Given(/^I am logged in with the "([^"]*)" (admin|store) account$/, function (userIdentity, userType) {

@@ -1,0 +1,18 @@
+{
+    "id": "evt_xxxxxxxxxxxxxx",
+    "object": "event",
+    "api_version": "2018-05-21",
+    "created": 1600436220,
+    "livemode": false,
+    "type": "account.application.deauthorized",
+    "pending_webhooks": 1,
+    "request": null,
+    "account": "acct_xxxxxxxxxxxxxx",
+    "data": {
+        "object": {
+            "id": "ca_xxxxxxxxxxxxxx",
+            "object": "application",
+            "name": "TEST"
+        }
+    }
+}
