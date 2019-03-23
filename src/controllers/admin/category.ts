@@ -20,7 +20,7 @@ export class CategoryController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
@@ -32,209 +32,205 @@ export class CategoryController {
         this.router.delete('/:categoryId', this.identityService.validateAdmin.bind(this), this.removeOne.bind(this));
     }
 
-    createCategory(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async createCategory(req: VenzraRequest, res: Response, next: NextFunction) {
         const category = new CategoryModel({
             subscription: req.venzra.account.subscription._id,
             name: req.body.name,
             description: req.body.description,
             primary: req.body.primary,
-            featureImage: req.body.featureImage
+            featureImage: req.body.featureImage,
         });
 
         if (req.body.parent && !req.body.primary) {
             category.parent = req.body.parent;
         }
 
-        let promise: Promise<any> = Promise.resolve();
-
         if (category.parent) {
             const _id = category.parent;
             const subscription = req.venzra.account.subscription._id;
 
-            promise = promise.then(() => CategoryModel.findOne({ _id, subscription })
-                .then((parent) => {
-                    if (!parent) {
-                        throw new NotFoundError();
-                    }
+            const parent = await CategoryModel.findOne({ _id, subscription });
 
-                    return category.save()
-                        .then((result) => {
-                            parent.children.push(result);
-                            return parent.save().then(() => result);
-                        });
-                })
-            );
+            if (!parent) {
+                return next(new NotFoundError());
+            }
+
+            const result = await category.save();
+            parent.children.push(result);
+
+            try {
+                await parent.save();
+            } catch (error) {
+                return next(error);
+            }
         } else {
-            promise = promise.then(() => category.save());
+            try {
+                await category.save();
+            } catch (error) {
+                return next(error);
+            }
         }
 
-        promise
-            .then((result) => {
-                req.params.categoryId = result._id;
-                next();
-            })
-            .catch((error) => next(error));
+        req.params.categoryId = category._id;
+        next();
     }
 
-    updateCategory(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async updateCategory(req: VenzraRequest, res: Response, next: NextFunction) {
         const _id = req.params.categoryId;
         const subscription = req.venzra.account.subscription._id;
 
-        CategoryModel
-            .findOne({ _id, subscription })
-            .populate('parent')
-            .then((category) => {
-                if (!category) {
-                    throw new NotFoundError();
-                }
+        const category = await CategoryModel.findOne({ _id, subscription }).populate('parent');
 
-                if (!(req.body instanceof Array)) {
-                    return;
-                }
+        if (!category) {
+            return next(new NotFoundError());
+        }
 
-                let promise: Promise<any> = Promise.resolve();
+        if (!(req.body instanceof Array)) {
+            return next();
+        }
 
-                (<Array<PatchRequest>>req.body).forEach((operation) => {
-                    switch (operation.op) {
-                        case 'replace':
-                            switch (operation.path) {
-                                case 'primary':
-                                    if (!category.parent) {
-                                        promise = promise.then(() => category.set(operation.path, operation.value));
-                                    }
-                                    break;
-                                case 'parent':
-                                    if (category.children.length === 0) {
-                                        promise = promise
-                                            .then(() => CategoryModel
-                                                .findOne({ _id: operation.value, subscription: subscription })
-                                                .then((parent) => {
-                                                    if (!parent) {
-                                                        throw new NotFoundError();
-                                                    }
-                                                    return parent.update({ $addToSet: { children: category._id } });
-                                                })
-                                            )
-                                            .then(() => {
-                                                if (category.parent) {
-                                                    const parent = category.parent;
-                                                    return parent.update({ $pull: { children: category._id } });
-                                                }
-                                                return;
-                                            })
-                                            .then(() => category.set(operation.path, operation.value));
-                                    }
-                                    break;
-                                case 'name':
-                                case 'description':
-                                case 'featureImage':
-                                    promise = promise.then(() => category.set(operation.path, operation.value));
+        const update = (<Array<PatchRequest>>req.body).reduce(async (promise, operation) => {
+            await promise;
+
+            switch (operation.op) {
+                case 'replace':
+                    switch (operation.path) {
+                        case 'primary':
+                            if (!category.parent) {
+                                category.set(operation.path, operation.value);
                             }
+                            break;
+                        case 'parent':
+                            if (category.children.length === 0) {
+                                const parent = await CategoryModel.findOne({
+                                    _id: operation.value,
+                                    subscription: subscription,
+                                });
+                                if (!parent) {
+                                    throw new NotFoundError();
+                                }
+                                await parent.update({ $addToSet: { children: category._id } });
+
+                                if (category.parent) {
+                                    const parent = category.parent;
+                                    await parent.update({ $pull: { children: category._id } });
+                                }
+
+                                category.set(operation.path, operation.value);
+                            }
+                            break;
+                        case 'name':
+                        case 'description':
+                        case 'featureImage':
+                            category.set(operation.path, operation.value);
                     }
-                });
+            }
+        }, Promise.resolve());
 
-                return promise.then(() => category.save());
-            })
-            .then(() => next())
-            .catch((error) => next(error));
+        try {
+            await update;
+            await category.save();
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
 
-    removeOne(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async removeOne(req: VenzraRequest, res: Response, next: NextFunction) {
         const _id = req.params.categoryId;
         const subscription = req.venzra.account.subscription._id;
 
-        CategoryModel.findOne({ _id, subscription })
-            .then(async (category) => {
-                if (!category) {
-                    throw new NotFoundError();
-                }
+        const category = await CategoryModel.findOne({ _id, subscription });
+        if (!category) {
+            return next(new NotFoundError());
+        }
 
-                if (category.parent) {
-                    return CategoryModel.findOneAndUpdate({
-                        _id: category.parent,
-                        subscription
-                    }, { $pull: { children: category._id } }).then(() => category);
-                } else if (category.children.length) {
-                    await Promise.all(category.children.map(async (child) => await CategoryModel.findOneAndUpdate({
-                        _id: child,
-                        subscription
-                    }, { $unset: { parent: 1 } })));
-                    return category;
-                } else {
-                    return category;
-                }
-            })
-            .then((category) => category.remove())
-            .then(() => res.status(202).send())
-            .catch((error) => next(error));
+        if (category.parent) {
+            await CategoryModel
+                .findOneAndUpdate(
+                    { _id: category.parent, subscription },
+                    { $pull: { children: category._id } },
+                );
+        } else if (category.children.length) {
+            await Promise.all(category.children
+                .map(
+                    async (child) => await CategoryModel.findOneAndUpdate(
+                        { _id: child, subscription },
+                        { $unset: { parent: 1 } },
+                    ),
+                ),
+            );
+        }
+
+        await category.remove();
+        res.status(202).send();
+        next();
     }
 
-    findOne(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findOne(req: VenzraRequest, res: Response, next: NextFunction) {
         const _id = req.params.categoryId;
         const subscription = req.venzra.account.subscription._id;
 
-        CategoryModel
+        const category = await CategoryModel
             .findOne({ _id, subscription })
             .select('slug name description featureImage parent primary created updated')
             .populate({
                 path: 'featureImage',
-                select: '_id name path'
+                select: '_id name path',
             })
             .populate({
                 path: 'parent',
                 select: 'slug name featureImage primary created updated',
                 populate: {
                     path: 'featureImage',
-                    select: '_id name path'
-                }
+                    select: '_id name path',
+                },
             })
             .populate({
                 path: 'children',
                 select: 'slug name featureImage primary created updated',
                 populate: {
                     path: 'featureImage',
-                    select: '_id name path'
-                }
+                    select: '_id name path',
+                },
             })
             .populate({
                 path: 'products',
                 select: '_id code displayName promotionalImage status created updated',
                 populate: {
                     path: 'promotionalImage',
-                    select: '_id name path'
-                }
+                    select: '_id name path',
+                },
             })
-            .lean()
-            .then((category: any) => {
-                if (!category) {
-                    throw new NotFoundError();
+            .lean();
+
+        if (!category) {
+            return next(new NotFoundError());
+        }
+        if (category.featureImage) {
+            category.featureImage = `https://${config.imageBucket}/${category.featureImage.path}`;
+        }
+        if (category.parent && category.parent.featureImage) {
+            category.parent.featureImage = `https://${config.imageBucket}/${category.parent.featureImage.path}`;
+        }
+        if (category.children.length) {
+            category.children = category.children.map((child: any) => {
+                if (child.featureImage) {
+                    child.featureImage = `https://${config.imageBucket}/${child.featureImage.path}`;
                 }
-                if (category.featureImage) {
-                    category.featureImage = `https://${config.imageBucket}/${category.featureImage.path}`;
-                }
-                if (category.parent && category.parent.featureImage) {
-                    category.parent.featureImage = `https://${config.imageBucket}/${category.parent.featureImage.path}`;
-                }
-                if (category.children.length) {
-                    category.children = category.children.map((child: any) => {
-                        if (child.featureImage) {
-                            child.featureImage = `https://${config.imageBucket}/${child.featureImage.path}`;
-                        }
-                        return child;
-                    });
-                }
-                if (category.products.length) {
-                    category.products = category.products.map((product: any) => {
-                        product.promotionalImage = `https://${config.imageBucket}/${product.promotionalImage.path}`;
-                        return product;
-                    });
-                }
-                res.status(200).send(category);
-            })
-            .catch((error) => next(error));
+                return child;
+            });
+        }
+        if (category.products.length) {
+            category.products = category.products.map((product: any) => {
+                product.promotionalImage = `https://${config.imageBucket}/${product.promotionalImage.path}`;
+                return product;
+            });
+        }
+        res.status(200).send(category);
     }
 
-    findAll(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findAll(req: VenzraRequest, res: Response, next: NextFunction) {
         const searchParams: any = { subscription: req.venzra.account.subscription._id };
         const skip = parseInt(req.query.skip, 10) || 0;
         const limit = parseInt(req.query.limit, 10) || 20;
@@ -257,50 +253,48 @@ export class CategoryController {
                 order = { name: req.query.direction === 'desc' ? -1 : 1 };
         }
 
-        CategoryModel
-            .count(searchParams).exec()
-            .then((total) =>
-                CategoryModel
-                    .aggregate([
-                        { $match: searchParams },
-                        { $sort: order },
-                        { $skip: skip },
-                        { $limit: limit },
-                        {
-                            $project: {
-                                slug: 1,
-                                name: 1,
-                                featureImage: 1,
-                                primary: 1,
-                                parent: 1,
-                                children: { $size: { '$ifNull': ['$children', []] } },
-                                products: { $size: { '$ifNull': ['$products', []] } },
-                                created: 1
-                            }
-                        }
-                    ])
-                    .then((result) => ImageModel.populate(result, {
-                        path: 'featureImage',
-                        select: '_id name usage path'
-                    }))
-                    .then((list) => res.status(200).send({ list, total, skip, limit }))
-            )
-            .catch((error) => next(error));
+        const total = await CategoryModel.count(searchParams).exec();
+        const result = await CategoryModel
+            .aggregate([
+                { $match: searchParams },
+                { $sort: order },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                    $project: {
+                        slug: 1,
+                        name: 1,
+                        featureImage: 1,
+                        primary: 1,
+                        parent: 1,
+                        children: { $size: { '$ifNull': ['$children', []] } },
+                        products: { $size: { '$ifNull': ['$products', []] } },
+                        created: 1,
+                    },
+                },
+            ]);
+
+        const list = await ImageModel.populate(result, {
+            path: 'featureImage',
+            select: '_id name usage path',
+        });
+
+        res.status(200).send({ list, total, skip, limit });
     }
 
-    getSummary(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async getSummary(req: VenzraRequest, res: Response, next: NextFunction) {
         const searchParams = { subscription: req.venzra.account.subscription._id, parent: { $eq: null } };
 
-        CategoryModel.find(searchParams)
+        const categories = await CategoryModel.find(searchParams)
             .select('_id name')
             .populate({
                 path: 'children',
                 select: '_id name',
-                options: { sort: { name: 1 } }
+                options: { sort: { name: 1 } },
             })
-            .sort({ name: 1 })
-            .then((categories) => res.status(200).send({ list: categories }))
-            .catch((error) => next(error));
+            .sort({ name: 1 });
+
+        res.status(200).send({ list: categories });
     }
 
 }

@@ -12,13 +12,12 @@ export class VenzraDatabase {
                 autoIndex: true,
                 bufferCommands: false,
                 bufferMaxEntries: 0,
-                keepAlive: 120,
-                poolSize: 1,
+                poolSize: 5,
                 reconnectTries: 30,
                 socketTimeoutMS: 0,
                 useCreateIndex: true,
-                useNewUrlParser: true
-            }
+                useNewUrlParser: true,
+            },
         };
 
         if (!mongoose.connection.readyState) {

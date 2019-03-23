@@ -2,7 +2,7 @@ import * as parser from 'body-parser';
 
 import { Response, NextFunction, Router } from 'express';
 
-import { Image, Location, NotFoundError, PatchRequest, VenzraRequest } from '../../models';
+import { Image, NotFoundError, PatchRequest, VenzraRequest } from '../../models';
 import { LocationModel } from '../../schemas';
 import { IdentityService } from '../../services';
 import { config } from '../../config';
@@ -19,7 +19,7 @@ export class LocationController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
@@ -30,128 +30,126 @@ export class LocationController {
         this.router.delete('/:locationId', this.identityService.validateAdmin.bind(this), this.removeOne.bind(this));
     }
 
-    createLocation(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async createLocation(req: VenzraRequest, res: Response, next: NextFunction) {
         const location = new LocationModel({
             subscription: req.venzra.account.subscription._id,
             displayName: req.body.displayName,
             description: req.body.description,
             address: req.body.address,
             featureImage: req.body.featureImage,
-            usage: req.body.usage
+            usage: req.body.usage,
         });
 
-        location.save()
-            .then((result) => {
-                req.params.locationId = result._id;
-                next();
-            })
-            .catch((error) => next(error));
+        try {
+            const result = await location.save();
+            req.params.locationId = result._id;
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
 
-    updateLocation(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async updateLocation(req: VenzraRequest, res: Response, next: NextFunction) {
         const _id = req.params.locationId;
         const subscription = req.venzra.account.subscription._id;
 
-        LocationModel
-            .findOne({ _id, subscription })
-            .then((location) => {
-                if (!location) {
-                    throw new NotFoundError();
-                }
+        const location = await LocationModel.findOne({ _id, subscription });
 
-                if (!(req.body instanceof Array)) {
-                    return;
-                }
+        if (!location) {
+            return next(new NotFoundError());
+        }
 
-                (<Array<PatchRequest>>req.body).forEach((operation) => {
-                    switch (operation.op) {
-                        case 'replace':
-                            switch (operation.path) {
-                                case 'displayName':
-                                case 'description':
-                                case 'address':
-                                case 'featureImage':
-                                case 'usage':
-                                    location.set(operation.path, operation.value);
-                                    break;
-                            }
+        if (!(req.body instanceof Array)) {
+            return next();
+        }
+
+        (<Array<PatchRequest>>req.body).forEach((operation) => {
+            switch (operation.op) {
+                case 'replace':
+                    switch (operation.path) {
+                        case 'displayName':
+                        case 'description':
+                        case 'address':
+                        case 'featureImage':
+                        case 'usage':
+                            location.set(operation.path, operation.value);
+                            break;
                     }
-                });
+            }
+        });
 
-                return location.save();
-            })
-            .then(() => next())
-            .catch((error) => next(error));
+        try {
+            await location.save();
+            next();
+        } catch(error) {
+            next(error);
+        }
     }
 
-    removeOne(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async removeOne(req: VenzraRequest, res: Response, next: NextFunction) {
         const _id = req.params.locationId;
         const subscription = req.venzra.account.subscription._id;
 
-        LocationModel.findOneAndRemove({ _id, subscription })
-            .then((result) => {
-                if (!result) {
-                    throw new NotFoundError();
-                }
-                res.status(202).send();
-            })
-            .catch((error) => next(error));
+        const result = await LocationModel.findOneAndRemove({ _id, subscription });
+
+        if (!result) {
+            return next(new NotFoundError());
+        }
+
+        res.status(202).send();
     }
 
-    findOne(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findOne(req: VenzraRequest, res: Response, next: NextFunction) {
         const _id = req.params.locationId;
         const subscription = req.venzra.account.subscription._id;
 
-        LocationModel
+        const location = await LocationModel
             .findOne({ _id, subscription })
             .select('displayName description address featureImage usage created updated')
             .populate({
                 path: 'featureImage',
-                select: '_id name usage path'
+                select: '_id name usage path',
             })
-            .lean()
-            .then((location: Location) => {
-                if(!location) {
-                    throw new NotFoundError();
-                }
-                location.featureImage = `https://${config.imageBucket}/${(<Image>location.featureImage).path}`;
-                res.status(200).send(location);
-            })
-            .catch((locationError) => next(locationError));
+            .lean();
+
+        if (!location) {
+            return next(new NotFoundError());
+        }
+
+        location.featureImage = `https://${config.imageBucket}/${(<Image>location.featureImage).path}`;
+        res.status(200).send(location);
     }
 
-    findAll(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findAll(req: VenzraRequest, res: Response, next: NextFunction) {
         const searchParams = { subscription: req.venzra.account.subscription._id };
         const order = { displayName: 1 };
 
-        LocationModel
-            .countDocuments(searchParams).exec()
-            .then((total) =>
-                LocationModel
-                    .aggregate([
-                        { $match: searchParams },
-                        { $sort: order },
-                        {
-                            $lookup: {
-                                from: 'images',
-                                localField: 'featureImage',
-                                foreignField: '_id',
-                                as: 'featureImage'
-                            }
-                        },
-                        {
-                            $project: {
-                                displayName: 1,
-                                address: 1,
-                                featureImage: { $concat: ['https://', config.imageBucket, '/', { $arrayElemAt: ['$featureImage.path', 0] }] },
-                                usage: 1,
-                                created: 1
-                            }
-                        }
-                    ])
-                    .then((list) => res.status(200).send({ list, total }))
-            )
-            .catch((error) => next(error));
+        const total = await LocationModel.countDocuments(searchParams).exec();
+
+        const list = await LocationModel
+            .aggregate([
+                { $match: searchParams },
+                { $sort: order },
+                {
+                    $lookup: {
+                        from: 'images',
+                        localField: 'featureImage',
+                        foreignField: '_id',
+                        as: 'featureImage',
+                    },
+                },
+                {
+                    $project: {
+                        displayName: 1,
+                        address: 1,
+                        featureImage: { $concat: ['https://', config.imageBucket, '/', { $arrayElemAt: ['$featureImage.path', 0] }] },
+                        usage: 1,
+                        created: 1,
+                    },
+                },
+            ]);
+
+        res.status(200).send({ list, total });
     }
 
 }

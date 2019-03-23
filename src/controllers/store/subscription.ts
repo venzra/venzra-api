@@ -13,17 +13,17 @@ export class SubscriptionController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.get('/', this.retrieve.bind(this));
     }
 
-    retrieve(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async retrieve(req: VenzraRequest, res: Response, next: NextFunction) {
         const subscription: any = req.venzra.subscription;
 
         let { _id, features, domainName, storeName, strapline, icon, logo, gateway, contact, created } = subscription;
-        return res.status(200).send({ _id, features, domainName, storeName, strapline, icon, logo, contact, gateway: (gateway ? gateway.publicKey : ''), created });
+        res.status(200).send({ _id, features, domainName, storeName, strapline, icon, logo, contact, gateway: (gateway ? gateway.publicKey : ''), created });
     }
 
 }

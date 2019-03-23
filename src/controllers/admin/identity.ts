@@ -6,7 +6,7 @@ import { Response, NextFunction, Router } from 'express';
 import { encode } from 'jwt-simple';
 import { v4 } from 'uuid';
 
-import { Account, AcceptedError, AuthenticationError, ValidationError, VenzraRequest } from '../../models';
+import { AcceptedError, AuthenticationError, ValidationError, VenzraRequest } from '../../models';
 import { AccountModel } from '../../schemas';
 import { ErrorService, IdentityService, MailService } from '../../services';
 
@@ -27,7 +27,7 @@ export class IdentityController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.get('/', this.identityService.validateAdmin.bind(this), this.identityService.getAccount.bind(this));
@@ -36,7 +36,7 @@ export class IdentityController {
         this.router.post('/logout', this.identityService.validateAdmin.bind(this), this.logout.bind(this));
     }
 
-    recover(req: VenzraRequest, res: Response, next: NextFunction): void {
+    public async recover(req: VenzraRequest, res: Response, next: NextFunction) {
         const requestErrors = this.errorService.requiredFields(req.body, ['identity']);
 
         if (requestErrors.length) {
@@ -45,121 +45,105 @@ export class IdentityController {
 
         const identity = (req.body.identity).toLowerCase();
 
-        AccountModel
-            .findOne({ identity })
-            .then((account) => {
-                if (!account) {
-                    throw new Error(`Recovery not possible, no account for "${identity}"`);
-                }
+        const account = await AccountModel.findOne({ identity });
 
-                let expiry = 8;
+        if (!account) {
+            return next(new AcceptedError(`Recovery not possible, no account for "${identity}"`));
+        }
 
-                account.status = 'RECOVERY';
-                account.validation = {
-                    key: createHash('sha256').update(v4()).digest('hex').substr(0, 16),
-                    expires: moment().add(expiry, 'hours').toDate()
-                };
+        let expiry = 8;
 
-                return account.save();
-            })
-            .then((account) => {
-                const subject = 'Account recovery';
-                const managementUrl = config.managementPortal;
-                const expires = moment(account.validation.expires).format('dddd, Do MMMM YYYY [at] HH:mm');
-                const forgottenUrl = `${managementUrl}/forgotten`;
-                const recoveryUrl = `${managementUrl}/recovery/${account._id}?token=${account.validation.key}`;
+        account.status = 'RECOVERY';
+        account.validation = {
+            key: createHash('sha256').update(v4()).digest('hex').substr(0, 16),
+            expires: moment().add(expiry, 'hours').toDate(),
+        };
 
-                const mailer = new MailService(subject, config.replyTo, [account.identity]);
-                const content = { subject, managementUrl, account, expires, forgottenUrl, recoveryUrl };
+        await account.save();
 
-                return mailer.send('recovery', content);
-            })
-            .then(() => res.status(202).send())
-            .catch((err) => next(new AcceptedError(err.message)));
+        const subject = 'Account recovery';
+        const managementUrl = config.managementPortal;
+        const expires = moment(account.validation.expires).format('dddd, Do MMMM YYYY [at] HH:mm');
+        const forgottenUrl = `${managementUrl}/forgotten`;
+        const recoveryUrl = `${managementUrl}/recovery/${account._id}?token=${account.validation.key}`;
+
+        const mailer = new MailService(subject, config.replyTo, [account.identity]);
+        const content = { subject, managementUrl, account, expires, forgottenUrl, recoveryUrl };
+
+        await mailer.send('recovery', content);
+
+        res.status(202).send();
     }
 
-    authorise(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async authorise(req: VenzraRequest, res: Response, next: NextFunction) {
         if (!req.body.identity || !req.body.password) {
             return next(new AuthenticationError(`Missing ${req.body.identity ? 'identity' : 'password'} credential`));
         }
 
         const identity = (req.body.identity || '').toLowerCase();
+        const user = await AccountModel.findOne({ identity });
 
-        AccountModel.findOne({ identity })
-            .then((account: Account) => {
-                if (!account) {
-                    throw new AuthenticationError(`Account "${identity}" not found`);
-                }
+        if (!user) {
+            return next(new AuthenticationError(`Account "${identity}" not found`));
+        }
 
-                switch (account.status) {
-                    case 'ACTIVE':
-                    case 'RECOVERY':
-                        break;
-                    case 'REGISTERED':
-                        throw new AuthenticationError(`Account "${account.identity}" not activated`);
-                    case 'LOCKED':
-                        // TODO: Allow for timeout on account lock for new attempts
-                        throw new AuthenticationError(`Account "${account.identity}" locked`);
-                    default:
-                        throw new AuthenticationError(`Account "${account.identity}" state is ${account.status}`);
-                }
+        switch (user.status) {
+            case 'ACTIVE':
+            case 'RECOVERY':
+                break;
+            case 'REGISTERED':
+                return next(new AuthenticationError(`Account "${user.identity}" not activated`));
+            case 'LOCKED':
+                // TODO: Allow for timeout on account lock for new attempts
+                return next(new AuthenticationError(`Account "${user.identity}" locked`));
+            default:
+                return next(new AuthenticationError(`Account "${user.identity}" state is ${user.status}`));
+        }
 
-                const password = pbkdf2Sync(req.body.password, account.password.salt, 10000, 256, 'sha512');
+        const password = pbkdf2Sync(req.body.password, user.password.salt, 10000, 256, 'sha512');
 
-                if (account.password.secure === password.toString('base64')) {
-                    const token = {
-                        key: createHash('sha256').update(v4()).digest('hex').toString(),
-                        ip: req.ip,
-                        created: new Date()
-                    };
+        if (user.password.secure === password.toString('base64')) {
+            const token = {
+                key: createHash('sha256').update(v4()).digest('hex').toString(),
+                ip: req.ip,
+                created: new Date(),
+            };
 
-                    const changes = {
-                        $unset: { validation: 1 },
-                        $set: {
-                            access: token,
-                            lock: { failures: 0 },
-                            status: 'ACTIVE'
-                        }
-                    };
+            const changes = {
+                $unset: { validation: 1 },
+                $set: {
+                    access: token,
+                    lock: { failures: 0 },
+                    status: 'ACTIVE',
+                },
+            };
 
-                    return account
-                        .update(changes)
-                        .exec()
-                        .then(() => account);
-                } else {
-                    const changes = {
-                        $unset: { access: 1 },
-                        $set: {
-                            'lock.ip': req.ip,
-                            'lock.attempted': new Date()
-                        },
-                        $inc: { 'lock.failures': 1 },
-                        status: (account.lock.failures >= 4 ? 'LOCKED' : account.status)
-                    };
+            await user.update(changes).exec();
+        } else {
+            const changes = {
+                $unset: { access: 1 },
+                $set: {
+                    'lock.ip': req.ip,
+                    'lock.attempted': new Date(),
+                },
+                $inc: { 'lock.failures': 1 },
+                status: (user.lock.failures >= 4 ? 'LOCKED' : user.status),
+            };
 
-                    return account
-                        .update(changes)
-                        .exec()
-                        .then(() => {
-                            throw new AuthenticationError(`Password for "${account.identity}" incorrect`);
-                        })
-                        .then(() => account);
-                }
-            })
-            .then((account: Account) => {
-                return AccountModel.findById(account._id).then((account: Account) => {
-                    Object.assign(req.venzra, { account });
-                    next();
-                })
-            })
-            .catch((error: any) => next(error));
+            await user.update(changes).exec();
+            return next(new AuthenticationError(`Password for "${user.identity}" incorrect`));
+        }
+
+        const account = await AccountModel.findById(user._id);
+        Object.assign(req.venzra, { account });
+        next();
     }
 
-    tokenise(req: VenzraRequest, res: Response, next: NextFunction) {
+    public tokenise(req: VenzraRequest, res: Response, next: NextFunction) {
         const account = {
             _id: req.venzra.account._id,
             key: req.venzra.account.access.key,
-            ip: req.venzra.account.access.ip
+            ip: req.venzra.account.access.ip,
         };
         const encoded = encode(account, config.secret, 'HS512');
 
@@ -167,13 +151,10 @@ export class IdentityController {
         res.status(202).send();
     }
 
-    logout(req: VenzraRequest, res: Response, next: NextFunction) {
-        Promise.resolve()
-            .then(() => req.venzra.account.update({ $unset: { access: 1 } }).exec())
-            .then(() => {
-                res.clearCookie('jwt');
-                res.status(202).send();
-            });
+    public async logout(req: VenzraRequest, res: Response, next: NextFunction) {
+        await req.venzra.account.update({ $unset: { access: 1 } }).exec();
+        res.clearCookie('jwt');
+        res.status(202).send();
     }
 
 }

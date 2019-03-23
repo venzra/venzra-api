@@ -10,7 +10,7 @@ import { CustomerModel } from '../../schemas';
 
 import { config } from '../../config';
 
-export class IdentityController  {
+export class IdentityController {
 
     public router: Router;
 
@@ -19,14 +19,14 @@ export class IdentityController  {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.post('/login', this.authorise.bind(this), this.tokenise.bind(this));
         this.router.post('/logout', this.logout.bind(this));
     }
 
-    authorise(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async authorise(req: VenzraRequest, res: Response, next: NextFunction) {
         const errors = [];
 
         if (!req.body.identity) {
@@ -44,81 +44,83 @@ export class IdentityController  {
         const subscription = req.venzra.subscription._id;
         const identity = (req.body.identity).toLowerCase();
 
-        CustomerModel.findOne({ subscription, identity })
-            .then((customer) => {
-                if (!customer) {
-                    const salt = createHash('sha1').update(v4()).digest('hex');
+        let customer = await CustomerModel.findOne({ subscription, identity });
 
-                    const password = req.body.password ? {
-                        salt: salt,
-                        secure: pbkdf2Sync(req.body.password, salt, 10000, 256, 'sha512').toString('base64'),
-                        created: new Date()
-                    } : null;
+        if (!customer) {
+            const salt = createHash('sha1').update(v4()).digest('hex');
 
-                    customer = new CustomerModel({ subscription, identity, password });
-                    return customer.save();
-                }
-                return customer;
-            })
-            .then((customer) => {
+            const password = req.body.password ? {
+                salt: salt,
+                secure: pbkdf2Sync(req.body.password, salt, 10000, 256, 'sha512').toString('base64'),
+                created: new Date(),
+            } : null;
 
-                switch (customer.status) {
-                    case 'ACTIVE':
-                    case 'RECOVERY':
-                        break;
-                    case 'LOCKED':
-                        // TODO: Allow for timeout on customer lock for new attempts
-                        throw new AuthenticationError(`Account "${customer.identity}" locked`);
-                    default:
-                        throw new AuthenticationError(`Account "${customer.identity}" state is ${customer.status}`);
-                }
+            customer = new CustomerModel({ subscription, identity, password });
+            try {
+                await customer.save();
+            } catch (error) {
+                return next(error);
+            }
+        }
 
-                const password = pbkdf2Sync(req.body.password, customer.password.salt, 10000, 256, 'sha512').toString('base64');
+        switch (customer.status) {
+            case 'ACTIVE':
+            case 'RECOVERY':
+                break;
+            case 'LOCKED':
+                // TODO: Allow for timeout on customer lock for new attempts
+                return next(new AuthenticationError(`Account "${customer.identity}" locked`));
+            default:
+                return next(new AuthenticationError(`Account "${customer.identity}" state is ${customer.status}`));
+        }
 
-                if (customer.password.secure === password) {
-                    const token = {
-                        key: createHash('sha256').update(v4()).digest('hex').toString(),
-                        ip: req.ip,
-                        created: new Date()
-                    };
+        const password = pbkdf2Sync(req.body.password, customer.password.salt, 10000, 256, 'sha512').toString('base64');
 
-                    customer.set({
-                            access: token,
-                            lock: { failures: 0 },
-                            status: 'ACTIVE'
-                        });
+        if (customer.password.secure !== password) {
+            const changes = {
+                $unset: { access: 1 },
+                $set: {
+                    'lock.ip': req.ip,
+                    'lock.attempted': new Date(),
+                },
+                $inc: { 'lock.failures': 1 },
+                status: (customer.lock.failures >= 4 ? 'LOCKED' : customer.status),
+            };
 
-                    return customer
-                        .save()
-                        .then((customer) => Object.assign(req.venzra, { customer }));
-                } else {
-                    const changes = {
-                        $unset: { access: 1 },
-                        $set: {
-                            'lock.ip': req.ip,
-                            'lock.attempted': new Date()
-                        },
-                        $inc: { 'lock.failures': 1 },
-                        status: (customer.lock.failures >= 4 ? 'LOCKED' : customer.status)
-                    };
+            try {
+                await customer.update(changes).exec();
+            } catch (error) {
+                return next(error);
+            }
+            return next(new AuthenticationError(`Password for "${customer.identity}" incorrect`));
+        }
 
-                    return customer
-                        .update(changes)
-                        .exec()
-                        .then(() => {
-                            throw new AuthenticationError(`Password for "${customer.identity}" incorrect`);
-                        });
-                }
-            })
-            .then(() => next())
-            .catch((error) => next(error));
+        const token = {
+            key: createHash('sha256').update(v4()).digest('hex').toString(),
+            ip: req.ip,
+            created: new Date(),
+        };
+
+        customer.set({
+            access: token,
+            lock: { failures: 0 },
+            status: 'ACTIVE',
+        });
+
+        try {
+            await customer.save();
+            Object.assign(req.venzra, { customer });
+            return next();
+        } catch (error) {
+            return next(error);
+        }
     }
 
-    tokenise(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async tokenise(req: VenzraRequest, res: Response, next: NextFunction) {
         const customer = {
             _id: req.venzra.customer.id,
             key: req.venzra.customer.access.key,
-            ip: req.venzra.customer.access.ip
+            ip: req.venzra.customer.access.ip,
         };
         const encoded = encode(customer, config.secret, 'HS512');
 
@@ -126,14 +128,11 @@ export class IdentityController  {
         res.status(202).send();
     }
 
-    logout(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async logout(req: VenzraRequest, res: Response, next: NextFunction) {
         if (req.venzra.customer) {
-            req.venzra.customer
-                .update({ $unset: { access: 1 } })
-                .then(() => {
-                    res.clearCookie('jwt');
-                    res.status(202).send();
-                });
+            await req.venzra.customer.update({ $unset: { access: 1 } });
+            res.clearCookie('jwt');
+            res.status(202).send();
         } else {
             res.status(202).send();
         }

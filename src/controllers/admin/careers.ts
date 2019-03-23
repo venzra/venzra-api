@@ -18,7 +18,7 @@ export class CareerController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
@@ -29,102 +29,103 @@ export class CareerController {
         this.router.delete('/:careerId', this.identityService.validateAdmin.bind(this), this.removeOne.bind(this));
     }
 
-    createCareer(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async createCareer(req: VenzraRequest, res: Response, next: NextFunction) {
         const career = new CareerModel({
             subscription: req.venzra.account.subscription._id,
             position: req.body.position,
             description: req.body.description,
-            expires: req.body.expires
+            expires: req.body.expires,
         });
 
-        career.save()
-            .then((result) => {
-                req.params.careerId = result._id;
-                next();
-            })
-            .catch((error) => next(error));
+        try {
+            const result = await career.save();
+            req.params.careerId = result._id;
+        } catch (error) {
+            return next(error);
+        }
+        next();
     }
 
-    updateCareer(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async updateCareer(req: VenzraRequest, res: Response, next: NextFunction) {
         const _id = req.params.careerId;
         const subscription = req.venzra.account.subscription._id;
 
-        CareerModel
-            .findOne({ _id, subscription })
-            .then((career) => {
-                if (!career) {
-                    throw new NotFoundError();
-                }
+        const career = await CareerModel.findOne({ _id, subscription });
 
-                if (!(req.body instanceof Array)) {
-                    return;
-                }
+        if (!career) {
+            return next(new NotFoundError());
+        }
 
-                (<Array<PatchRequest>>req.body).forEach((operation) => {
-                    switch (operation.op) {
-                        case 'replace':
-                            switch (operation.path) {
-                                case 'position':
-                                case 'description':
-                                case 'expires':
-                                    career.set(operation.path, operation.value);
-                                    break;
-                            }
+        if (!(req.body instanceof Array)) {
+            return next();
+        }
+
+        (<Array<PatchRequest>>req.body).forEach((operation) => {
+            switch (operation.op) {
+                case 'replace':
+                    switch (operation.path) {
+                        case 'position':
+                        case 'description':
+                        case 'expires':
+                            career.set(operation.path, operation.value);
+                            break;
                     }
-                });
+            }
+        });
 
-                return career.save();
-            })
-            .then(() => next())
-            .catch((error) => next(error));
+        try {
+            await career.save();
+        } catch (error) {
+            return next(error);
+        }
+
+        next();
     }
 
-    removeOne(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async removeOne(req: VenzraRequest, res: Response, next: NextFunction) {
         const _id = req.params.careerId;
         const subscription = req.venzra.account.subscription._id;
 
-        CareerModel.findOneAndRemove({ _id, subscription })
-            .then((result) => {
-                if (!result) {
-                    throw new NotFoundError();
-                }
-                res.status(202).send();
-            })
-            .catch((error) => next(error));
+        try {
+            const result = await CareerModel.findOneAndRemove({ _id, subscription });
+            if (!result) {
+                return next(new NotFoundError());
+            }
+        } catch (error) {
+            return next(error);
+        }
+
+        res.status(202).send();
     }
 
-    findOne(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findOne(req: VenzraRequest, res: Response, next: NextFunction) {
         const _id = req.params.careerId;
         const subscription = req.venzra.account.subscription._id;
 
-        CareerModel
-            .findOne({ _id, subscription })
-            .select('position description expires created updated')
-            .then((content) => {
-                if (!content) {
-                    throw new NotFoundError();
-                }
-                res.status(200).send(content);
-            })
-            .catch((error) => next(error));
+        const content = await CareerModel.findOne({ _id, subscription })
+            .select('position description expires created updated');
+
+        if (!content) {
+            return next(new NotFoundError());
+        }
+
+        res.status(200).send(content);
     }
 
-    findAll(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findAll(req: VenzraRequest, res: Response, next: NextFunction) {
         const searchParams = { subscription: req.venzra.account.subscription._id };
         const order = { expires: 1 };
 
-        CareerModel
-            .count(searchParams).exec()
-            .then((total) =>
-                CareerModel
-                    .aggregate([
-                        { $match: searchParams },
-                        { $sort: order },
-                        { $project: { position: 1, expires: 1, created: 1 } }
-                    ])
-                    .then((list) => res.status(200).send({ list, total }))
-            )
-            .catch((error) => next(error));
+        const total = await CareerModel.count(searchParams).exec();
+        const list = await
+            CareerModel
+                .aggregate([
+                    { $match: searchParams },
+                    { $sort: order },
+                    { $project: { position: 1, expires: 1, created: 1 } },
+                ]);
+
+        res.status(200).send({ list, total });
     }
 
 }

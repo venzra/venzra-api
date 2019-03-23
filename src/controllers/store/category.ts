@@ -15,61 +15,61 @@ export class CategoryController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.get('/', this.findAll.bind(this));
         this.router.get('/:categorySlug', this.findOne.bind(this));
     }
 
-    findOne(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findOne(req: VenzraRequest, res: Response, next: NextFunction) {
         const slug = req.params.categorySlug;
         const subscription = req.venzra.subscription._id;
 
-        CategoryModel
+        const category = await CategoryModel
             .findOne({ subscription, slug })
             .select('slug name description featureImage parent children')
             .populate({
                 path: 'featureImage',
-                select: '_id name path'
+                select: '_id name path',
             })
             .populate({
                 path: 'parent',
                 select: 'slug name featureImage',
                 populate: {
                     path: 'featureImage',
-                    select: '_id name path'
-                }
+                    select: '_id name path',
+                },
             })
             .populate({
                 path: 'children',
-                select: 'slug name featureImage'
+                select: 'slug name featureImage',
             })
-            .lean()
-            .then((category) => ImageModel.populate(category, {
-                path: 'children.featureImage',
-                select: '_id name path'
-            }))
-            .then((category: any) => {
-                if (!category) {
-                    throw new NotFoundError();
-                }
-                category.featureImage = `https://${config.imageBucket}/${category.featureImage.path}`;
-                if (category.parent) {
-                    category.parent.featureImage = `https://${config.imageBucket}/${category.parent.featureImage.path}`;
-                }
-                if (category.children.length) {
-                    category.children = category.children.map((child: any) => {
-                        child.featureImage = `https://${config.imageBucket}/${child.featureImage.path}`;
-                        return child;
-                    });
-                }
-                res.status(200).send(category);
-            })
-            .catch((error) => next(error));
+            .lean();
+
+        if (!category) {
+            return next(new NotFoundError());
+        }
+
+        await ImageModel.populate(category, {
+            path: 'children.featureImage',
+            select: '_id name path',
+        });
+
+        category.featureImage = `https://${config.imageBucket}/${category.featureImage.path}`;
+        if (category.parent) {
+            category.parent.featureImage = `https://${config.imageBucket}/${category.parent.featureImage.path}`;
+        }
+        if (category.children.length) {
+            category.children = category.children.map((child: any) => {
+                child.featureImage = `https://${config.imageBucket}/${child.featureImage.path}`;
+                return child;
+            });
+        }
+        res.status(200).send(category);
     }
 
-    findAll(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findAll(req: VenzraRequest, res: Response, next: NextFunction) {
         const parent = { $eq: null };
         const subscription = req.venzra.subscription._id;
 
@@ -79,29 +79,28 @@ export class CategoryController {
             query.primary = { $eq: true };
         }
 
-        CategoryModel.find(query)
+        const categories = await CategoryModel.find(query)
             .select('slug name featureImage')
             .populate({
                 path: 'featureImage',
-                select: '_id name path'
+                select: '_id name path',
             })
             .populate({
                 path: 'children',
                 select: 'slug name',
-                options: { sort: { name: 1 } }
+                options: { sort: { name: 1 } },
             })
             .sort({ name: 1 })
-            .lean()
-            .then((categories: any) => {
-                categories = categories.map((category: any) => {
-                    if (category.featureImage) {
-                        category.featureImage = `https://${config.imageBucket}/${category.featureImage.path}`;
-                    }
-                    return category;
-                });
-                res.status(200).send({ list: categories });
-            })
-            .catch((error) => next(error));
+            .lean();
+
+        const list = categories.map((category: any) => {
+            if (category.featureImage) {
+                category.featureImage = `https://${config.imageBucket}/${category.featureImage.path}`;
+            }
+            return category;
+        });
+
+        res.status(200).send({ list });
     }
 
 }

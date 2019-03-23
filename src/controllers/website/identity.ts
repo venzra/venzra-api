@@ -23,13 +23,13 @@ export class IdentityController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.post('/', this.create.bind(this), this.findOne.bind(this));
     }
 
-    create(req: Request, res: Response, next: NextFunction): void {
+    public async create(req: Request, res: Response, next: NextFunction) {
         const requestErrors = this.errorService.requiredFields(req.body, ['identity', 'acceptTerms']);
 
         if (requestErrors.length) {
@@ -38,53 +38,58 @@ export class IdentityController {
 
         const identity = (req.body.identity).toLowerCase();
 
-        AccountModel
-            .findOne({ identity })
-            .then((account) => {
-                let expiry = 7;
-                const terms = new Date();
+        let account;
+        account = await AccountModel.findOne({ identity });
 
-                if (!account) {
-                    account = new AccountModel({ identity, terms });
-                } else {
-                    expiry = 2;
-                    account.status = 'RECOVERY';
-                }
+        let expiry = 7;
+        const terms = new Date();
 
-                account.validation = {
-                    key: createHash('sha256').update(v4()).digest('hex').substr(0, 16),
-                    expires: moment(terms).add(expiry, 'days').toDate()
-                };
+        if (!account) {
+            account = new AccountModel({ identity, terms });
+        } else {
+            expiry = 2;
+            account.status = 'RECOVERY';
+        }
 
-                return account.save();
-            })
-            .then((account) => {
-                const subject = 'Registration confirmation';
-                const marketingUrl = config.marketingPortal;
-                const managementUrl = config.managementPortal;
-                const expires: string = moment(account.validation.expires).format('dddd, Do MMMM YYYY [at] HH:mm');
-                const validationUrl: string = `${managementUrl}/activate/${account._id}?token=${account.validation.key}`;
+        account.validation = {
+            key: createHash('sha256').update(v4()).digest('hex').substr(0, 16),
+            expires: moment(terms).add(expiry, 'days').toDate(),
+        };
 
-                const mailer = new MailService(subject, config.replyTo, [account.identity]);
-                const content = { subject, marketingUrl, managementUrl, account, expires, validationUrl };
+        try {
+            await account.save();
+        } catch (error) {
+            next(new ValidationError([error.message]));
+        }
 
-                return mailer
-                    .send('registration', content)
-                    .then(() => account);
-            })
-            .then((account) => {
-                req.params.accountId = account.id;
-                return next();
-            })
-            .catch((error) => next(new ValidationError([error.message])));
+        const subject = 'Registration confirmation';
+        const marketingUrl = config.marketingPortal;
+        const managementUrl = config.managementPortal;
+        const expires: string = moment(account.validation.expires).format('dddd, Do MMMM YYYY [at] HH:mm');
+        const validationUrl: string = `${managementUrl}/activate/${account._id}?token=${account.validation.key}`;
+
+        const mailer = new MailService(subject, config.replyTo, [account.identity]);
+        const content = { subject, marketingUrl, managementUrl, account, expires, validationUrl };
+
+        try {
+            await mailer.send('registration', content);
+            req.params.accountId = account.id;
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
 
-    findOne(req: Request, res: Response, next: NextFunction): void {
-        AccountModel
+    public async findOne(req: Request, res: Response, next: NextFunction) {
+        const account = await AccountModel
             .findById(req.params.accountId)
-            .select('_id identity terms status created updated')
-            .then((account) => res.status(200).send(account))
-            .catch(() => next(new NotFoundError()));
+            .select('_id identity terms status created updated');
+
+        if (!account) {
+            return next(new NotFoundError());
+        }
+
+        res.status(200).send(account);
     }
 
 }

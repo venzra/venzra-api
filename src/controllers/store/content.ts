@@ -16,13 +16,13 @@ export class ContentController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.get('/:contentUsage', this.getContent.bind(this));
     }
 
-    getContent(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async getContent(req: VenzraRequest, res: Response, next: NextFunction) {
         const subscription = req.venzra.subscription._id;
         const usage = req.params.contentUsage.toUpperCase();
 
@@ -30,16 +30,13 @@ export class ContentController {
             return res.status(200).send({ content: defaultTerms });
         }
 
-        return ContentModel.findOne({ subscription, usage })
-            .select('content')
-            .then((content) => {
-                if (!content) {
-                    throw new NotFoundError();
-                }
+        const content = await ContentModel.findOne({ subscription, usage }).select('content');
 
-                return res.status(200).send(content);
-            })
-            .catch((error) => next(error));
+        if (!content) {
+            return next(new NotFoundError());
+        }
+
+        res.status(200).send(content);
     }
 }
 

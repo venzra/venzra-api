@@ -12,13 +12,13 @@ export class ValidationController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.post('/password', this.password.bind(this));
     }
 
-    password(req: Request, res: Response, next: NextFunction) {
+    public async password(req: Request, res: Response, next: NextFunction) {
         const { score, feedback } = zxcvbn(req.body.password || '');
 
         const message = feedback.warning ? feedback.warning : feedback.suggestions[0];

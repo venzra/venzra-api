@@ -13,27 +13,24 @@ export class SubscriptionController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.get('/plans', this.getPlans.bind(this));
     }
 
-    getPlans(req: Request, res: Response, next: NextFunction): void {
+    public async getPlans(req: Request, res: Response, next: NextFunction) {
         const order = { price: 1, name: 1 };
 
-        PlanModel
-            .countDocuments()
-            .exec()
-            .then((total) =>
-                PlanModel
-                    .aggregate([
-                        { $sort: order },
-                        { $project: { reference: 1, name: 1, currency: 1, price: 1, interval: 1, frequency: 1 } }
-                    ])
-                    .then((list) => res.status(200).send({ list, total }))
-            )
-            .catch((err) => next(err));
+        const total = await PlanModel.countDocuments().exec();
+
+        const list = await PlanModel
+            .aggregate([
+                { $sort: order },
+                { $project: { reference: 1, name: 1, currency: 1, price: 1, interval: 1, frequency: 1 } },
+            ]);
+
+        res.status(200).send({ list, total });
     }
 
 }

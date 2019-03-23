@@ -1,7 +1,7 @@
 import * as parser from 'body-parser';
 
 import { Response, NextFunction, Router } from 'express';
-import * as request from 'request';
+import * as request from 'request-promise-native';
 import * as Stripe from 'stripe';
 
 import { PatchRequest, StripeError, ValidationError, VenzraRequest } from '../../models';
@@ -26,7 +26,7 @@ export class SubscriptionController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
@@ -38,7 +38,7 @@ export class SubscriptionController {
         this.router.post('/gateway', this.identityService.validateAdmin.bind(this), this.attachGateway.bind(this), this.identityService.getSubscription.bind(this));
     }
 
-    enableAddon(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async enableAddon(req: VenzraRequest, res: Response, next: NextFunction) {
         if (!(req.body instanceof Array)) {
             return next();
         }
@@ -51,7 +51,7 @@ export class SubscriptionController {
                     if (!subscription.addons.find((addon) => addon.name === operation.value)) {
                         subscription.addons.push({
                             name: operation.value,
-                            value: 0
+                            value: 0,
                         });
                     }
                     break;
@@ -60,80 +60,91 @@ export class SubscriptionController {
             }
         });
 
-        subscription.save()
-            .then(() => subscription.update({ $push: { addons: { $each: [], $sort: { name: 1 } } } }))
-            .then(() => next())
-            .catch((error) => next(error));
+        try {
+            await subscription.save();
+            await subscription.update({ $push: { addons: { $each: [], $sort: { name: 1 } } } });
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
 
-    createContact(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async createContact(req: VenzraRequest, res: Response, next: NextFunction) {
         const subscription = req.venzra.account.subscription;
 
         subscription.contact = {
             recipient: req.body.recipient,
-            fields: req.body.fields
+            fields: req.body.fields,
         };
 
-        subscription.save()
-            .then(() => next())
-            .catch((error) => next(error));
+        try {
+            await subscription.save();
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
 
-    attachPayment(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async attachPayment(req: VenzraRequest, res: Response, next: NextFunction) {
         const requestErrors = this.errorService.requiredFields(req.body, ['email', 'plan', 'token']);
 
         if (requestErrors.length) {
             return next(new ValidationError(requestErrors));
         }
 
-        const promise = new Promise((resolve, reject) => {
-            if (req.venzra.account.subscription.payment && req.venzra.account.subscription.payment.customer) {
-                stripe.subscriptions
+        let subscription;
+
+        if (req.venzra.account.subscription.payment && req.venzra.account.subscription.payment.customer) {
+            try {
+                subscription = await stripe.subscriptions
                     .create({
                         customer: req.venzra.account.subscription.payment.customer,
                         plan: req.body.plan,
                         quantity: 20,
-                        source: req.body.token.id
-                    })
-                    .then((subscription) => resolve(subscription))
-                    .catch((error) => reject(error));
-            } else {
-                stripe.customers
+                        source: req.body.token.id,
+                    });
+            } catch (error) {
+                return next(new StripeError(error));
+            }
+        } else {
+            try {
+                subscription = await stripe.customers
                     .create({
                         email: req.body.email,
                         plan: req.body.plan,
                         quantity: 20,
-                        source: req.body.token.id
-                    })
-                    .then((customer) => resolve(customer.subscriptions.data[0]))
-                    .catch((error) => reject(error));
+                        source: req.body.token.id,
+                    });
+                subscription = subscription.subscriptions.data[0];
+            } catch (error) {
+                return next(new StripeError(error));
             }
-        });
+        }
 
-        promise
-            .then((subscription: any) => {
-                req.venzra.account.subscription.transactions.rate = 0.021;
+        req.venzra.account.subscription.transactions.rate = 0.021;
 
-                req.venzra.account.subscription.payment = {
-                    customer: subscription.customer,
-                    subscription: subscription.id,
-                    package: subscription.plan.id,
-                    price: {
-                        currency: subscription.plan.currency,
-                        quantity: subscription.quantity,
-                        value: subscription.plan.amount
-                    },
-                    term: new Date(subscription.current_period_end * 1000),
-                    status: subscription.status
-                };
+        req.venzra.account.subscription.payment = {
+            customer: <string>subscription.customer,
+            subscription: subscription.id,
+            package: subscription.plan!.id,
+            price: {
+                currency: subscription.plan!.currency,
+                quantity: subscription.quantity,
+                value: subscription.plan!.amount,
+            },
+            term: new Date(subscription.current_period_end * 1000),
+            status: subscription.status,
+        };
 
-                return req.venzra.account.subscription.save();
-            })
-            .then(() => next())
-            .catch((error) => next(error));
+        try {
+            await req.venzra.account.subscription.save();
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
 
-    attachGateway(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async attachGateway(req: VenzraRequest, res: Response, next: NextFunction) {
         if (!req.venzra.account.subscription || req.venzra.account.subscription.gateway) {
             return next();
         }
@@ -148,36 +159,35 @@ export class SubscriptionController {
             return next(new ValidationError(errors));
         }
 
-        const promise = new Promise((resolve, reject) => {
-            request.post({
-                uri: 'https://connect.stripe.com/oauth/token',
-                json: {
-                    client_secret: config.stripe,
-                    code: req.body.reference,
-                    grant_type: 'authorization_code'
-                }
-            }, (error, response, body) => (response.statusCode !== 200) ? reject(body) : resolve(body));
-        });
+        const method = 'POST';
+        const uri = 'https://connect.stripe.com/oauth/token';
+        const body = { client_secret: config.stripe, code: req.body.reference, grant_type: 'authorization_code' };
+        const json = true;
 
-        promise
-            .then((gateway: { stripe_user_id: string, refresh_token: string, stripe_publishable_key: string, access_token: string }) => {
-                req.venzra.account.subscription.status = 'ACTIVE';
+        try {
+            const gateway = await request({ method, uri, body, json });
 
-                req.venzra.account.subscription.gateway = {
-                    account: gateway.stripe_user_id,
-                    refreshToken: gateway.refresh_token,
-                    publicKey: gateway.stripe_publishable_key,
-                    privateKey: gateway.access_token,
-                    modified: new Date()
-                };
+            req.venzra.account.subscription.gateway = {
+                account: gateway.stripe_user_id,
+                refreshToken: gateway.refresh_token,
+                publicKey: gateway.stripe_publishable_key,
+                privateKey: gateway.access_token,
+                modified: new Date(),
+            };
+        } catch (error) {
+            return next(new StripeError(error.error.error_description));
+        }
 
-                return req.venzra.account.subscription.save();
-            })
-            .then(() => next())
-            .catch((err) => next(new StripeError(err.error_description)));
+        try {
+            req.venzra.account.subscription.status = 'ACTIVE';
+            await req.venzra.account.subscription.save();
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
 
-    updateSettings(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async updateSettings(req: VenzraRequest, res: Response, next: NextFunction) {
         if (!(req.body instanceof Array)) {
             return next();
         }
@@ -201,9 +211,12 @@ export class SubscriptionController {
             }
         });
 
-        req.venzra.account.subscription.save()
-            .then(() => next())
-            .catch((error) => next(error));
+        try {
+            await req.venzra.account.subscription.save();
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
 
 }

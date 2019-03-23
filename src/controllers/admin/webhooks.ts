@@ -21,185 +21,178 @@ export class WebhookController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.raw({ type: '*/*' }));
         this.router.post('/stripe', this.actionStripeHook.bind(this));
         this.router.post('/connect', this.actionConnectHook.bind(this));
     }
 
-    actionStripeHook(req: VenzraRequest, res: Response, next: NextFunction) {
-        const signature = <string> req.headers['stripe-signature'];
+    public async actionStripeHook(req: VenzraRequest, res: Response, next: NextFunction) {
+        const signature = <string>req.headers['stripe-signature'];
 
-        const promise = new Promise((resolve, reject) => {
-            try {
-                const event: StripeWebhook = stripe.webhooks.constructEvent(req.body, signature, config.stripeWebhooks);
+        let event: any;
+        try {
+            event = stripe.webhooks.constructEvent(req.body, signature, config.stripeWebhooks);
+        } catch (error) {
+            return next(new WebhookError(error));
+        }
 
-                const type = event.type;
-                const data = event.data.object;
+        let record = null;
+        const payload: StripeWebhook = { type: event.type, data: event.data.object };
 
-                resolve({ type, data });
-            } catch (error) {
-                reject(error);
-            }
-        });
+        switch (payload.type) {
+            case 'plan.created':
+                const planData = {
+                    reference: payload.data.id,
+                    name: payload.data.nickname,
+                    currency: payload.data.currency,
+                    price: payload.data.amount,
+                    interval: payload.data.interval_count,
+                    frequency: payload.data.interval,
+                };
 
-        promise
-            .catch((error) => { throw new WebhookError(error); })
-            .then(async (payload: StripeWebhook): Promise<any> => {
-                switch (payload.type) {
-                    case 'plan.created':
-                        const planData = {
-                            reference: payload.data.id,
-                            name: payload.data.nickname,
-                            currency: payload.data.currency,
-                            price: payload.data.amount,
-                            interval: payload.data.interval_count,
-                            frequency: payload.data.interval
-                        };
+                let planCreate = await PlanModel.findOne({ reference: payload.data.id });
 
-                        let planCreate = await PlanModel.findOne({ reference: payload.data.id });
+                if (!planCreate) {
+                    record = await PlanModel.create(planData);
+                }
+                break;
+            case 'plan.deleted':
+                record = await PlanModel.findOneAndRemove({ reference: payload.data.id });
+                break;
+            case 'customer.subscription.deleted':
+                let subscriptionDelete = await SubscriptionModel.findOne({
+                    'payment.customer': payload.data.customer,
+                    'payment.subscription': payload.data.id,
+                });
 
-                        if (!planCreate) {
-                            return await PlanModel.create(planData);
-                        } else {
-                            return null;
-                        }
-                    case 'plan.deleted':
-                        const planDelete = await PlanModel.findOne({ reference: payload.data.id });
-
-                        if (planDelete) {
-                            await planDelete.remove();
-                        }
-
-                        return planDelete;
-                    case 'customer.subscription.deleted':
-                        let subscriptionDelete = await SubscriptionModel.findOne({ 'payment.customer': payload.data.customer, 'payment.subscription': payload.data.id });
-
-                        if(subscriptionDelete) {
-                            await subscriptionDelete.update({
-                                $unset: {
-                                    'payment.subscription': 1,
-                                    'payment.package': 1,
-                                    'payment.price': 1
-                                },
-                                $set: {
-                                    'transactions.rate': 0.046,
-                                    'payment.status': 'CANCELED',
-                                    'payment.term': new Date(payload.data.canceled_at * 1000)
-                                }
-                            });
-                        }
-
-                        return subscriptionDelete;
-                    default:
-                        console.log(`Ignored stripe hook for "${payload.type}"`);
+                if (subscriptionDelete) {
+                    await subscriptionDelete.update({
+                        $unset: {
+                            'payment.subscription': 1,
+                            'payment.package': 1,
+                            'payment.price': 1,
+                        },
+                        $set: {
+                            'transactions.rate': 0.046,
+                            'payment.status': 'CANCELED',
+                            'payment.term': new Date(payload.data.canceled_at * 1000),
+                        },
+                    });
                 }
 
-            })
-            .then((record: any) => res.status(200).send({ result: record ? record._id : 'skipped' }))
-            .catch((error) => next(error));
+                record = subscriptionDelete;
+                break;
+            default:
+                console.log(`Ignored stripe hook for "${payload.type}"`);
+        }
+
+        res.status(200).send({ result: record ? record._id : 'skipped' });
     }
 
-    actionConnectHook(req: VenzraRequest, res: Response, next: NextFunction) {
-        const signature = <string> req.headers['stripe-signature'];
+    public async actionConnectHook(req: VenzraRequest, res: Response, next: NextFunction) {
+        const signature = <string>req.headers['stripe-signature'];
 
-        const promise = new Promise((resolve, reject) => {
-            try {
-                const event: StripeWebhook = stripe.webhooks.constructEvent(req.body, signature, config.stripeConnect);
+        let event: any;
+        try {
+            event = stripe.webhooks.constructEvent(req.body, signature, config.stripeConnect);
+        } catch (error) {
+            return next(new WebhookError(error));
+        }
 
-                const type = event.type;
-                const account = event.account;
-                const data = event.data.object;
+        let record = null;
+        const payload: StripeWebhook = { type: event.type, account: event.account, data: event.data.object };
 
-                resolve({ type, account, data });
-            } catch (error) {
-                reject(error);
-            }
-        });
+        switch (payload.type) {
+            case 'account.application.deauthorized':
+                let subscriptionDeauth = await SubscriptionModel.findOne({ 'gateway.account': payload.account });
 
-        promise
-            .catch((error) => { throw new WebhookError(error); })
-            .then(async (payload: StripeWebhook): Promise<any> => {
-                switch (payload.type) {
-                    case 'account.application.deauthorized':
-                        let subscriptionDeauth = await SubscriptionModel.findOne({ 'gateway.account': payload.account });
-
-                        if (subscriptionDeauth) {
-                            await subscriptionDeauth.update({ status: 'INACTIVE', $unset: { gateway: 1 } });
-                        }
-
-                        return subscriptionDeauth;
-                    case 'charge.succeeded':
-                        const orderCharge = await OrderModel.findOne({ 'payment.reference': payload.data.id }).populate({ path: 'history' });
-
-                        if (!orderCharge) {
-                            throw new NotFoundError();
-                        }
-
-                        if (orderCharge.status === 'CREATED') {
-                            const history = new OrderHistoryModel({ field: 'status', previous: 'CREATED', next: 'AUTHORISED' });
-
-                            await history.save();
-                            orderCharge.history.unshift(history);
-                            orderCharge.set('status', 'AUTHORISED');
-                        }
-
-                        return await orderCharge.save();
-                    case 'charge.refunded':
-                        let orderRefund = await OrderModel.findOne({ 'payment.reference': payload.data.id }).populate({ path: 'history' });
-
-                        if (!orderRefund) {
-                            throw new NotFoundError();
-                        }
-
-                        const subscription = await SubscriptionModel.findById(orderRefund.subscription);
-
-                        if (!subscription) {
-                            throw new NotFoundError();
-                        }
-
-                        if (orderRefund.status === 'REFUNDED') {
-                            return orderRefund;
-                        }
-
-                        if (payload.data.amount === payload.data.amount_refunded) {
-                            const history = new OrderHistoryModel({ field: 'status', previous: orderRefund.status, next: 'REFUNDED' });
-
-                            await history.save();
-                            orderRefund.history.unshift(history);
-                            orderRefund.set('status', 'REFUNDED');
-                        }
-
-                        orderRefund.set('payment.refund', payload.data.amount_refunded);
-
-                        const stripeConnect = await new Stripe(subscription.gateway.privateKey);
-
-                        let fee: IApplicationFeeRefund;
-                        if (payload.data.amount === payload.data.amount_refunded) {
-                            fee = await stripe.applicationFees.createRefund(payload.data.application_fee);
-                        } else {
-                            const amount = Math.round(payload.data.refunds.data[0].amount * subscription.transactions.rate);
-                            fee = await stripe.applicationFees.createRefund(payload.data.application_fee, { amount });
-                        }
-
-                        const transaction = await stripeConnect.balance.retrieveTransaction(<string> payload.data.refunds.data[0].balance_transaction);
-
-                        await orderRefund.update({
-                            $inc: {
-                                'payment.fee.total': transaction.fee + (fee ? -fee.amount : 0),
-                                'payment.fee.venzra.refund': fee ? fee.amount : 0,
-                                'payment.fee.gateway.refund': -transaction.fee
-                            }
-                        });
-
-                        return await orderRefund.save();
-                    default:
-                        console.log(`Ignored connect hook for "${payload.type}"`);
+                if (subscriptionDeauth) {
+                    await subscriptionDeauth.update({ status: 'INACTIVE', $unset: { gateway: 1 } });
                 }
 
-            })
-            .then((record: any) => res.status(200).send({ result: record ? record._id : 'skipped' }))
-            .catch((error) => next(error));
+                record = subscriptionDeauth;
+                break;
+            case 'charge.succeeded':
+                const orderCharge = await OrderModel.findOne({ 'payment.reference': payload.data.id }).populate({ path: 'history' });
+
+                if (!orderCharge) {
+                    return next(new NotFoundError());
+                }
+
+                if (orderCharge.status === 'CREATED') {
+                    const history = new OrderHistoryModel({
+                        field: 'status',
+                        previous: 'CREATED',
+                        next: 'AUTHORISED',
+                    });
+
+                    await history.save();
+                    orderCharge.history.unshift(history);
+                    orderCharge.set('status', 'AUTHORISED');
+                }
+
+                record = await orderCharge.save();
+                break;
+            case 'charge.refunded':
+                let orderRefund = await OrderModel.findOne({ 'payment.reference': payload.data.id }).populate({ path: 'history' });
+
+                if (!orderRefund) {
+                    return next(new NotFoundError());
+                }
+
+                const subscription = await SubscriptionModel.findById(orderRefund.subscription);
+
+                if (!subscription) {
+                    return next(new NotFoundError());
+                }
+
+                if (orderRefund.status === 'REFUNDED') {
+                    record = orderRefund;
+                    break;
+                }
+
+                if (payload.data.amount === payload.data.amount_refunded) {
+                    const history = new OrderHistoryModel({
+                        field: 'status',
+                        previous: orderRefund.status,
+                        next: 'REFUNDED',
+                    });
+
+                    await history.save();
+                    orderRefund.history.unshift(history);
+                    orderRefund.set('status', 'REFUNDED');
+                }
+
+                orderRefund.set('payment.refund', payload.data.amount_refunded);
+
+                const stripeConnect = await new Stripe(subscription.gateway.privateKey);
+
+                let fee: IApplicationFeeRefund;
+                if (payload.data.amount === payload.data.amount_refunded) {
+                    fee = await stripe.applicationFees.createRefund(payload.data.application_fee);
+                } else {
+                    const amount = Math.round(payload.data.refunds.data[0].amount * subscription.transactions.rate);
+                    fee = await stripe.applicationFees.createRefund(payload.data.application_fee, { amount });
+                }
+
+                const transaction = await stripeConnect.balance.retrieveTransaction(<string>payload.data.refunds.data[0].balance_transaction);
+
+                await orderRefund.update({
+                    $inc: {
+                        'payment.fee.total': transaction.fee + (fee ? -fee.amount : 0),
+                        'payment.fee.venzra.refund': fee ? fee.amount : 0,
+                        'payment.fee.gateway.refund': -transaction.fee,
+                    },
+                });
+
+                record = await orderRefund.save();
+                break;
+            default:
+                console.log(`Ignored connect hook for "${payload.type}"`);
+        }
+
+        res.status(200).send({ result: record ? record._id : 'skipped' });
     }
 
 }

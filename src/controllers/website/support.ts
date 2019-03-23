@@ -21,14 +21,14 @@ export class SupportController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.post('/contact', this.contact.bind(this));
         this.router.get('/guides/:section/:page', this.guide.bind(this));
     }
 
-    contact(req: Request, res: Response, next: NextFunction): void {
+    public async contact(req: Request, res: Response, next: NextFunction) {
         const requestErrors = this.errorService.requiredFields(req.body, ['alias', 'emailAddress', 'reason', 'message']);
 
         if (requestErrors.length) {
@@ -43,13 +43,15 @@ export class SupportController {
         const mailer = new MailService(subject, config.replyTo, [config.contactEmail], [emailAddress]);
         const content = { subject, alias, emailAddress, message };
 
-        mailer
-            .send('support', content)
-            .then(() => res.status(202).send())
-            .catch((err: Error) => next(err));
+        try {
+            mailer.send('support', content);
+            res.status(202).send();
+        } catch (error) {
+            next(error);
+        }
     }
 
-    guide(req: Request, res: Response, next: NextFunction): void {
+    public async guide(req: Request, res: Response, next: NextFunction) {
         const documentPath = path.join(__dirname, '..', '..', 'docs', req.params.section, `${req.params.page}.md`);
 
         fs.readFile(documentPath, 'utf-8', (err, data) => {

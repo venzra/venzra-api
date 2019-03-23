@@ -2,7 +2,7 @@ import * as parser from 'body-parser';
 
 import { Response, NextFunction, Router } from 'express';
 
-import { Cart, ValidationError, VenzraRequest } from '../../models';
+import { Cart, VenzraRequest } from '../../models';
 import { CartModel, ShippingModel } from '../../schemas';
 
 export class ShippingController {
@@ -14,16 +14,20 @@ export class ShippingController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.get('/', this.findAll.bind(this));
     }
 
-    async findAll(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findAll(req: VenzraRequest, res: Response, next: NextFunction) {
         const cartSearch: any = { _id: req.cookies.vid, subscription: req.venzra.subscription._id };
 
-        const cart: Cart = await CartModel.findOne(cartSearch).populate({ path: 'items.product' }).lean() as Cart;
+        const cart: Cart = await CartModel
+            .findOne(cartSearch)
+            .populate({ path: 'items.product' })
+            .lean();
+
         const cartValue = cart.items.reduce((value, item) => value + (item.product.currentPrice * item.quantity), 0);
 
         const searchParams: any = {
@@ -32,31 +36,29 @@ export class ShippingController {
                 {
                     $or: [
                         { cartMinimum: { $eq: 0 } },
-                        { cartMinimum: { $lte: cartValue } }
-                    ]
+                        { cartMinimum: { $lte: cartValue } },
+                    ],
                 },
                 {
                     $or: [
                         { cartMaximum: { $eq: 0 } },
-                        { cartMaximum: { $gte: cartValue } }
-                    ]
-                }
-            ]
+                        { cartMaximum: { $gte: cartValue } },
+                    ],
+                },
+            ],
         };
         const order = { currentPrice: 1, shipmentTime: 1 };
 
-        ShippingModel
-            .countDocuments(searchParams).exec()
-            .then((total) =>
-                ShippingModel
-                    .aggregate([
-                        { $match: searchParams },
-                        { $sort: order },
-                        { $project: { displayName: 1, cartMinimum: 1, cartMaximum: 1, currentPrice: 1 } }
-                    ])
-                    .then((list) => res.status(200).send({ list, total }))
-            )
-            .catch((shippingError) => next(shippingError));
+        const total = await ShippingModel.countDocuments(searchParams).exec();
+
+        const list = await ShippingModel
+            .aggregate([
+                { $match: searchParams },
+                { $sort: order },
+                { $project: { displayName: 1, cartMinimum: 1, cartMaximum: 1, currentPrice: 1 } },
+            ]);
+
+        res.status(200).send({ list, total });
     }
 
 }

@@ -2,7 +2,7 @@ import * as parser from 'body-parser';
 
 import { Response, NextFunction, Router } from 'express';
 
-import { Content, PatchRequest, VenzraRequest } from '../../models';
+import { PatchRequest, VenzraRequest } from '../../models';
 import { ContentModel } from '../../schemas';
 import { IdentityService } from '../../services';
 
@@ -18,7 +18,7 @@ export class ContentController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router = Router();
         this.router.use(parser.json({ type: 'application/json' }));
 
@@ -26,47 +26,45 @@ export class ContentController {
         this.router.patch('/:contentUsage', this.identityService.validateAdmin.bind(this), this.update.bind(this), this.findOne.bind(this));
     }
 
-    update(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async update(req: VenzraRequest, res: Response, next: NextFunction) {
         const subscription = req.venzra.account.subscription._id;
         const usage = req.params.contentUsage;
 
-        ContentModel
-            .findOne({ subscription, usage })
-            .then((content: Content) => {
-                if (!(req.body instanceof Array)) {
-                    return;
-                }
+        if (!(req.body instanceof Array)) {
+            return next();
+        }
 
-                if (!content) {
-                    content = new ContentModel({ subscription, usage });
-                }
+        let content = await ContentModel.findOne({ subscription, usage });
 
-                (<Array<PatchRequest>>req.body).forEach((operation) => {
-                    switch (operation.op) {
-                        case 'replace':
-                            switch (operation.path) {
-                                case 'content':
-                                    content.set(operation.path, operation.value);
-                                    break;
-                            }
+        if (!content) {
+            content = new ContentModel({ subscription, usage });
+        }
+
+        (<Array<PatchRequest>>req.body).forEach((operation) => {
+            switch (operation.op) {
+                case 'replace':
+                    switch (operation.path) {
+                        case 'content':
+                            content!.set(operation.path, operation.value);
+                            break;
                     }
-                });
+            }
+        });
 
-                return content.save();
-            })
-            .then(() => next())
-            .catch((error) => next(error));
+        try {
+            await content.save();
+            next();
+        } catch(error) {
+            next(error);
+        }
     }
 
-    findOne(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async findOne(req: VenzraRequest, res: Response, next: NextFunction) {
         const subscription = req.venzra.account.subscription._id;
         const usage = req.params.contentUsage;
 
-        ContentModel
-            .findOne({ subscription, usage })
-            .select('content usage created updated')
-            .then((content) => res.status(200).send(content))
-            .catch((error) => next(error));
+        const content = await ContentModel.findOne({ subscription, usage }).select('content usage created updated');
+        res.status(200).send(content);
     }
 
 }

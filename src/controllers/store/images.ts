@@ -20,24 +20,22 @@ export class ImagesController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
-        this.router.get('/:imageId', this.findOne.bind(this));
+        this.router.get('/:imageId([0-9a-f]{24})', this.findOne.bind(this));
     }
 
-    findOne(req: VenzraRequest, res: Response, next: NextFunction) {
-        ImageModel
+    public async findOne(req: VenzraRequest, res: Response, next: NextFunction) {
+        const image = await ImageModel
             .findOne({ _id: req.params.imageId, subscription: req.venzra.subscription._id })
-            .select('_id name usage path size')
-            .then((image: Image) => {
-                if (!image) {
-                    throw new NotFoundError();
-                }
-                image.path = `https://${config.imageBucket}/${image.path}`;
-                res.status(200).send(image);
-            })
-            .catch((error) => next(error));
+            .select('_id name usage path size');
+
+        if (!image) {
+            return next(new NotFoundError());
+        }
+        image.path = `https://${config.imageBucket}/${image.path}`;
+        res.status(200).send(image);
     }
 
 }

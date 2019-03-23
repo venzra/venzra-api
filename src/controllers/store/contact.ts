@@ -19,13 +19,13 @@ export class ContactController {
         this.registerRoutes();
     }
 
-    registerRoutes() {
+    public registerRoutes() {
         this.router.use(parser.json({ type: 'application/json' }));
 
         this.router.post('/', this.sendMessage.bind(this));
     }
 
-    sendMessage(req: VenzraRequest, res: Response, next: NextFunction) {
+    public async sendMessage(req: VenzraRequest, res: Response, next: NextFunction) {
         const requestErrors = this.errorService.requiredFields(req.body, ['fullName', 'email', 'message']);
 
         if (requestErrors.length) {
@@ -42,10 +42,12 @@ export class ContactController {
         const mailer = new MailService(subject, sender, [req.venzra.subscription.contact.recipient]);
         const content = { subject, alias, email, subscription, message, sender };
 
-        return mailer
-            .send('contact', content)
-            .then(() => res.status(202).send())
-            .catch((error) => next(new GatewayError(error.message)));
+        try {
+            await mailer.send('contact', content);
+            res.status(202).send();
+        } catch (error) {
+            next(new GatewayError(error.message));
+        }
     }
 
 }
