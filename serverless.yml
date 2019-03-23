@@ -16,6 +16,9 @@ provider:
     MARKETING_URL: ${file(./config.json):${opt:stage}.MARKETING_URL}
     NODE_ENV: ${file(./config.json):${opt:stage}.NODE_ENV}
     REPLY_TO: ${file(./config.json):${opt:stage}.REPLY_TO}
+    STRIPE_KEY: ${file(./config.json):${opt:stage}.STRIPE_KEY}
+    STRIPE_CONNECT_KEY: ${file(./config.json):${opt:stage}.STRIPE_CONNECT_KEY}
+    STRIPE_WEBHOOK_KEY: ${file(./config.json):${opt:stage}.STRIPE_WEBHOOK_KEY}
   iamRoleStatements:
     - Effect: 'Allow'
       Action:

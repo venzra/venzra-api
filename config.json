@@ -33,6 +33,9 @@
         "JWT_SECRET": "{{ JwtSecret }}",
         "MARKETING_URL": "https://www.venzra.com",
         "NODE_ENV": "PRODUCTION",
-        "REPLY_TO": "support@venzra.com"
+        "REPLY_TO": "support@venzra.com",
+        "STRIPE_KEY": "{{ StripeKey }}",
+        "STRIPE_CONNECT_KEY": "{{ StripeConnectKey }}",
+        "STRIPE_WEBHOOK_KEY": "{{ StripeWebhookKey }}"
     }
 }

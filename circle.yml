@@ -100,6 +100,9 @@ jobs:
             git checkout config.json
             sed -i 's|{{ DatabaseUri }}|'${DEPLOY_DB}'|g' config.json
             sed -i 's|{{ JwtSecret }}|'${DEPLOY_SECRET}'|g' config.json
+            sed -i 's|{{ StripeKey }}|'${DEPLOY_STRIPE_KEY}'|g' config.json
+            sed -i 's|{{ StripeConnectKey }}|'${DEPLOY_STRIPE_CONNECT_KEY}'|g' config.json
+            sed -i 's|{{ StripeWebhookKey }}|'${DEPLOY_STRIPE_WEBHOOK_KEY}'|g' config.json
       - run:
           name: Create deployment
           command: AWS_ACCESS_KEY_ID=$AWS_DEPLOY_KEY AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRET_KEY npm run deploy:prod
