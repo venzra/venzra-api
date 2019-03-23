@@ -2,12 +2,12 @@ import * as parser from 'body-parser';
 import * as moment from 'moment';
 
 import { createHash, pbkdf2Sync } from 'crypto';
-import { Response, NextFunction, Router } from 'express';
+import { Request, Response, NextFunction, Router } from 'express';
 import { encode } from 'jwt-simple';
 import { v4 } from 'uuid';
 
 import { AcceptedError, AuthenticationError, ValidationError, VenzraRequest } from '../../models';
-import { AccountModel } from '../../schemas';
+import { AccountModel, SubscriptionModel } from '../../schemas';
 import { ErrorService, IdentityService, MailService } from '../../services';
 
 import { config } from '../../config';
@@ -32,8 +32,56 @@ export class IdentityController {
 
         this.router.get('/', this.identityService.validateAdmin.bind(this), this.identityService.getAccount.bind(this));
         this.router.post('/', this.recover.bind(this));
+        this.router.post('/activate', this.activation.bind(this));
         this.router.post('/login', this.authorise.bind(this), this.tokenise.bind(this));
         this.router.post('/logout', this.identityService.validateAdmin.bind(this), this.logout.bind(this));
+    }
+
+    public async activation(req: Request, res: Response, next: NextFunction) {
+        const requestErrors = this.errorService.requiredFields(req.body, ['id', 'token', 'password']);
+
+        if (requestErrors.length) {
+            return next(new ValidationError(requestErrors));
+        }
+
+        const accountId = req.body.id;
+
+        const account = await AccountModel.findById(accountId).populate({ path: 'subscription' });
+
+        if (!account) {
+            return next(new AuthenticationError(`Account "${accountId}" not found`));
+        } else if (!account.validation || req.body.token !== account.validation.key) {
+            return next(new AuthenticationError(`Token is invalid - ${account.identity}`));
+        } else if (new Date() > new Date(account.validation.expires)) {
+            return next(new AuthenticationError(`Token has expired - ${account.identity}`));
+        }
+
+        const salt = createHash('sha1').update(v4()).digest('hex');
+
+        const authorisation = {
+            salt: salt,
+            secure: pbkdf2Sync(req.body.password, salt, 10000, 256, 'sha512').toString('base64'),
+            created: new Date(),
+        };
+
+        if (!account.subscription) {
+            account.subscription = new SubscriptionModel();
+        }
+
+        try {
+            const subscription = await account.subscription.save();
+            await account.update({
+                password: authorisation,
+                lock: { failures: 0 },
+                status: 'ACTIVE',
+                subscription: subscription,
+                $unset: { validation: 1 },
+            }).exec();
+
+            res.status(202).send();
+        } catch (error) {
+            next(error);
+        }
     }
 
     public async recover(req: VenzraRequest, res: Response, next: NextFunction) {
